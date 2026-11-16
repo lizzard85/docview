@@ -78,6 +78,9 @@ input[type="checkbox"] { padding: 0; }
 .searchbar input { width: 260px; }
 
 .notice { padding: 4px 10px; background: var(--notice-bg); border-bottom: 1px solid var(--border); }
+.update-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.update-bar[hidden] { display: none; }
+.update-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 10px; }
 
 main { flex: 1; overflow: auto; outline: none; }
 

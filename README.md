@@ -44,6 +44,26 @@ If DocView is already running, the arguments are forwarded to the running instan
 
 On X11 the global shortcut works directly. On Wayland (GNOME/KDE) applications may not register global shortcuts themselves. Instead, create a keyboard shortcut in the system settings that runs `docview --clipboard`. The same works on Windows with a shortcut to `DocView.exe --clipboard` if you don't want the program running in the background.
 
+## Updates
+
+DocView checks GitHub Releases for a new version shortly after start and then every 6 hours. When one is found, a bar at the top offers **Opdatér og genstart** (update and restart). The update is downloaded, its signature is verified and it is installed in the background. You can turn the automatic check off in the settings, and check manually from the settings or the tray menu.
+
+On Linux only the AppImage updates itself. A `.deb` installation must be updated with a new `.deb`.
+
+### Making a release
+
+1. Create a release on GitHub with a new tag `vX.Y.Z` (e.g. `v0.2.1`) targeting `main`, and publish it. Pushing the tag from the command line works too.
+2. The workflow sets the app version from the tag and builds the installers. It then uploads them together with the update packages and `latest.json` to the release. If the workflow had to create the release itself, it is a draft that you publish.
+3. Installed copies pick up the new version on their next check.
+
+The update packages are signed with a key stored in the repository secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. The matching public key is in `src-tauri/tauri.conf.json`. Keep a backup of the private key: without it, existing installations cannot receive updates. This key is only for updates and has nothing to do with Windows code signing.
+
+## Windows SmartScreen
+
+The installers are not code-signed, so Windows SmartScreen warns on the first install of a downloaded installer. Click **More info → Run anyway**. Updates installed by DocView itself are not marked as downloaded from the internet, so normally they do not trigger the warning.
+
+To remove the warning entirely you need a code-signing certificate, e.g. Azure Trusted Signing (about USD 10/month, availability depends on country and whether you are an individual or a company) or an OV certificate from a certificate authority. Even then, SmartScreen only stops warning once the app has built up a reputation.
+
 ## Development
 
 Requirements: [Node.js](https://nodejs.org) 20+ and [Rust](https://rustup.rs). On Linux you also need:

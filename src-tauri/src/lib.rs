@@ -293,9 +293,10 @@ fn build_tray(app: &tauri::App) -> tauri::Result<()> {
     let clip = MenuItem::with_id(app, "clipboard", "Vis udklipsholder", true, None::<&str>)?;
     let open = MenuItem::with_id(app, "open", "Åbn fil…", true, None::<&str>)?;
     let settings = MenuItem::with_id(app, "settings", "Indstillinger…", true, None::<&str>)?;
+    let update = MenuItem::with_id(app, "check-update", "Søg efter opdateringer", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Afslut", true, None::<&str>)?;
     let sep = PredefinedMenuItem::separator(app)?;
-    let menu = Menu::with_items(app, &[&show, &clip, &open, &settings, &sep, &quit])?;
+    let menu = Menu::with_items(app, &[&show, &clip, &open, &settings, &update, &sep, &quit])?;
 
     let mut builder = TrayIconBuilder::with_id("main")
         .tooltip("DocView")
@@ -304,7 +305,7 @@ fn build_tray(app: &tauri::App) -> tauri::Result<()> {
         .on_menu_event(|app, event| match event.id.as_ref() {
             "show" => show_main(app),
             "clipboard" => show_clipboard(app),
-            "open" | "settings" => {
+            "open" | "settings" | "check-update" => {
                 show_main(app);
                 let _ = app.emit("menu", event.id.as_ref());
             }
@@ -344,6 +345,8 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec!["--background"])))
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .manage(AppState::default())
         .setup(|app| {
             let handle = app.handle().clone();

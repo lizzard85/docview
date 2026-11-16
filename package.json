@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.0",
+    "@tauri-apps/plugin-autostart": "^2.5.0",
     "@tauri-apps/plugin-clipboard-manager": "^2.3.0",
     "@tauri-apps/plugin-dialog": "^2.4.0",
     "@tauri-apps/plugin-global-shortcut": "^2.3.0",
-    "@tauri-apps/plugin-autostart": "^2.5.0",
+    "@tauri-apps/plugin-process": "^2.4.0",
+    "@tauri-apps/plugin-updater": "^2.14.1",
     "fast-xml-parser": "^5.0.0",
     "highlight.js": "^11.11.0",
     "prettier": "^3.7.0",

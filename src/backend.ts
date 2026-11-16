@@ -13,6 +13,7 @@ export interface Settings {
   indent: number;
   editorPath: string;
   autostart: boolean;
+  autoUpdate: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -27,6 +28,7 @@ export const DEFAULT_SETTINGS: Settings = {
   indent: 2,
   editorPath: "",
   autostart: false,
+  autoUpdate: true,
 };
 
 export interface Content {
