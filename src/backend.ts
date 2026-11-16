@@ -21,6 +21,8 @@ export interface Settings {
   panelSync: boolean;
   /** SQL from sp_executesql / EF Core logs is shown with the parameters substituted. */
   inlineSqlParams: boolean;
+  /** Keep a history of recent contents (history.json). */
+  history: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -40,6 +42,7 @@ export const DEFAULT_SETTINGS: Settings = {
   panelWidth: 380,
   panelSync: true,
   inlineSqlParams: true,
+  history: true,
 };
 
 export interface Content {
@@ -115,6 +118,32 @@ export async function onFileDrop(cb: (path: string) => void): Promise<void> {
   await getCurrentWebview().onDragDropEvent((e) => {
     if (e.payload.type === "drop" && e.payload.paths.length) cb(e.payload.paths[0]);
   });
+}
+
+const HISTORY_KEY = "docview.history";
+
+/** The stored history (unvalidated JSON; see history.ts). */
+export async function loadHistory(): Promise<unknown> {
+  if (!isTauri) {
+    try {
+      return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? "[]");
+    } catch {
+      return [];
+    }
+  }
+  return invoke("load_history");
+}
+
+/** Stores the history; an empty list removes it. */
+export async function saveHistory(history: unknown[]): Promise<void> {
+  if (!isTauri) {
+    try {
+      if (history.length) localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      else localStorage.removeItem(HISTORY_KEY);
+    } catch { /* storage full or unavailable */ }
+    return;
+  }
+  await invoke("save_history", { history });
 }
 
 export async function readClipboard(): Promise<string> {

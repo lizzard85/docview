@@ -57,6 +57,11 @@ For JSON, XML and Markdown a panel opens to the right of the code (toggle it wit
 - Optional **start at login**.
 - Only one instance runs; opening a file while DocView is running sends it to the open window.
 
+### History
+- The last 30 contents (pasted text, clipboard via the shortcut, opened files) are kept with time, detected language and a short preview. Showing the same content again moves it to the top instead of adding a duplicate.
+- **History** button or `Ctrl+H` opens the list; pick an entry (mouse, arrow keys + `Enter`) to show it again. Files are re-opened from the stored text, not from disk.
+- Stored in `history.json` next to `settings.json`. Contents over 1 MB are not stored and the whole history stays under about 10 MB. History can be turned off in the settings (which also deletes it), and **Clear history** removes it.
+
 ### Files
 - Open files with `Ctrl+O`, drag and drop, *Open with*, or from the command line.
 - Files up to 20 MB are loaded (larger files show the beginning). Binary files are refused, and files that are not UTF-8 are read as Windows-1252/Latin-1.
@@ -74,6 +79,7 @@ On Linux only the AppImage updates itself; a `.deb` installation is updated by i
 | `Win+Alt+V` / `Super+Alt+V` (global, configurable) | Show DocView with the clipboard contents |
 | `Ctrl+V` | Paste new content |
 | `Ctrl+O` | Open file |
+| `Ctrl+H` | History of recent contents |
 | `Ctrl+F`, `F3` / `Shift+F3` | Search, next / previous match |
 | `Ctrl+Shift+C` | Copy the shown (formatted) text |
 | `Ctrl+Shift+Alt+C` | Copy with colours (for Outlook, Teams, Word) |
@@ -89,9 +95,9 @@ The default global shortcut is deliberately not `Ctrl+Shift+V` (already "paste a
 
 ## Settings
 
-Open them with the ⚙ button, `Ctrl+,` or the tray menu: global shortcut, theme, font size, indentation, SQL dialect and keyword case, external editor, start at login and automatic updates. Formatting, word wrap, line numbers, the side panel and inlining of SQL parameters remember their state.
+Open them with the ⚙ button, `Ctrl+,` or the tray menu: global shortcut, theme, font size, indentation, SQL dialect and keyword case, external editor, start at login, automatic updates and history (with **Clear history**). Formatting, word wrap, line numbers, the side panel and inlining of SQL parameters remember their state.
 
-Settings are stored in `%APPDATA%\io.github.docview\settings.json` on Windows and `~/.config/io.github.docview/settings.json` on Linux.
+Settings are stored in `%APPDATA%\io.github.docview\settings.json` on Windows and `~/.config/io.github.docview/settings.json` on Linux; the history is in `history.json` in the same folder.
 
 ## Command line
 
@@ -139,13 +145,15 @@ src/                 Frontend (TypeScript + Vite)
   xmlTree.ts         XML -> tree nodes
   locate.ts          Maps tree paths to lines in the code view
   escapedJson.ts     JSON escaped inside strings
+  history.ts         History list logic (dedupe, caps)
+  historyMenu.ts     History drop-down
   richCopy.ts        Highlighted HTML with inline styles (Copy with colours)
   decode.ts          JWT, Base64 and URL decoding
   sqlParams.ts       sp_executesql / EF Core parameters -> inlined SQL
   markdown.ts        Markdown preview (marked + DOMPurify)
   update.ts          Automatic updates
   backend.ts         Calls into the Rust side (degrades gracefully in a browser)
-src-tauri/           Rust: tray, global shortcut, single instance, files, settings
+src-tauri/           Rust: tray, global shortcut, single instance, files, settings, history
 tests/               Unit tests
 ```
 

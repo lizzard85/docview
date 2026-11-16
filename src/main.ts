@@ -4,6 +4,8 @@ import { decodeText, ENCODING_LABEL, jwtSummary, type Decoded } from "./decode";
 import { detectLanguage, type Detection } from "./detect";
 import { unwrapEscapedJson } from "./escapedJson";
 import { FORMATTABLE, formatCode } from "./format";
+import { addToHistory, parseHistory, type HistoryEntry } from "./history";
+import { HistoryMenu } from "./historyMenu";
 import { jsonToTree } from "./jsonTree";
 import { LANGUAGES, LANG_BY_ID, languageFromFilename } from "./languages";
 import { findOffset, jsonLocations, lineOf, lineStarts, xmlLocations, type Locations } from "./locate";
@@ -62,6 +64,8 @@ let settings: Settings = { ...backend.DEFAULT_SETTINGS };
 let renderToken = 0;
 const search = new Search(ui.code, $("searchbar"), $<HTMLInputElement>("search"), $("search-count"));
 const panel = new SidePanel();
+const historyMenu = new HistoryMenu($("history-menu"), $("btn-history"));
+let history: HistoryEntry[] = [];
 
 // ------------------------------------------------------------------ setup
 
@@ -70,12 +74,19 @@ for (const l of LANGUAGES) ui.lang.add(new Option(l.label, l.id));
 async function init() {
   settings = await backend.loadSettings();
   applySettings();
+  if (settings.history) history = parseHistory(await backend.loadHistory().catch(() => []));
 
   ui.lang.addEventListener("change", () => { state.lang = ui.lang.value; void render(); });
   ui.optFormat.addEventListener("change", () => { settings.format = ui.optFormat.checked; persist(); void render(); });
   ui.optWrap.addEventListener("change", () => { settings.wrap = ui.optWrap.checked; persist(); applySettings(); });
   ui.optLines.addEventListener("change", () => { settings.lineNumbers = ui.optLines.checked; persist(); applySettings(); });
 
+  $("btn-history").addEventListener("click", () => historyMenu.toggle(history, settings.history));
+  historyMenu.onPick = (e) => setContent({ text: e.text, name: e.name });
+  $("btn-clear-history").addEventListener("click", () => {
+    clearHistory();
+    toast("History cleared");
+  });
   $("btn-paste").addEventListener("click", pasteFromClipboard);
   $("btn-open").addEventListener("click", openFileDialog);
   $("btn-copy").addEventListener("click", copyShown);
@@ -179,6 +190,22 @@ function setContent(c: Content) {
   state.decoded = c.truncated || typed ? null : decodeText(c.text);
   state.showOriginal = false;
   showContent();
+  recordHistory(c);
+}
+
+// ------------------------------------------------------------------ history
+
+function recordHistory(c: Content) {
+  if (!settings.history) return;
+  const next = addToHistory(history, { text: c.text, name: c.name, lang: state.detection?.lang ?? "plaintext", time: Date.now() });
+  if (next === history) return;
+  history = next;
+  backend.saveHistory(history).catch((e) => toast(`Could not save the history: ${e}`));
+}
+
+function clearHistory() {
+  history = [];
+  backend.saveHistory([]).catch((e) => toast(`Could not clear the history: ${e}`));
 }
 
 /** Shows `state.original`, decoded and/or unescaped as appropriate. */
@@ -491,6 +518,7 @@ async function onSettingsSubmit(e: SubmitEvent) {
     editorPath: f.editorPath.value.trim(),
     autostart: f.autostart.checked,
     autoUpdate: f.autoUpdate.checked,
+    history: f.history.checked,
   };
   try {
     await backend.saveSettings(next);
@@ -498,6 +526,8 @@ async function onSettingsSubmit(e: SubmitEvent) {
     ui.settingsError.textContent = displayShortcut(String(err));
     return;
   }
+  // Turning history off also removes what was stored.
+  if (settings.history && !next.history) clearHistory();
   settings = next;
   ui.settings.close();
   applySettings();
@@ -516,7 +546,8 @@ function onKey(e: KeyboardEvent) {
   const key = e.key.toLowerCase();
 
   if (e.key === "Escape") {
-    if (search.isOpen) search.close();
+    if (historyMenu.isOpen) historyMenu.close();
+    else if (search.isOpen) search.close();
     else void backend.hideWindow();
     return;
   }
@@ -524,7 +555,8 @@ function onKey(e: KeyboardEvent) {
   if (e.key === "F3") { e.preventDefault(); search.step(e.shiftKey ? -1 : 1); return; }
   if (isEditable(e.target)) return;
 
-  if (mod && key === "o") { e.preventDefault(); void openFileDialog(); }
+  if (mod && key === "h") { e.preventDefault(); historyMenu.toggle(history, settings.history); }
+  else if (mod && key === "o") { e.preventDefault(); void openFileDialog(); }
   else if (mod && e.shiftKey && e.altKey && e.code === "KeyC") { e.preventDefault(); void copyColoured(); }
   else if (mod && e.shiftKey && key === "c") { e.preventDefault(); void copyShown(); }
   else if (mod && key === "e") { e.preventDefault(); void openInEditor(); }
