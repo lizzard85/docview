@@ -51,7 +51,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** the HTML produced uses inline styles (no classes) and escapes the text correctly.
 
-## 5. [x] History
+## 5. [x] History ([#22](https://github.com/lizzard85/docview/pull/22))
 
 **Behaviour:**
 - Keep the last 30 contents (pasted text, clipboard via shortcut, opened files) with timestamp, detected language and a short preview. Identical consecutive content is not duplicated.
