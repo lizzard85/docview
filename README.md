@@ -59,6 +59,11 @@ For JSON, XML, CSV/TSV and Markdown a panel opens to the right of the code (togg
 - Optional **start at login**.
 - Only one instance runs; opening a file while DocView is running sends it to the open window.
 
+### Compare
+- **Compare** button or `Ctrl+D`: the current content becomes the left side; paste (`Ctrl+V`), open/drop a file or pick from the history for the right side.
+- Side-by-side view with a line diff and changed characters highlighted, synchronized scrolling and the number of changes. `F7` / `Shift+F7` (or the arrow buttons) go to the next / previous change, `Esc` leaves compare mode.
+- Both sides are formatted with the current settings first (JSON also with sorted keys), so formatting and key order do not show up as changes. Tick **Raw text** to compare the texts exactly as they are. Pasting again while comparing replaces the right side.
+
 ### History
 - The last 30 contents (pasted text, clipboard via the shortcut, opened files) are kept with time, detected language and a short preview. Showing the same content again moves it to the top instead of adding a duplicate.
 - **History** button or `Ctrl+H` opens the list; pick an entry (mouse, arrow keys + `Enter`) to show it again. Files are re-opened from the stored text, not from disk.
@@ -82,6 +87,8 @@ On Linux only the AppImage updates itself; a `.deb` installation is updated by i
 | `Ctrl+V` | Paste new content |
 | `Ctrl+O` | Open file |
 | `Ctrl+H` | History of recent contents |
+| `Ctrl+D` | Compare with another snippet |
+| `F7` / `Shift+F7` | Next / previous change (compare mode) |
 | `Ctrl+F`, `F3` / `Shift+F3` | Search, next / previous match |
 | `Ctrl+Shift+C` | Copy the shown (formatted) text |
 | `Ctrl+Shift+Alt+C` | Copy with colours (for Outlook, Teams, Word) |
@@ -91,7 +98,7 @@ On Linux only the AppImage updates itself; a `.deb` installation is updated by i
 | `T` | Toggle the side panel (tree / table / preview) |
 | `D` | Switch between decoded text (JWT, Base64, URL encoding) and the original |
 | `Ctrl+,` | Settings |
-| `Esc` | Close search, otherwise hide the window |
+| `Esc` | Close a menu, search or compare mode, otherwise hide the window |
 
 The default global shortcut is deliberately not `Ctrl+Shift+V` (already "paste as plain text" in browsers, Office, Teams and others), and `Ctrl+Alt` combinations are avoided because `Ctrl+Alt` acts as `AltGr` on many European keyboard layouts.
 
@@ -152,6 +159,8 @@ src/                 Frontend (TypeScript + Vite)
   history.ts         History list logic (dedupe, caps)
   richCopy.ts        Highlighted HTML with inline styles (Copy with colours)
   convert.ts         JSON / YAML / XML conversions and minify
+  compare.ts         Line and character diff for Compare
+  compareView.ts     Side-by-side compare view
   dropdown.ts        Drop-down menus (History, Convert)
   decode.ts          JWT, Base64 and URL decoding
   sqlParams.ts       sp_executesql / EF Core parameters -> inlined SQL

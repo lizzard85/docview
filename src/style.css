@@ -9,6 +9,10 @@
   --hl-search: rgba(255, 200, 0, 0.45);
   --hl-current: rgba(255, 140, 0, 0.75);
   --notice-bg: #fff8c5;
+  --diff-add: rgba(46, 160, 67, 0.15);
+  --diff-del: rgba(248, 81, 73, 0.15);
+  --diff-chg: rgba(210, 153, 34, 0.12);
+  --diff-mark: rgba(210, 153, 34, 0.45);
 
   --t-keyword: #0000ff;
   --t-string: #a31515;
@@ -274,3 +278,24 @@ dialog .buttons { display: flex; justify-content: flex-end; gap: 8px; }
 .history-row { display: flex; align-items: center; gap: 12px; justify-content: space-between; margin: 0 0 10px; }
 .history-row label { margin-bottom: 0; }
 .table-mode .panel-body { padding: 0; }
+
+/* Compare */
+body.comparing .workspace, body.comparing #notice, body.comparing #searchbar { display: none; }
+.compare { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.compare[hidden] { display: none; }
+.compare-bar {
+  display: flex; align-items: center; gap: 8px; padding: 4px 10px;
+  background: var(--bg-bar); border-bottom: 1px solid var(--border);
+}
+.compare-bar .spacer { flex: 1; }
+.compare-labels { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.compare-panes { flex: 1; display: flex; min-height: 0; }
+.compare-pane { flex: 1 1 50%; min-width: 0; overflow: auto; padding: 6px 0; }
+.compare-pane + .compare-pane { border-left: 1px solid var(--border); }
+.compare-pane .cmp-line { display: flex; min-width: max-content; }
+.cmp-removed:not(.cmp-filler) { background: var(--diff-del); }
+.cmp-added:not(.cmp-filler) { background: var(--diff-add); }
+.cmp-changed { background: var(--diff-chg); }
+.cmp-changed mark { background: var(--diff-mark); color: inherit; border-radius: 2px; }
+.cmp-filler { background: repeating-linear-gradient(-45deg, transparent 0 4px, var(--bg-bar) 4px 8px); }
+.cmp-current .ln { box-shadow: inset 3px 0 0 var(--accent); }

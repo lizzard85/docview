@@ -6,6 +6,8 @@ import { unwrapEscapedJson } from "./escapedJson";
 import { FORMATTABLE, formatCode } from "./format";
 import { guessDelimiter, parseCsv } from "./csv";
 import { addToHistory, parseHistory, relativeTime, type HistoryEntry } from "./history";
+import { diffTexts, normalizeForCompare } from "./compare";
+import { CompareView } from "./compareView";
 import { convert, conversionsFor, jsonToXmlProblem, type Conversion } from "./convert";
 import { Dropdown, type DropdownItem } from "./dropdown";
 import { jsonToTree } from "./jsonTree";
@@ -82,6 +84,11 @@ const search = new Search(ui.code, $("searchbar"), $<HTMLInputElement>("search")
 const panel = new SidePanel();
 const historyMenu = new Dropdown($("history-menu"), $("btn-history"));
 const convertMenu = new Dropdown($("convert-menu"), $("btn-convert"));
+const compareView = new CompareView();
+
+/** Compare mode: `right` is null while waiting for the right side. */
+let compare: { left: Content; lang: string; right: Content | null } | null = null;
+let compareToken = 0;
 let history: HistoryEntry[] = [];
 
 // ------------------------------------------------------------------ setup
@@ -100,6 +107,13 @@ async function init() {
 
   $("btn-history").addEventListener("click", toggleHistoryMenu);
   $("btn-convert").addEventListener("click", toggleConvertMenu);
+  $("btn-compare").addEventListener("click", startCompare);
+  $("compare-paste").addEventListener("click", pasteFromClipboard);
+  $("compare-open").addEventListener("click", openFileDialog);
+  $("compare-history").addEventListener("click", toggleHistoryMenu);
+  $("compare-cancel").addEventListener("click", leaveCompare);
+  compareView.onClose = leaveCompare;
+  compareView.onRawChange = () => void runCompare();
   $("btn-clear-history").addEventListener("click", () => {
     clearHistory();
     toast("History cleared");
@@ -207,6 +221,13 @@ async function loadPending() {
  * `record` adds the content to the history (not for conversions and Undo).
  */
 function setContent(c: Content, opts: { conversion?: ConversionState | null; record?: boolean } = {}) {
+  // In compare mode new content becomes the right side.
+  if (compare && !opts.conversion) {
+    compare.right = c;
+    recordHistory(c, detectLanguage(c.text, c.name).lang);
+    void runCompare();
+    return;
+  }
   const conversion = opts.conversion ?? null;
   // Encoded text is decoded, unless the file type already says what it is.
   const typed = c.name ? (languageFromFilename(c.name) ?? "plaintext") !== "plaintext" : false;
@@ -220,9 +241,9 @@ function setContent(c: Content, opts: { conversion?: ConversionState | null; rec
 
 // ------------------------------------------------------------------ history
 
-function recordHistory(c: Content) {
+function recordHistory(c: Content, lang = state.detection?.lang ?? "plaintext") {
   if (!settings.history) return;
-  const next = addToHistory(history, { text: c.text, name: c.name, lang: state.detection?.lang ?? "plaintext", time: Date.now() });
+  const next = addToHistory(history, { text: c.text, name: c.name, lang, time: Date.now() });
   if (next === history) return;
   history = next;
   backend.saveHistory(history).catch((e) => toast(`Could not save the history: ${e}`));
@@ -243,6 +264,45 @@ function toggleHistoryMenu() {
     run: () => setContent({ text: e.text, name: e.name }),
   }));
   historyMenu.toggle(items, settings.history ? "No history yet." : "History is turned off (Settings).");
+}
+
+// ------------------------------------------------------------------ compare
+
+/** Ctrl+D: the current content becomes the left side; the next content the right side. */
+function startCompare() {
+  if (compare) return;
+  if (!state.content) { toast("Paste or open something first, then compare it with another snippet."); return; }
+  compare = { left: state.content, lang: state.lang, right: null };
+  search.close();
+  $("compare-prompt").hidden = false;
+}
+
+async function runCompare() {
+  if (!compare?.right) return;
+  const { left, right, lang } = compare;
+  const token = ++compareToken;
+  $("compare-prompt").hidden = true;
+  compareView.open(left.name ?? "Current", right.name ?? (right.text === left.text ? "Same text" : "Pasted text"));
+  compareView.showMessage("Comparing…");
+  let a = left.text, b = right.text;
+  if (!compareView.rawMode) {
+    const opts = {
+      indent: settings.indent,
+      printWidth: 100,
+      sqlDialect: settings.sqlDialect as never,
+      sqlKeywordCase: settings.sqlKeywordCase,
+    };
+    [a, b] = await Promise.all([normalizeForCompare(a, lang, opts), normalizeForCompare(b, lang, opts)]);
+  }
+  if (token !== compareToken || !compare) return;
+  compareView.show(diffTexts(a, b));
+}
+
+function leaveCompare() {
+  compare = null;
+  compareToken++;
+  $("compare-prompt").hidden = true;
+  compareView.close();
 }
 
 // ------------------------------------------------------------------ conversions
@@ -639,8 +699,16 @@ function onKey(e: KeyboardEvent) {
   if (e.key === "Escape") {
     if (historyMenu.isOpen) historyMenu.close();
     else if (convertMenu.isOpen) convertMenu.close();
+    else if (compare) leaveCompare();
     else if (search.isOpen) search.close();
     else void backend.hideWindow();
+    return;
+  }
+  if (compare) {
+    // Compare mode: only its own keys plus paste/open/history for the right side.
+    if (e.key === "F7") { e.preventDefault(); compareView.step(e.shiftKey ? -1 : 1); }
+    else if (mod && key === "o") { e.preventDefault(); void openFileDialog(); }
+    else if (mod && key === "h") { e.preventDefault(); toggleHistoryMenu(); }
     return;
   }
   if (mod && key === "f") { e.preventDefault(); search.open(); return; }
@@ -648,6 +716,7 @@ function onKey(e: KeyboardEvent) {
   if (isEditable(e.target)) return;
 
   if (mod && key === "h") { e.preventDefault(); toggleHistoryMenu(); }
+  else if (mod && key === "d") { e.preventDefault(); startCompare(); }
   else if (mod && key === "o") { e.preventDefault(); void openFileDialog(); }
   else if (mod && e.shiftKey && e.altKey && e.code === "KeyC") { e.preventDefault(); void copyColoured(); }
   else if (mod && e.shiftKey && key === "c") { e.preventDefault(); void copyShown(); }

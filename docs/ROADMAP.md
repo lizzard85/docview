@@ -78,7 +78,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** each conversion, including attributes in XML → JSON and arrays in JSON → YAML.
 
-## 8. [ ] Compare two snippets
+## 8. [x] Compare two snippets
 
 **Behaviour:**
 - **Compare** button / `Ctrl+D`: takes the current content as the left side and asks for the right side (paste, open file, or pick from history if #5 exists).
