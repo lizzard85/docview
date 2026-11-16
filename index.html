@@ -47,7 +47,7 @@
         <h2>Indstillinger</h2>
         <label>Global genvej
           <input name="shortcut" placeholder="Super+Alt+V" />
-          <small>Fx <code>Super+Alt+V</code> (Super = Windows-tasten), <code>Ctrl+Shift+F12</code>.</small>
+          <small id="shortcut-help">Fx <code>Super+Alt+V</code> (Super = Windows-tasten), <code>Ctrl+Shift+F12</code>.</small>
         </label>
         <label>Tema
           <select name="theme">
@@ -85,6 +85,8 @@
         <label class="row"><input type="checkbox" name="autostart" /> Start automatisk ved login (kører i baggrunden)</label>
         <label class="row"><input type="checkbox" name="autoUpdate" /> Søg automatisk efter opdateringer</label>
         <p class="update-row"><span id="app-version" class="muted"></span> <button type="button" id="btn-check-update">Søg efter opdateringer nu</button></p>
+        <div id="settings-update" class="notice update-bar settings-update" hidden></div>
+        <p id="settings-toast" class="muted settings-toast" hidden></p>
         <p id="settings-error" class="error"></p>
         <div class="buttons">
           <button value="cancel" formnovalidate>Annullér</button>

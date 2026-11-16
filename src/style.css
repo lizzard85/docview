@@ -81,6 +81,9 @@ input[type="checkbox"] { padding: 0; }
 .update-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .update-bar[hidden] { display: none; }
 .update-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 10px; }
+.settings-update { border: 1px solid var(--border); border-radius: 6px; margin: 0 0 10px; padding: 6px 10px; }
+.settings-toast { margin: 0 0 10px; }
+.settings-toast[hidden] { display: none; }
 
 main { flex: 1; overflow: auto; outline: none; }
 
