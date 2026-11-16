@@ -94,7 +94,7 @@ export class Search {
       reg.set("search-current", new Highlight(r));
       (r.startContainer.parentElement as HTMLElement | null)?.scrollIntoView({ block: "center", inline: "nearest" });
     }
-    this.count.textContent = this.matches.length ? `${this.current + 1} af ${this.matches.length}` : "Ingen fund";
+    this.count.textContent = this.matches.length ? `${this.current + 1} of ${this.matches.length}` : "No matches";
   }
 }
 

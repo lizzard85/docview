@@ -80,7 +80,7 @@ fn decode(bytes: &[u8]) -> Result<String, String> {
     }
     let sample = &bytes[..bytes.len().min(8192)];
     if sample.iter().filter(|&&b| b == 0).count() > sample.len() / 100 + 1 {
-        return Err("Filen ser ud til at være binær".into());
+        return Err("The file looks like a binary file".into());
     }
     match std::str::from_utf8(bytes) {
         Ok(s) => Ok(s.to_owned()),
@@ -124,7 +124,7 @@ fn handle_args(app: &AppHandle, args: &[String], cwd: &Path, first_launch: bool)
     if let Some(path) = file {
         match load_file(&path) {
             Ok(c) => deliver(app, c),
-            Err(e) => deliver(app, Content { text: format!("Kunne ikke åbne filen:\n{e}"), ..Default::default() }),
+            Err(e) => deliver(app, Content { text: format!("Could not open the file:\n{e}"), ..Default::default() }),
         }
     } else if clipboard {
         show_clipboard(app);
@@ -179,7 +179,7 @@ fn register_shortcut(app: &AppHandle, shortcut: &str) -> Result<(), String> {
             if let Some(old) = current.as_deref() {
                 let _ = gs.register(old);
             }
-            let msg = format!("Genvejen \"{shortcut}\" kunne ikke registreres ({e}). Den bruges måske af et andet program.");
+            let msg = format!("The shortcut \"{shortcut}\" could not be registered ({e}). Another program may be using it.");
             *state.shortcut_error.lock().unwrap() = Some(msg.clone());
             Err(msg)
         }
@@ -211,10 +211,10 @@ fn shortcut_status(state: State<AppState>) -> Option<String> {
 #[tauri::command]
 fn save_settings(app: AppHandle, state: State<AppState>, settings: Value) -> Result<(), String> {
     if !settings.is_object() {
-        return Err("Ugyldige indstillinger".into());
+        return Err("Invalid settings".into());
     }
     register_shortcut(&app, &shortcut_of(&settings))?;
-    let path = settings_path(&app).ok_or("Ingen config-mappe")?;
+    let path = settings_path(&app).ok_or("No config directory")?;
     if let Some(dir) = path.parent() {
         fs::create_dir_all(dir).map_err(|e| e.to_string())?;
     }
@@ -289,12 +289,12 @@ fn default_editor(target: &Path) -> Command {
 // ------------------------------------------------------------------ tray
 
 fn build_tray(app: &tauri::App) -> tauri::Result<()> {
-    let show = MenuItem::with_id(app, "show", "Vis DocView", true, None::<&str>)?;
-    let clip = MenuItem::with_id(app, "clipboard", "Vis udklipsholder", true, None::<&str>)?;
-    let open = MenuItem::with_id(app, "open", "Åbn fil…", true, None::<&str>)?;
-    let settings = MenuItem::with_id(app, "settings", "Indstillinger…", true, None::<&str>)?;
-    let update = MenuItem::with_id(app, "check-update", "Søg efter opdateringer", true, None::<&str>)?;
-    let quit = MenuItem::with_id(app, "quit", "Afslut", true, None::<&str>)?;
+    let show = MenuItem::with_id(app, "show", "Show DocView", true, None::<&str>)?;
+    let clip = MenuItem::with_id(app, "clipboard", "Show clipboard", true, None::<&str>)?;
+    let open = MenuItem::with_id(app, "open", "Open file…", true, None::<&str>)?;
+    let settings = MenuItem::with_id(app, "settings", "Settings…", true, None::<&str>)?;
+    let update = MenuItem::with_id(app, "check-update", "Check for updates", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
     let sep = PredefinedMenuItem::separator(app)?;
     let menu = Menu::with_items(app, &[&show, &clip, &open, &settings, &update, &sep, &quit])?;
 

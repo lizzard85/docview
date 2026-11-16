@@ -9,7 +9,7 @@ DocView is a desktop viewer for code snippets and files: paste or open SQL, HTML
 ## Conventions
 
 - **Everything written to git/GitHub is in English**: commit messages, PR titles and descriptions, code comments, README, docs.
-- **The app's user interface is in Danish** (labels, messages, toasts). Keep new UI text in Danish.
+- **The app's user interface is in English** (labels, messages, toasts, tray menu).
 - Never commit to `main` directly. Work on a branch and open a pull request. The owner merges, unless the owner asks the agent to merge (see "How to make a release").
 - Do not change the updater public key in `src-tauri/tauri.conf.json` or the signing secrets. Doing so breaks updates for every installed copy.
 
