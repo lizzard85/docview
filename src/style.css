@@ -131,6 +131,33 @@ main { flex: 1; min-width: 0; overflow: auto; outline: none; }
 .tree-more { color: var(--accent); cursor: pointer; }
 .tree-message { color: var(--muted); padding: 4px 10px; margin: 0; white-space: pre-wrap; }
 
+/* Markdown preview (the panel in HTML mode) */
+.html-mode .tree-only { display: none; }
+.side-panel:not(.html-mode) .html-only { display: none; }
+.html-only { flex: 1; }
+.panel-body.markdown-body {
+  padding: 8px 18px 24px; font: 14px/1.6 system-ui, "Segoe UI", Ubuntu, sans-serif;
+  overflow-wrap: anywhere;
+}
+.markdown-body h1, .markdown-body h2 { border-bottom: 1px solid var(--border); padding-bottom: 0.2em; }
+.markdown-body h1 { font-size: 1.7em; }
+.markdown-body h2 { font-size: 1.4em; }
+.markdown-body h3 { font-size: 1.2em; }
+.markdown-body a { color: var(--accent); }
+.markdown-body code {
+  font-family: "Cascadia Mono", Consolas, "DejaVu Sans Mono", ui-monospace, monospace; font-size: 0.9em;
+  background: var(--bg-bar); padding: 0.1em 0.3em; border-radius: 4px;
+}
+.markdown-body pre { background: var(--bg-bar); padding: 10px 12px; border-radius: 6px; overflow: auto; }
+.markdown-body pre code { background: none; padding: 0; overflow-wrap: normal; }
+.markdown-body blockquote { margin: 0 0 1em; padding: 0 1em; color: var(--muted); border-left: 4px solid var(--border); }
+.markdown-body table { border-collapse: collapse; margin: 0 0 1em; display: block; overflow: auto; }
+.markdown-body th, .markdown-body td { border: 1px solid var(--border); padding: 4px 10px; }
+.markdown-body th { background: var(--bg-bar); }
+.markdown-body img { max-width: 100%; }
+.markdown-body hr { border: 0; border-top: 1px solid var(--border); }
+.markdown-body li > input[type="checkbox"] { margin-right: 6px; }
+
 .empty { max-width: 520px; margin: 12vh auto; text-align: center; }
 .empty h1 { font-weight: 600; }
 body.has-content .empty { display: none; }

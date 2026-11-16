@@ -131,6 +131,15 @@ export async function openInEditor(text: string, ext: string, path?: string): Pr
   return invoke("open_in_editor", { text, ext, path: path ?? null });
 }
 
+/** Opens an http(s)/mailto link in the default browser / mail client. */
+export async function openUrl(url: string): Promise<void> {
+  if (!isTauri) {
+    window.open(url, "_blank", "noopener");
+    return;
+  }
+  return invoke("open_url", { url });
+}
+
 export async function hideWindow(): Promise<void> {
   if (!isTauri) return;
   const { getCurrentWindow } = await import("@tauri-apps/api/window");

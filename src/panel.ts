@@ -3,8 +3,11 @@ import { filterTree, TreeView, type TreeNode } from "./tree";
 
 export interface PanelView {
   title: string;
-  /** Tree to show; or `error` when the text could not be parsed. */
+  /** Tree to show (JSON, XML). */
   nodes?: TreeNode[];
+  /** Sanitized HTML to show (Markdown preview). */
+  html?: string;
+  /** Shown instead when the text could not be parsed. */
   error?: string;
 }
 
@@ -16,12 +19,15 @@ export class SidePanel {
   onClose: () => void = () => {};
   onResize: (width: number) => void = () => {};
   onCopy: (text: string, what: "path" | "value") => void = () => {};
+  /** Called with the href of a link clicked in the HTML view. */
+  onLink: (href: string) => void = () => {};
 
   private view: PanelView | null = null;
   private selected: TreeNode | null = null;
   private filterTimer: number | undefined;
 
   private readonly el = byId("side-panel");
+  private readonly body = byId("panel-body");
   private readonly splitter = byId("splitter");
   private readonly title = byId("panel-title");
   private readonly filter = byId<HTMLInputElement>("panel-filter");
@@ -30,7 +36,7 @@ export class SidePanel {
   private readonly copyValue = byId<HTMLButtonElement>("panel-copy-value");
 
   constructor() {
-    this.tree = new TreeView(byId("panel-body"));
+    this.tree = new TreeView(this.body);
     this.tree.onSelect = (n) => this.onSelect(n);
     this.tree.onCopy = (n) => this.onCopy(n.copyValue(), "value");
 
@@ -55,6 +61,17 @@ export class SidePanel {
         e.preventDefault();
         this.tree.focus();
       }
+    });
+
+    // Links in the HTML view must never navigate the app window.
+    this.body.addEventListener("click", (e) => {
+      const a = (e.target as HTMLElement).closest("a");
+      if (!a) return;
+      e.preventDefault();
+      const href = a.getAttribute("href") ?? "";
+      if (href.startsWith("#")) {
+        document.getElementById(decodeURIComponent(href.slice(1)))?.scrollIntoView();
+      } else if (href) this.onLink(a.href);
     });
 
     this.initSplitter();
@@ -83,6 +100,14 @@ export class SidePanel {
   private renderTree() {
     const view = this.view;
     if (!view) return;
+    const htmlMode = view.html !== undefined;
+    this.el.classList.toggle("html-mode", htmlMode);
+    this.body.classList.toggle("markdown-body", htmlMode);
+    if (htmlMode) {
+      this.body.innerHTML = view.html!;
+      this.body.scrollTop = 0;
+      return;
+    }
     this.filter.disabled = !view.nodes;
     if (!view.nodes) {
       this.tree.showMessage(view.error ?? "Nothing to show.");

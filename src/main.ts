@@ -4,6 +4,7 @@ import { detectLanguage, type Detection } from "./detect";
 import { FORMATTABLE, formatCode } from "./format";
 import { jsonToTree } from "./jsonTree";
 import { LANGUAGES, LANG_BY_ID } from "./languages";
+import { renderMarkdown } from "./markdown";
 import { SidePanel, type PanelView } from "./panel";
 import type { TreeNode } from "./tree";
 import { xmlToTree } from "./xmlTree";
@@ -70,6 +71,7 @@ async function init() {
   ui.btnPanel.addEventListener("click", togglePanel);
   panel.onClose = togglePanel;
   panel.onResize = (w) => { settings.panelWidth = Math.round(w); persist(); };
+  panel.onLink = (href) => backend.openUrl(href).catch((e) => toast(`Could not open the link: ${e}`));
   panel.onCopy = async (text, what) => {
     await backend.writeClipboard(text);
     toast(what === "path" ? "Copied path" : "Copied value");
@@ -219,7 +221,9 @@ function panelView(): PanelView | null {
   };
   const parse = parsers[state.lang];
   let view: PanelView | null = null;
-  if (parse) {
+  if (state.lang === "markdown") {
+    view = { title: "Preview", html: renderMarkdown(c.text) };
+  } else if (parse) {
     const title = LANG_BY_ID.get(state.lang)?.label ?? state.lang;
     try {
       view = { title, nodes: parse(c.text) };
@@ -234,6 +238,8 @@ function panelView(): PanelView | null {
 function updatePanel() {
   const view = panelView();
   ui.btnPanel.hidden = !view;
+  ui.btnPanel.textContent = view?.html !== undefined ? "Preview" : "Tree";
+  ui.btnPanel.title = view?.html !== undefined ? "Show Markdown preview (T)" : "Show tree view (T)";
   ui.btnPanel.classList.toggle("active", !!view && settings.panel);
   panel.update(view, settings.panel);
 }

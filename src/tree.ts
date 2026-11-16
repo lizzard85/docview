@@ -204,6 +204,8 @@ export class TreeView {
   }
 
   private onKey(e: KeyboardEvent) {
+    // The panel body may hold other content (Markdown preview); leave its keys alone.
+    if (!this.root.querySelector(".tree-row")) return;
     const row = this.selectedRow;
     const item = row?.parentElement;
     const mod = e.ctrlKey || e.metaKey;

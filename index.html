@@ -47,13 +47,14 @@
       <aside id="side-panel" class="side-panel" hidden>
         <div class="panel-header">
           <strong id="panel-title">Tree</strong>
-          <input id="panel-filter" type="search" placeholder="Filter…" spellcheck="false" />
-          <button id="panel-expand" class="icon" title="Expand all">+</button>
-          <button id="panel-collapse" class="icon" title="Collapse all">−</button>
+          <input id="panel-filter" class="tree-only" type="search" placeholder="Filter…" spellcheck="false" />
+          <span class="spacer html-only"></span>
+          <button id="panel-expand" class="icon tree-only" title="Expand all">+</button>
+          <button id="panel-collapse" class="icon tree-only" title="Collapse all">−</button>
           <button id="panel-close" class="icon" title="Close (T)">✕</button>
         </div>
         <div id="panel-body" class="panel-body"></div>
-        <div class="panel-footer">
+        <div class="panel-footer tree-only">
           <span id="panel-path" class="panel-path muted">Select a node</span>
           <button id="panel-copy-path" title="Copy the path of the selected node" disabled>Copy path</button>
           <button id="panel-copy-value" title="Copy the value of the selected node (Ctrl+C)" disabled>Copy value</button>
