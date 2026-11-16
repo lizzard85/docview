@@ -124,6 +124,9 @@ main { flex: 1; min-width: 0; overflow: auto; outline: none; }
 .tree-string { color: var(--t-string); }
 .tree-number { color: var(--t-number); }
 .tree-boolean, .tree-null { color: var(--t-keyword); }
+.tree-tag { color: var(--t-tag); }
+.tree-attr { color: var(--t-attr); }
+.tree-comment { color: var(--t-comment); font-style: italic; }
 .tree-summary { color: var(--muted); margin-left: 6px; }
 .tree-more { color: var(--accent); cursor: pointer; }
 .tree-message { color: var(--muted); padding: 4px 10px; margin: 0; white-space: pre-wrap; }
