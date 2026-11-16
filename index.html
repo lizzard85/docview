@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DocView</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <header class="toolbar">
+      <select id="lang" title="Sprog (vælg manuelt hvis gættet er forkert)"></select>
+      <span id="detect-source" class="muted"></span>
+      <label class="toggle" title="Formatér koden (F)"><input type="checkbox" id="opt-format" /> Formatér</label>
+      <label class="toggle" title="Ombryd lange linjer (W)"><input type="checkbox" id="opt-wrap" /> Ombryd</label>
+      <label class="toggle" title="Vis linjenumre (L)"><input type="checkbox" id="opt-lines" /> Linjenr.</label>
+      <span class="spacer"></span>
+      <span id="info" class="muted"></span>
+      <button id="btn-paste" title="Indsæt fra udklipsholder (Ctrl+V)">Indsæt</button>
+      <button id="btn-open" title="Åbn fil (Ctrl+O)">Åbn…</button>
+      <button id="btn-copy" title="Kopiér formateret tekst (Ctrl+Shift+C)">Kopiér</button>
+      <button id="btn-editor" title="Åbn i ekstern editor (Ctrl+E)">Editor</button>
+      <button id="btn-settings" class="icon" title="Indstillinger" aria-label="Indstillinger">⚙</button>
+    </header>
+
+    <div id="searchbar" class="searchbar" hidden>
+      <input id="search" type="search" placeholder="Søg…" spellcheck="false" />
+      <span id="search-count" class="muted"></span>
+      <button id="search-prev" title="Forrige (Shift+Enter)">↑</button>
+      <button id="search-next" title="Næste (Enter)">↓</button>
+      <button id="search-close" title="Luk (Esc)">✕</button>
+    </div>
+
+    <div id="notice" class="notice" hidden></div>
+
+    <main id="viewer" tabindex="0">
+      <div id="empty" class="empty">
+        <h1>DocView</h1>
+        <p>Indsæt kode med <kbd>Ctrl</kbd>+<kbd>V</kbd>, træk en fil herind, eller tryk <kbd>Ctrl</kbd>+<kbd>O</kbd>.</p>
+        <p class="muted" id="shortcut-hint"></p>
+      </div>
+      <div id="code" class="code"></div>
+    </main>
+
+    <dialog id="settings">
+      <form method="dialog" id="settings-form">
+        <h2>Indstillinger</h2>
+        <label>Global genvej
+          <input name="shortcut" placeholder="Super+Alt+V" />
+          <small>Fx <code>Super+Alt+V</code> (Super = Windows-tasten), <code>Ctrl+Shift+F12</code>.</small>
+        </label>
+        <label>Tema
+          <select name="theme">
+            <option value="auto">Følg system</option>
+            <option value="light">Lyst</option>
+            <option value="dark">Mørkt</option>
+          </select>
+        </label>
+        <label>Skriftstørrelse <input name="fontSize" type="number" min="8" max="40" /></label>
+        <label>Indrykning (mellemrum) <input name="indent" type="number" min="1" max="8" /></label>
+        <label>SQL-dialekt
+          <select name="sqlDialect">
+            <option value="transactsql">T-SQL (SQL Server)</option>
+            <option value="sql">Standard SQL</option>
+            <option value="postgresql">PostgreSQL</option>
+            <option value="mysql">MySQL</option>
+            <option value="mariadb">MariaDB</option>
+            <option value="sqlite">SQLite</option>
+            <option value="plsql">Oracle PL/SQL</option>
+            <option value="db2">DB2</option>
+            <option value="bigquery">BigQuery</option>
+            <option value="snowflake">Snowflake</option>
+          </select>
+        </label>
+        <label>SQL-nøgleord
+          <select name="sqlKeywordCase">
+            <option value="preserve">Som skrevet</option>
+            <option value="upper">STORE BOGSTAVER</option>
+            <option value="lower">små bogstaver</option>
+          </select>
+        </label>
+        <label>Ekstern editor
+          <input name="editorPath" placeholder="Tom = Notepad++ hvis installeret (ellers Notepad / xdg-open)" />
+        </label>
+        <label class="row"><input type="checkbox" name="autostart" /> Start automatisk ved login (kører i baggrunden)</label>
+        <p id="settings-error" class="error"></p>
+        <div class="buttons">
+          <button value="cancel" formnovalidate>Annullér</button>
+          <button value="save" id="settings-save" class="primary">Gem</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" hidden></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
