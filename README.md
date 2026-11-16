@@ -148,3 +148,7 @@ Releases are built and published only by the GitHub Actions workflow (`.github/w
 Pushing a tag `vX.Y.Z` also triggers a release, and *Run workflow* under Actions builds the installers as artifacts without releasing. Tests run on every push and pull request. [AGENTS.md](AGENTS.md) has the detailed procedure.
 
 Update packages are signed with a minisign key stored in the repository secrets `TAURI_SIGNING_PRIVATE_KEY` / `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`; the public key is in `src-tauri/tauri.conf.json`. If you fork the project and want working updates, generate your own key pair (`npm run tauri signer generate`), put the public key in `tauri.conf.json` and point the updater endpoint at your own releases.
+
+## License
+
+[MIT](LICENSE) – free to use, modify and share, including commercially. The software is provided as is, without warranty of any kind.

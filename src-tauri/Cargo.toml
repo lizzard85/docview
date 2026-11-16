@@ -3,6 +3,7 @@ name = "docview"
 version = "0.1.0"
 description = "Viewer that detects, formats and highlights code snippets and files"
 edition = "2021"
+license = "MIT"
 
 [lib]
 name = "docview_lib"
