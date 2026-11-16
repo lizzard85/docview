@@ -42,7 +42,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** JWT decoding and expiry; base64 of JSON detected as JSON; URL-encoded query string; false positives (normal words, hex strings, short strings) are not decoded.
 
-## 4. [x] Copy with colours
+## 4. [x] Copy with colours ([#21](https://github.com/lizzard85/docview/pull/21))
 
 **Behaviour:**
 - A **Copy with colours** action (a small menu on the Copy button or a second button; shortcut `Ctrl+Shift+Alt+C` is fine, but no `Ctrl+Alt+<key>` because that is AltGr on European layouts). It puts both `text/html` (highlighted, inline styles, monospace font; current theme colours or always the light theme – decide and document) and `text/plain` on the clipboard.
