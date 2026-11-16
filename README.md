@@ -149,6 +149,10 @@ Pushing a tag `vX.Y.Z` also triggers a release, and *Run workflow* under Actions
 
 Update packages are signed with a minisign key stored in the repository secrets `TAURI_SIGNING_PRIVATE_KEY` / `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`; the public key is in `src-tauri/tauri.conf.json`. If you fork the project and want working updates, generate your own key pair (`npm run tauri signer generate`), put the public key in `tauri.conf.json` and point the updater endpoint at your own releases.
 
+## Roadmap
+
+Planned features are listed in [docs/ROADMAP.md](docs/ROADMAP.md).
+
 ## License
 
 [MIT](LICENSE) – free to use, modify and share, including commercially. The software is provided as is, without warranty of any kind.
