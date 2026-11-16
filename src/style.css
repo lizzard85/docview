@@ -253,21 +253,24 @@ dialog .buttons { display: flex; justify-content: flex-end; gap: 8px; }
   background: var(--fg); color: var(--bg); padding: 6px 14px; border-radius: 6px;
 }
 
-/* History drop-down */
-.history-menu {
-  position: fixed; z-index: 20; width: min(460px, calc(100vw - 16px)); max-height: 70vh; overflow-y: auto;
+/* Drop-down menus (History, Convert) */
+.dropdown {
+  position: fixed; z-index: 20; min-width: 200px; max-width: min(460px, calc(100vw - 16px)); max-height: 70vh; overflow-y: auto;
   background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); padding: 4px;
 }
-.history-menu[hidden] { display: none; }
-.history-item {
+.dropdown.wide { width: min(460px, calc(100vw - 16px)); }
+.dropdown[hidden] { display: none; }
+.dropdown-item {
   display: flex; flex-direction: column; align-items: stretch; gap: 2px; width: 100%;
   text-align: left; border: 1px solid transparent; background: none; padding: 5px 8px; border-radius: 4px;
 }
-.history-item:hover, .history-item:focus { background: var(--bg-bar); border-color: var(--border); outline: none; }
-.history-preview { font-family: "Cascadia Mono", Consolas, "DejaVu Sans Mono", ui-monospace, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.history-meta { font-size: 0.85em; }
-.history-empty { margin: 8px; }
+.dropdown-item:hover:not(:disabled), .dropdown-item:focus { background: var(--bg-bar); border-color: var(--border); outline: none; }
+.dropdown-item:disabled { cursor: default; opacity: 0.5; }
+.dropdown-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dropdown-label.mono { font-family: "Cascadia Mono", Consolas, "DejaVu Sans Mono", ui-monospace, monospace; }
+.dropdown-meta { font-size: 0.85em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dropdown-empty { margin: 8px; }
 .history-row { display: flex; align-items: center; gap: 12px; justify-content: space-between; margin: 0 0 10px; }
 .history-row label { margin-bottom: 0; }
 .table-mode .panel-body { padding: 0; }

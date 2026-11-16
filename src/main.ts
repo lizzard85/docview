@@ -5,8 +5,9 @@ import { detectLanguage, type Detection } from "./detect";
 import { unwrapEscapedJson } from "./escapedJson";
 import { FORMATTABLE, formatCode } from "./format";
 import { guessDelimiter, parseCsv } from "./csv";
-import { addToHistory, parseHistory, type HistoryEntry } from "./history";
-import { HistoryMenu } from "./historyMenu";
+import { addToHistory, parseHistory, relativeTime, type HistoryEntry } from "./history";
+import { convert, conversionsFor, jsonToXmlProblem, type Conversion } from "./convert";
+import { Dropdown, type DropdownItem } from "./dropdown";
 import { jsonToTree } from "./jsonTree";
 import { LANGUAGES, LANG_BY_ID, languageFromFilename } from "./languages";
 import { findOffset, jsonLocations, lineOf, lineStarts, xmlLocations, type Locations } from "./locate";
@@ -58,14 +59,29 @@ interface State {
   lang: string;
   shown: string; // the text currently displayed (formatted or original)
   unescaped: number; // levels of string escaping removed from the content (0 = none)
+  /** Set when the content is the result of a conversion (for the notice and Undo). */
+  conversion: ConversionState | null;
 }
 
-const state: State = { original: null, decoded: null, showOriginal: false, content: null, detection: null, lang: "plaintext", shown: "", unescaped: 0 };
+interface ConversionState {
+  /** Label of the source language, e.g. "JSON". */
+  from: string;
+  /** Language of the result. */
+  to: string;
+  /** Show the result as is, without formatting (minified output). */
+  raw: boolean;
+  /** The content before the conversion (restored by Undo). */
+  previous: Content;
+  previousConversion: ConversionState | null;
+}
+
+const state: State = { original: null, decoded: null, showOriginal: false, content: null, detection: null, lang: "plaintext", shown: "", unescaped: 0, conversion: null };
 let settings: Settings = { ...backend.DEFAULT_SETTINGS };
 let renderToken = 0;
 const search = new Search(ui.code, $("searchbar"), $<HTMLInputElement>("search"), $("search-count"));
 const panel = new SidePanel();
-const historyMenu = new HistoryMenu($("history-menu"), $("btn-history"));
+const historyMenu = new Dropdown($("history-menu"), $("btn-history"));
+const convertMenu = new Dropdown($("convert-menu"), $("btn-convert"));
 let history: HistoryEntry[] = [];
 
 // ------------------------------------------------------------------ setup
@@ -82,8 +98,8 @@ async function init() {
   ui.optWrap.addEventListener("change", () => { settings.wrap = ui.optWrap.checked; persist(); applySettings(); });
   ui.optLines.addEventListener("change", () => { settings.lineNumbers = ui.optLines.checked; persist(); applySettings(); });
 
-  $("btn-history").addEventListener("click", () => historyMenu.toggle(history, settings.history));
-  historyMenu.onPick = (e) => setContent({ text: e.text, name: e.name });
+  $("btn-history").addEventListener("click", toggleHistoryMenu);
+  $("btn-convert").addEventListener("click", toggleConvertMenu);
   $("btn-clear-history").addEventListener("click", () => {
     clearHistory();
     toast("History cleared");
@@ -186,14 +202,20 @@ async function loadPending() {
 
 // ------------------------------------------------------------------ content
 
-function setContent(c: Content) {
+/**
+ * Shows new content. `conversion` is set for the result of a conversion;
+ * `record` adds the content to the history (not for conversions and Undo).
+ */
+function setContent(c: Content, opts: { conversion?: ConversionState | null; record?: boolean } = {}) {
+  const conversion = opts.conversion ?? null;
   // Encoded text is decoded, unless the file type already says what it is.
   const typed = c.name ? (languageFromFilename(c.name) ?? "plaintext") !== "plaintext" : false;
   state.original = c;
-  state.decoded = c.truncated || typed ? null : decodeText(c.text);
+  state.decoded = c.truncated || typed || conversion ? null : decodeText(c.text);
   state.showOriginal = false;
+  state.conversion = conversion;
   showContent();
-  recordHistory(c);
+  if (opts.record ?? !conversion) recordHistory(c);
 }
 
 // ------------------------------------------------------------------ history
@@ -211,6 +233,66 @@ function clearHistory() {
   backend.saveHistory([]).catch((e) => toast(`Could not clear the history: ${e}`));
 }
 
+function toggleHistoryMenu() {
+  const now = Date.now();
+  const items: DropdownItem[] = history.map((e) => ({
+    label: e.preview || "(empty)",
+    mono: true,
+    meta: [LANG_BY_ID.get(e.lang)?.label ?? e.lang, e.name, relativeTime(e.time, now)].filter(Boolean).join(" · "),
+    title: new Date(e.time).toLocaleString(),
+    run: () => setContent({ text: e.text, name: e.name }),
+  }));
+  historyMenu.toggle(items, settings.history ? "No history yet." : "History is turned off (Settings).");
+}
+
+// ------------------------------------------------------------------ conversions
+
+function toggleConvertMenu() {
+  const c = state.content;
+  if (!c) return;
+  const items: DropdownItem[] = conversionsFor(state.lang).map((conv) => {
+    // JSON → XML is only offered when the JSON maps cleanly to XML.
+    let problem: string | null = null;
+    if (conv.id === "json-xml") {
+      try {
+        problem = jsonToXmlProblem(JSON.parse(c.text));
+      } catch { /* JSON with comments: checked when converting */ }
+    }
+    return {
+      label: conv.label,
+      disabled: !!problem,
+      title: problem ? `Cannot convert to XML: ${problem}.` : undefined,
+      run: () => runConversion(conv),
+    };
+  });
+  convertMenu.toggle(items);
+}
+
+function runConversion(conv: Conversion) {
+  const c = state.content;
+  if (!c) return;
+  let text: string;
+  try {
+    text = convert(conv.id, c.text, settings.indent);
+  } catch (e) {
+    toast(e instanceof Error ? e.message : String(e));
+    return;
+  }
+  const from = LANG_BY_ID.get(state.lang)?.label ?? state.lang;
+  const ext = LANG_BY_ID.get(conv.to)?.ext ?? "txt";
+  const name = c.name ? c.name.replace(/(\.[^.\\/]*)?$/, `.${ext}`) : undefined;
+  setContent(
+    { text, name },
+    { conversion: { from, to: conv.to, raw: conv.id.endsWith("-min"), previous: state.original!, previousConversion: state.conversion } },
+  );
+}
+
+function undoConversion() {
+  const conv = state.conversion;
+  if (!conv) return;
+  setContent(conv.previous, { conversion: conv.previousConversion, record: false });
+}
+
 /** Shows `state.original`, decoded and/or unescaped as appropriate. */
 function showContent() {
   let c = state.original;
@@ -222,7 +304,7 @@ function showContent() {
   if (unwrapped) c = { ...c, text: unwrapped.text, path: undefined };
   state.unescaped = unwrapped?.levels ?? 0;
   state.content = c;
-  state.detection = detectLanguage(c.text, c.name);
+  state.detection = state.conversion ? { lang: state.conversion.to, source: "parsed" } : detectLanguage(c.text, c.name);
   state.lang = state.detection.lang;
   ui.lang.value = state.lang;
   void backend.setTitle(c.name ? `${c.name} – DocView` : "DocView");
@@ -237,6 +319,7 @@ async function render() {
   const lang = state.lang;
   const notices: Notice[] = [];
   if (c.truncated) notices.push({ text: "The file is large – only the beginning is shown." });
+  if (state.conversion) notices.push({ text: `Converted from ${state.conversion.from} –`, action: { label: "Undo", run: undoConversion } });
   const dec = state.decoded;
   if (dec) {
     const label = ENCODING_LABEL[dec.kind];
@@ -261,7 +344,7 @@ async function render() {
       }
     }
   }
-  if (settings.format && FORMATTABLE.has(lang)) {
+  if (settings.format && FORMATTABLE.has(lang) && !state.conversion?.raw) {
     const r = await formatCode(text, lang, {
       indent: settings.indent,
       printWidth: 100,
@@ -347,6 +430,7 @@ function panelView(): PanelView | null {
 }
 
 function updatePanel() {
+  ($("btn-convert") as HTMLButtonElement).hidden = conversionsFor(state.lang).length === 0;
   const view = panelView();
   ui.btnPanel.hidden = !view;
   ui.btnPanel.textContent = view?.html !== undefined ? "Preview" : view?.table ? "Table" : "Tree";
@@ -554,6 +638,7 @@ function onKey(e: KeyboardEvent) {
 
   if (e.key === "Escape") {
     if (historyMenu.isOpen) historyMenu.close();
+    else if (convertMenu.isOpen) convertMenu.close();
     else if (search.isOpen) search.close();
     else void backend.hideWindow();
     return;
@@ -562,7 +647,7 @@ function onKey(e: KeyboardEvent) {
   if (e.key === "F3") { e.preventDefault(); search.step(e.shiftKey ? -1 : 1); return; }
   if (isEditable(e.target)) return;
 
-  if (mod && key === "h") { e.preventDefault(); historyMenu.toggle(history, settings.history); }
+  if (mod && key === "h") { e.preventDefault(); toggleHistoryMenu(); }
   else if (mod && key === "o") { e.preventDefault(); void openFileDialog(); }
   else if (mod && e.shiftKey && e.altKey && e.code === "KeyC") { e.preventDefault(); void copyColoured(); }
   else if (mod && e.shiftKey && key === "c") { e.preventDefault(); void copyShown(); }

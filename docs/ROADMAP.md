@@ -69,7 +69,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** CSV parsing (quotes, escaped quotes, newlines in fields, `;` delimiter, TSV), delimiter detection, sorting.
 
-## 7. [ ] Conversions
+## 7. [x] Conversions
 
 **Behaviour:**
 - A **Convert** menu in the toolbar with the options valid for the current language: JSON → YAML, YAML → JSON, XML → JSON, JSON → XML (only when it maps cleanly), minify JSON, minify XML.

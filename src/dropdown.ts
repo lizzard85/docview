@@ -1,10 +1,17 @@
-// Drop-down list of the history under the History button.
-import { relativeTime, type HistoryEntry } from "./history";
-import { LANG_BY_ID } from "./languages";
+// A drop-down menu under a toolbar button (History, Convert).
 
-export class HistoryMenu {
-  onPick: (entry: HistoryEntry) => void = () => {};
+export interface DropdownItem {
+  label: string;
+  /** Muted second line. */
+  meta?: string;
+  title?: string;
+  disabled?: boolean;
+  /** Show the label in the code font (previews). */
+  mono?: boolean;
+  run: () => void;
+}
 
+export class Dropdown {
   constructor(
     private readonly menu: HTMLElement,
     private readonly button: HTMLElement,
@@ -19,45 +26,56 @@ export class HistoryMenu {
     return !this.menu.hidden;
   }
 
-  toggle(entries: HistoryEntry[], enabled: boolean) {
+  toggle(items: DropdownItem[], emptyText = "") {
     if (this.isOpen) this.close();
-    else this.open(entries, enabled);
+    else this.open(items, emptyText);
   }
 
-  open(entries: HistoryEntry[], enabled: boolean) {
+  open(items: DropdownItem[], emptyText = "") {
     this.menu.replaceChildren();
-    if (!entries.length) {
+    if (!items.length) {
       const p = document.createElement("p");
-      p.className = "history-empty muted";
-      p.textContent = enabled ? "No history yet." : "History is turned off (Settings).";
+      p.className = "dropdown-empty muted";
+      p.textContent = emptyText;
       this.menu.append(p);
     }
-    const now = Date.now();
-    for (const entry of entries) {
+    for (const item of items) {
       const b = document.createElement("button");
       b.type = "button";
-      b.className = "history-item";
-      const preview = document.createElement("span");
-      preview.className = "history-preview";
-      preview.textContent = entry.preview || "(empty)";
-      const meta = document.createElement("span");
-      meta.className = "history-meta muted";
-      const lang = LANG_BY_ID.get(entry.lang)?.label ?? entry.lang;
-      meta.textContent = [lang, entry.name, relativeTime(entry.time, now)].filter(Boolean).join(" · ");
-      b.append(preview, meta);
-      b.title = new Date(entry.time).toLocaleString();
+      b.className = "dropdown-item";
+      b.disabled = !!item.disabled;
+      const label = document.createElement("span");
+      label.className = item.mono ? "dropdown-label mono" : "dropdown-label";
+      label.textContent = item.label;
+      b.append(label);
+      if (item.meta) {
+        const meta = document.createElement("span");
+        meta.className = "dropdown-meta muted";
+        meta.textContent = item.meta;
+        b.append(meta);
+      }
+      if (item.title) b.title = item.title;
       b.addEventListener("click", () => {
         this.close();
-        this.onPick(entry);
+        item.run();
       });
       this.menu.append(b);
     }
     const rect = this.button.getBoundingClientRect();
     this.menu.style.top = `${rect.bottom + 4}px`;
-    this.menu.style.right = `${Math.max(8, document.documentElement.clientWidth - rect.right)}px`;
+    const right = document.documentElement.clientWidth - rect.right;
+    // Open towards the side with more room.
+    if (rect.left < right) {
+      this.menu.style.left = `${Math.max(8, rect.left)}px`;
+      this.menu.style.right = "";
+    } else {
+      this.menu.style.right = `${Math.max(8, right)}px`;
+      this.menu.style.left = "";
+    }
     this.menu.hidden = false;
-    this.items()[0]?.focus();
-    if (!entries.length) this.menu.focus();
+    const first = this.items()[0];
+    if (first) first.focus();
+    else this.menu.focus();
   }
 
   close() {
@@ -67,7 +85,7 @@ export class HistoryMenu {
   }
 
   private items(): HTMLButtonElement[] {
-    return [...this.menu.querySelectorAll<HTMLButtonElement>(".history-item")];
+    return [...this.menu.querySelectorAll<HTMLButtonElement>(".dropdown-item:not(:disabled)")];
   }
 
   private onKey(e: KeyboardEvent) {

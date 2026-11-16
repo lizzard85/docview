@@ -14,6 +14,7 @@
       <label class="toggle" title="Wrap long lines (W)"><input type="checkbox" id="opt-wrap" /> Wrap</label>
       <label class="toggle" title="Show line numbers (L)"><input type="checkbox" id="opt-lines" /> Line no.</label>
       <button id="btn-panel" title="Show tree view (T)" hidden>Tree</button>
+      <button id="btn-convert" title="Convert to another format" aria-haspopup="true" hidden>Convert ▾</button>
       <span class="spacer"></span>
       <span id="info" class="muted"></span>
       <button id="btn-history" title="Recent contents (Ctrl+H)" aria-haspopup="true">History</button>
@@ -125,7 +126,8 @@
       </form>
     </dialog>
 
-    <div id="history-menu" class="history-menu" tabindex="-1" hidden></div>
+    <div id="history-menu" class="dropdown wide" tabindex="-1" hidden></div>
+    <div id="convert-menu" class="dropdown" tabindex="-1" hidden></div>
     <div id="toast" class="toast" hidden></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
