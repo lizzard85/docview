@@ -8,7 +8,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 ---
 
-## 1. [x] Escaped JSON inside strings
+## 1. [x] Escaped JSON inside strings ([#18](https://github.com/lizzard85/docview/pull/18))
 
 **Problem:** Logs and API responses often contain JSON stored as a string, e.g. `"{\"id\":1,\"name\":\"x\"}"`, or a whole pasted value that is one escaped JSON string. It is unreadable.
 
