@@ -30,6 +30,7 @@ On Linux, make the AppImage executable (`chmod +x DocView_*.AppImage`) and run i
 - **Formats** JSON, SQL, XML, HTML, CSS/SCSS/LESS, JavaScript/TypeScript, YAML, Markdown and GraphQL.
 - SQL formatting supports T-SQL (SQL Server), standard SQL, PostgreSQL, MySQL, MariaDB, SQLite, Oracle PL/SQL, DB2, BigQuery and Snowflake, with keywords kept as written, in UPPERCASE or in lowercase.
 - **Highlights** all of the above plus C#, Java, Python, PowerShell, Shell, PHP, INI/TOML, Dockerfile and diffs/patches.
+- **Escaped JSON**: when the pasted text is JSON stored inside a string (`"{\"id\":1}"` or a bare `{\"id\":1}`, as often found in logs), the inner JSON is shown and formatted, with a notice. Nested escaping is unwrapped up to 5 levels.
 - Formatting can be turned off (`F`) to see the text exactly as it was. If something cannot be formatted, the original is shown with a note explaining why.
 - Line numbers, word wrap, zoom and light/dark theme (or follow the system).
 - Search with highlighting of all matches (`Ctrl+F`, `F3` / `Shift+F3`).
@@ -38,6 +39,7 @@ On Linux, make the AppImage executable (`chmod +x DocView_*.AppImage`) and run i
 For JSON, XML and Markdown a panel opens to the right of the code (toggle it with the **Tree**/**Preview** button or `T`; drag the divider to resize it).
 
 - **JSON tree** – expand and collapse objects and arrays, see their size (`{3 keys}`, `[12 items]`) and values coloured by type.
+- String values that contain a JSON object or array are marked `JSON string` and can be expanded like the object/array itself; paths continue inside them (`$.payload.id`). **Copy value** on the string still copies the raw string.
 - **XML tree** – elements with their attributes, text, comments and CDATA in document order. Elements that only contain text are shown as `name: value`.
 - **Filter** the tree by key or value; matches are revealed and their parents opened.
 - **Copy path / Copy value** for the selected node. Paths are JSONPath (`$.items[3].name`) or XPath (`/orders/order[2]/@id`). Values are copied as-is, objects as indented JSON and elements as indented XML.
@@ -131,6 +133,7 @@ src/                 Frontend (TypeScript + Vite)
   jsonTree.ts        JSON -> tree nodes
   xmlTree.ts         XML -> tree nodes
   locate.ts          Maps tree paths to lines in the code view
+  escapedJson.ts     JSON escaped inside strings
   markdown.ts        Markdown preview (marked + DOMPurify)
   update.ts          Automatic updates
   backend.ts         Calls into the Rust side (degrades gracefully in a browser)

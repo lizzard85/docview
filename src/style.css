@@ -128,6 +128,7 @@ main { flex: 1; min-width: 0; overflow: auto; outline: none; }
 .tree-attr { color: var(--t-attr); }
 .tree-comment { color: var(--t-comment); font-style: italic; }
 .tree-summary { color: var(--muted); margin-left: 6px; }
+.tree-embedded { font-style: italic; }
 .tree-more { color: var(--accent); cursor: pointer; }
 #panel-sync svg { display: block; }
 #panel-sync { color: var(--muted); }

@@ -1,4 +1,5 @@
 // Turns parsed JSON into tree nodes for the side panel.
+import { parseEmbeddedJson } from "./escapedJson";
 import { shorten, type TreeNode } from "./tree";
 
 /** Appends a property name or array index to a JSONPath-style path ($.a.b[0]["c d"]). */
@@ -38,6 +39,10 @@ function jsonNode(key: string, path: string, v: unknown, indent: number, keyClas
       searchText: searchKey,
     };
   }
+  if (typeof v === "string") {
+    const inner = parseEmbeddedJson(v);
+    if (inner) return embeddedNode(key, path, v, inner, indent, keyClass);
+  }
   const type = v === null ? "null" : typeof v;
   const raw = typeof v === "string" ? v : String(v);
   return {
@@ -47,5 +52,21 @@ function jsonNode(key: string, path: string, v: unknown, indent: number, keyClas
     childCount: 0,
     copyValue: () => raw,
     searchText: `${searchKey}\n${raw.toLowerCase()}`,
+  };
+}
+
+/**
+ * A string whose content is a JSON object or array: expandable like the inner
+ * value (children's paths continue from the string's path), but "Copy value"
+ * still copies the raw string.
+ */
+function embeddedNode(key: string, path: string, raw: string, inner: object, indent: number, keyClass: string): TreeNode {
+  const node = jsonNode(key, path, inner, indent, keyClass);
+  return {
+    ...node,
+    summary: `JSON string ${node.summary}`,
+    embedded: true,
+    copyValue: () => raw,
+    searchText: `${node.searchText}\n${raw.toLowerCase()}`,
   };
 }

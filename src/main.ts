@@ -1,6 +1,7 @@
 import * as backend from "./backend";
 import type { Content, Settings } from "./backend";
 import { detectLanguage, type Detection } from "./detect";
+import { unwrapEscapedJson } from "./escapedJson";
 import { FORMATTABLE, formatCode } from "./format";
 import { jsonToTree } from "./jsonTree";
 import { LANGUAGES, LANG_BY_ID } from "./languages";
@@ -43,9 +44,10 @@ interface State {
   detection: Detection | null;
   lang: string;
   shown: string; // the text currently displayed (formatted or original)
+  unescaped: number; // levels of string escaping removed from the content (0 = none)
 }
 
-const state: State = { content: null, detection: null, lang: "plaintext", shown: "" };
+const state: State = { content: null, detection: null, lang: "plaintext", shown: "", unescaped: 0 };
 let settings: Settings = { ...backend.DEFAULT_SETTINGS };
 let renderToken = 0;
 const search = new Search(ui.code, $("searchbar"), $<HTMLInputElement>("search"), $("search-count"));
@@ -160,6 +162,11 @@ async function loadPending() {
 // ------------------------------------------------------------------ content
 
 function setContent(c: Content) {
+  // JSON escaped inside a string is shown as the inner JSON. The file path is
+  // dropped so "Open in external editor" opens the shown text, not the file.
+  const unwrapped = c.truncated ? null : unwrapEscapedJson(c.text);
+  if (unwrapped) c = { ...c, text: unwrapped.text, path: undefined };
+  state.unescaped = unwrapped?.levels ?? 0;
   state.content = c;
   state.detection = detectLanguage(c.text, c.name);
   state.lang = state.detection.lang;
@@ -176,6 +183,8 @@ async function render() {
   const lang = state.lang;
   const notices: string[] = [];
   if (c.truncated) notices.push("The file is large – only the beginning is shown.");
+  if (state.unescaped === 1) notices.push("Showing JSON that was escaped inside a string.");
+  else if (state.unescaped > 1) notices.push(`Showing JSON that was escaped inside a string (${state.unescaped} levels).`);
 
   let text = c.text.replace(/\r\n?/g, "\n");
   if (settings.format && FORMATTABLE.has(lang)) {
