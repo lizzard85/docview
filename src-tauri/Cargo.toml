@@ -1,7 +1,7 @@
 [package]
 name = "docview"
 version = "0.1.0"
-description = "Viser og formaterer kodestumper og filer"
+description = "Viewer that detects, formats and highlights code snippets and files"
 edition = "2021"
 
 [lib]
