@@ -88,7 +88,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** diff of formatted JSON where only key order/whitespace differs (no changes), real changes detected.
 
-## 9. [x] Tabs
+## 9. [x] Tabs ([#26](https://github.com/lizzard85/docview/pull/26))
 
 **Behaviour:**
 - Several documents open at once; new content from the global shortcut or a file opens in a new tab (setting: new tab vs replace current), `Ctrl+T` new empty tab, `Ctrl+W` close, `Ctrl+Tab` / `Ctrl+Shift+Tab` switch, middle-click closes.
