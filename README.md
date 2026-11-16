@@ -29,6 +29,7 @@ On Linux, make the AppImage executable (`chmod +x DocView_*.AppImage`) and run i
 ### Formatting and highlighting
 - **Formats** JSON, SQL, XML, HTML, CSS/SCSS/LESS, JavaScript/TypeScript, YAML, Markdown and GraphQL.
 - SQL formatting supports T-SQL (SQL Server), standard SQL, PostgreSQL, MySQL, MariaDB, SQLite, Oracle PL/SQL, DB2, BigQuery and Snowflake, with keywords kept as written, in UPPERCASE or in lowercase.
+- **SQL with parameters**: SQL captured from SQL Server Profiler / Extended Events (`exec sp_executesql N'…', N'@p0 int', @p0=42`) and EF Core command logs (`Executed DbCommand … [Parameters=[@__id_0='42'], …]` followed by the SQL) are recognised. The parameters are substituted with literals so the SQL can be run directly in SSMS; a notice offers **Show original** / **Inline parameters**, and the choice is remembered.
 - **Highlights** all of the above plus C#, Java, Python, PowerShell, Shell, PHP, INI/TOML, Dockerfile and diffs/patches.
 - **Escaped JSON**: when the pasted text is JSON stored inside a string (`"{\"id\":1}"` or a bare `{\"id\":1}`, as often found in logs), the inner JSON is shown and formatted, with a notice. Nested escaping is unwrapped up to 5 levels.
 - Formatting can be turned off (`F`) to see the text exactly as it was. If something cannot be formatted, the original is shown with a note explaining why.
@@ -84,7 +85,7 @@ The default global shortcut is deliberately not `Ctrl+Shift+V` (already "paste a
 
 ## Settings
 
-Open them with the ⚙ button, `Ctrl+,` or the tray menu: global shortcut, theme, font size, indentation, SQL dialect and keyword case, external editor, start at login and automatic updates. Formatting, word wrap, line numbers and the side panel remember their state.
+Open them with the ⚙ button, `Ctrl+,` or the tray menu: global shortcut, theme, font size, indentation, SQL dialect and keyword case, external editor, start at login and automatic updates. Formatting, word wrap, line numbers, the side panel and inlining of SQL parameters remember their state.
 
 Settings are stored in `%APPDATA%\io.github.docview\settings.json` on Windows and `~/.config/io.github.docview/settings.json` on Linux.
 
@@ -134,6 +135,7 @@ src/                 Frontend (TypeScript + Vite)
   xmlTree.ts         XML -> tree nodes
   locate.ts          Maps tree paths to lines in the code view
   escapedJson.ts     JSON escaped inside strings
+  sqlParams.ts       sp_executesql / EF Core parameters -> inlined SQL
   markdown.ts        Markdown preview (marked + DOMPurify)
   update.ts          Automatic updates
   backend.ts         Calls into the Rust side (degrades gracefully in a browser)

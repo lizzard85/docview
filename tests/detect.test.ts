@@ -65,3 +65,14 @@ describe("detectLanguage (files)", () => {
     expect(detectLanguage(`select 1 from x`, "notes.txt").lang).toBe("sql");
   });
 });
+
+describe("SQL with parameters", () => {
+  it("detects sp_executesql and EF Core logs as SQL", () => {
+    expect(detectLanguage("exec sp_executesql N'SELECT * FROM Orders WHERE Id = @p0',N'@p0 int',@p0=42")).toEqual({ lang: "sql", source: "parsed" });
+    const ef =
+      "info: Microsoft.EntityFrameworkCore.Database.Command[20101]\n" +
+      "      Executed DbCommand (3ms) [Parameters=[@__id_0='42' (Nullable = true)], CommandType='Text', CommandTimeout='30']\n" +
+      "      SELECT [o].[Id], [o].[Name]\n      FROM [Orders] AS [o]\n      WHERE [o].[Id] = @__id_0";
+    expect(detectLanguage(ef)).toEqual({ lang: "sql", source: "parsed" });
+  });
+});

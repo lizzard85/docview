@@ -12,6 +12,7 @@ import type { TreeNode } from "./tree";
 import { xmlToTree } from "./xmlTree";
 import { MAX_HIGHLIGHT_CHARS, renderCode } from "./render";
 import { Search } from "./search";
+import { inlineSqlParams } from "./sqlParams";
 import { displayShortcut, isWindows, storeShortcut } from "./shortcut";
 import { appVersion, checkForUpdate, type UpdateUi } from "./update";
 
@@ -181,12 +182,25 @@ async function render() {
   if (!c) return;
   const token = ++renderToken;
   const lang = state.lang;
-  const notices: string[] = [];
-  if (c.truncated) notices.push("The file is large – only the beginning is shown.");
-  if (state.unescaped === 1) notices.push("Showing JSON that was escaped inside a string.");
-  else if (state.unescaped > 1) notices.push(`Showing JSON that was escaped inside a string (${state.unescaped} levels).`);
+  const notices: Notice[] = [];
+  if (c.truncated) notices.push({ text: "The file is large – only the beginning is shown." });
+  if (state.unescaped === 1) notices.push({ text: "Showing JSON that was escaped inside a string." });
+  else if (state.unescaped > 1) notices.push({ text: `Showing JSON that was escaped inside a string (${state.unescaped} levels).` });
 
   let text = c.text.replace(/\r\n?/g, "\n");
+  if (lang === "sql") {
+    const inlined = inlineSqlParams(text);
+    if (inlined) {
+      const from = inlined.kind === "efcore" ? "the EF Core log" : "sp_executesql";
+      const toggle = () => { settings.inlineSqlParams = !settings.inlineSqlParams; persist(); void render(); };
+      if (settings.inlineSqlParams) {
+        text = inlined.sql;
+        notices.push({ text: `Parameters from ${from} are inlined.`, action: { label: "Show original", run: toggle } });
+      } else {
+        notices.push({ text: `This SQL has parameters (${from}).`, action: { label: "Inline parameters", run: toggle } });
+      }
+    }
+  }
   if (settings.format && FORMATTABLE.has(lang)) {
     const r = await formatCode(text, lang, {
       indent: settings.indent,
@@ -196,9 +210,9 @@ async function render() {
     });
     if (token !== renderToken) return; // a newer render started meanwhile
     text = r.text;
-    if (r.error) notices.push(`Could not format as ${LANG_BY_ID.get(lang)?.label}: ${r.error}`);
+    if (r.error) notices.push({ text: `Could not format as ${LANG_BY_ID.get(lang)?.label}: ${r.error}` });
   }
-  if (text.length > MAX_HIGHLIGHT_CHARS) notices.push("The text is very large – highlighting is turned off.");
+  if (text.length > MAX_HIGHLIGHT_CHARS) notices.push({ text: "The text is very large – highlighting is turned off." });
 
   state.shown = text;
   ui.code.className = `code language-${lang}`;
@@ -210,10 +224,32 @@ async function render() {
     lang !== state.detection?.lang ? "(manual)" : src === "file" ? "(file type)" : src === "parsed" ? "(recognized)" : "(guess)";
   const lines = text.split("\n").length;
   ui.info.textContent = `${c.name ? c.name + " · " : ""}${lines} line${lines === 1 ? "" : "s"}`;
-  ui.notice.textContent = notices.join("  ");
-  ui.notice.hidden = notices.length === 0;
+  showNotices(notices);
   search.refresh();
   updatePanel();
+}
+
+interface Notice {
+  text: string;
+  action?: { label: string; run: () => void };
+}
+
+function showNotices(notices: Notice[]) {
+  ui.notice.replaceChildren();
+  for (const n of notices) {
+    const item = document.createElement("span");
+    item.className = "notice-item";
+    item.textContent = n.text;
+    if (n.action) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = n.action.label;
+      b.addEventListener("click", n.action.run);
+      item.append(" ", b);
+    }
+    ui.notice.append(item);
+  }
+  ui.notice.hidden = notices.length === 0;
 }
 
 // ------------------------------------------------------------------ side panel

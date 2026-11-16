@@ -9,6 +9,7 @@ import { XMLValidator } from "fast-xml-parser";
 import { format as formatSql } from "sql-formatter";
 import hljs from "./hljs";
 import { languageFromFilename } from "./languages";
+import { parseSqlWithParams } from "./sqlParams";
 
 export interface Detection {
   lang: string;
@@ -26,6 +27,9 @@ export function detectLanguage(text: string, filename?: string): Detection {
 
   const json = detectJson(t);
   if (json) return json;
+
+  // sp_executesql calls and EF Core command logs (SQL with parameters).
+  if (parseSqlWithParams(t)) return { lang: "sql", source: "parsed" };
 
   if (t.startsWith("<?php")) return { lang: "php", source: "guess" };
   if (t.startsWith("<")) {

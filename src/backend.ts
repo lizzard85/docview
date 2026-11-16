@@ -19,6 +19,8 @@ export interface Settings {
   panelWidth: number;
   /** Selecting a tree node scrolls the code view to its line. */
   panelSync: boolean;
+  /** SQL from sp_executesql / EF Core logs is shown with the parameters substituted. */
+  inlineSqlParams: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -37,6 +39,7 @@ export const DEFAULT_SETTINGS: Settings = {
   panel: true,
   panelWidth: 380,
   panelSync: true,
+  inlineSqlParams: true,
 };
 
 export interface Content {
