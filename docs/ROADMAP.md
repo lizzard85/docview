@@ -32,7 +32,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** sp_executesql with several types and `@p1`/`@p10`; EF Core log line with multiple parameters, including strings with quotes and NULL; text without parameters is untouched.
 
-## 3. [ ] Decode Base64, URL encoding and JWT
+## 3. [x] Decode Base64, URL encoding and JWT
 
 **Behaviour:**
 - New language entries (or a "decoded" view) for: **JWT** (three base64url parts separated by dots), **Base64** (long text consisting only of base64 characters, decodes to valid UTF-8), **URL-encoded** text (contains `%XX` sequences or is a query string).

@@ -30,6 +30,7 @@ On Linux, make the AppImage executable (`chmod +x DocView_*.AppImage`) and run i
 - **Formats** JSON, SQL, XML, HTML, CSS/SCSS/LESS, JavaScript/TypeScript, YAML, Markdown and GraphQL.
 - SQL formatting supports T-SQL (SQL Server), standard SQL, PostgreSQL, MySQL, MariaDB, SQLite, Oracle PL/SQL, DB2, BigQuery and Snowflake, with keywords kept as written, in UPPERCASE or in lowercase.
 - **SQL with parameters**: SQL captured from SQL Server Profiler / Extended Events (`exec sp_executesql N'…', N'@p0 int', @p0=42`) and EF Core command logs (`Executed DbCommand … [Parameters=[@__id_0='42'], …]` followed by the SQL) are recognised. The parameters are substituted with literals so the SQL can be run directly in SSMS; a notice offers **Show original** / **Inline parameters**, and the choice is remembered.
+- **Decodes** encoded text: a **JWT** is shown as JSON with its header and payload, plus the `exp`, `iat` and `nbf` times in local time and whether the token is expired (the signature is never verified). **Base64** and **URL-encoded** text (including query strings, shown as one `key=value` per line) are decoded, and the decoded text gets its own language detection – Base64-encoded JSON is shown as formatted JSON. `D` switches between the decoded text and the original. Short strings, normal words and hex strings are never decoded.
 - **Highlights** all of the above plus C#, Java, Python, PowerShell, Shell, PHP, INI/TOML, Dockerfile and diffs/patches.
 - **Escaped JSON**: when the pasted text is JSON stored inside a string (`"{\"id\":1}"` or a bare `{\"id\":1}`, as often found in logs), the inner JSON is shown and formatted, with a notice. Nested escaping is unwrapped up to 5 levels.
 - Formatting can be turned off (`F`) to see the text exactly as it was. If something cannot be formatted, the original is shown with a note explaining why.
@@ -78,6 +79,7 @@ On Linux only the AppImage updates itself; a `.deb` installation is updated by i
 | `Ctrl +` / `Ctrl -` / `Ctrl 0` | Zoom in / out / reset |
 | `F` / `W` / `L` | Toggle formatting / word wrap / line numbers |
 | `T` | Toggle the side panel (tree / preview) |
+| `D` | Switch between decoded text (JWT, Base64, URL encoding) and the original |
 | `Ctrl+,` | Settings |
 | `Esc` | Close search, otherwise hide the window |
 
@@ -135,6 +137,7 @@ src/                 Frontend (TypeScript + Vite)
   xmlTree.ts         XML -> tree nodes
   locate.ts          Maps tree paths to lines in the code view
   escapedJson.ts     JSON escaped inside strings
+  decode.ts          JWT, Base64 and URL decoding
   sqlParams.ts       sp_executesql / EF Core parameters -> inlined SQL
   markdown.ts        Markdown preview (marked + DOMPurify)
   update.ts          Automatic updates

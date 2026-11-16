@@ -1,10 +1,11 @@
 import * as backend from "./backend";
 import type { Content, Settings } from "./backend";
+import { decodeText, ENCODING_LABEL, jwtSummary, type Decoded } from "./decode";
 import { detectLanguage, type Detection } from "./detect";
 import { unwrapEscapedJson } from "./escapedJson";
 import { FORMATTABLE, formatCode } from "./format";
 import { jsonToTree } from "./jsonTree";
-import { LANGUAGES, LANG_BY_ID } from "./languages";
+import { LANGUAGES, LANG_BY_ID, languageFromFilename } from "./languages";
 import { findOffset, jsonLocations, lineOf, lineStarts, xmlLocations, type Locations } from "./locate";
 import { renderMarkdown } from "./markdown";
 import { SidePanel, type PanelView } from "./panel";
@@ -41,6 +42,13 @@ const ui = {
 };
 
 interface State {
+  /** What was pasted or opened. */
+  original: Content | null;
+  /** `original` decoded from JWT / Base64 / URL encoding, if it is encoded. */
+  decoded: Decoded | null;
+  /** Show the original instead of the decoded text (toggled with D). */
+  showOriginal: boolean;
+  /** What is shown: the original, or the decoded / unescaped text. */
   content: Content | null;
   detection: Detection | null;
   lang: string;
@@ -48,7 +56,7 @@ interface State {
   unescaped: number; // levels of string escaping removed from the content (0 = none)
 }
 
-const state: State = { content: null, detection: null, lang: "plaintext", shown: "", unescaped: 0 };
+const state: State = { original: null, decoded: null, showOriginal: false, content: null, detection: null, lang: "plaintext", shown: "", unescaped: 0 };
 let settings: Settings = { ...backend.DEFAULT_SETTINGS };
 let renderToken = 0;
 const search = new Search(ui.code, $("searchbar"), $<HTMLInputElement>("search"), $("search-count"));
@@ -163,6 +171,19 @@ async function loadPending() {
 // ------------------------------------------------------------------ content
 
 function setContent(c: Content) {
+  // Encoded text is decoded, unless the file type already says what it is.
+  const typed = c.name ? (languageFromFilename(c.name) ?? "plaintext") !== "plaintext" : false;
+  state.original = c;
+  state.decoded = c.truncated || typed ? null : decodeText(c.text);
+  state.showOriginal = false;
+  showContent();
+}
+
+/** Shows `state.original`, decoded and/or unescaped as appropriate. */
+function showContent() {
+  let c = state.original;
+  if (!c) return;
+  if (state.decoded && !state.showOriginal) c = { ...c, text: state.decoded.text, path: undefined };
   // JSON escaped inside a string is shown as the inner JSON. The file path is
   // dropped so "Open in external editor" opens the shown text, not the file.
   const unwrapped = c.truncated ? null : unwrapEscapedJson(c.text);
@@ -184,6 +205,13 @@ async function render() {
   const lang = state.lang;
   const notices: Notice[] = [];
   if (c.truncated) notices.push({ text: "The file is large – only the beginning is shown." });
+  const dec = state.decoded;
+  if (dec) {
+    const label = ENCODING_LABEL[dec.kind];
+    if (state.showOriginal) notices.push({ text: `Showing the original ${label} – press D to decode.` });
+    else if (dec.kind === "jwt" && dec.payload) notices.push({ text: `${jwtSummary(dec.payload)} Press D to show the original.` });
+    else notices.push({ text: `Decoded from ${label} – press D to show the original.` });
+  }
   if (state.unescaped === 1) notices.push({ text: "Showing JSON that was escaped inside a string." });
   else if (state.unescaped > 1) notices.push({ text: `Showing JSON that was escaped inside a string (${state.unescaped} levels).` });
 
@@ -380,6 +408,13 @@ async function openInEditor() {
   }
 }
 
+/** Switches between the decoded text and the original (D). */
+function toggleDecoded() {
+  if (!state.decoded) return;
+  state.showOriginal = !state.showOriginal;
+  showContent();
+}
+
 function zoom(delta: number) {
   settings.fontSize = delta === 0 ? 14 : Math.min(40, Math.max(8, settings.fontSize + delta));
   applySettings();
@@ -487,6 +522,7 @@ function onKey(e: KeyboardEvent) {
   else if (!mod && !e.altKey && key === "w") ui.optWrap.click();
   else if (!mod && !e.altKey && key === "l") ui.optLines.click();
   else if (!mod && !e.altKey && key === "t") togglePanel();
+  else if (!mod && !e.altKey && key === "d") toggleDecoded();
 }
 
 // ------------------------------------------------------------------ misc
