@@ -19,7 +19,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** detection/unwrapping of nested escaped strings; tree expansion of an embedded JSON string; plain strings that merely start with `{` but are invalid stay strings.
 
-## 2. [x] SQL with parameters from EF Core / SQL Profiler
+## 2. [x] SQL with parameters from EF Core / SQL Profiler ([#19](https://github.com/lizzard85/docview/pull/19))
 
 **Problem:** SQL captured from SQL Server Profiler / Extended Events comes as `exec sp_executesql N'SELECT … WHERE Id = @p0', N'@p0 int', @p0=42`, and EF Core logs print the SQL and the parameters separately (`Executed DbCommand (3ms) [Parameters=[@__id_0='42' (Nullable = true)], CommandType='Text', CommandTimeout='30']` followed by the SQL). Neither can be run directly in SSMS.
 
