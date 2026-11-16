@@ -24,7 +24,7 @@ export async function appVersion(): Promise<string> {
  */
 export async function checkForUpdate(ui: UpdateUi, manual: boolean): Promise<void> {
   if (!isTauri) {
-    if (manual) ui.toast("Opdateringer virker kun i den installerede app");
+    if (manual) ui.toast("Updates only work in the installed app");
     return;
   }
   if (busy) return;
@@ -33,18 +33,18 @@ export async function checkForUpdate(ui: UpdateUi, manual: boolean): Promise<voi
     const { check } = await import("@tauri-apps/plugin-updater");
     const update = await check();
     if (!update) {
-      if (manual) ui.toast(`Du har den nyeste version (${await appVersion()})`);
+      if (manual) ui.toast(`You have the latest version (${await appVersion()})`);
       return;
     }
     if (!manual && dismissedVersion === update.version) return;
-    ui.notice(`DocView ${update.version} er klar (du har ${update.currentVersion}).`, [
+    ui.notice(`DocView ${update.version} is available (you have ${update.currentVersion}).`, [
       {
-        label: "Opdatér og genstart",
+        label: "Update and restart",
         primary: true,
         run: () => void install(ui, update),
       },
       {
-        label: "Senere",
+        label: "Later",
         run: () => {
           dismissedVersion = update.version;
           ui.clearNotice();
@@ -52,7 +52,7 @@ export async function checkForUpdate(ui: UpdateUi, manual: boolean): Promise<voi
       },
     ]);
   } catch (e) {
-    if (manual) ui.toast(isNoUpdateAvailable(e) ? "Ingen opdatering tilgængelig lige nu" : `Kunne ikke søge efter opdateringer: ${e}`);
+    if (manual) ui.toast(isNoUpdateAvailable(e) ? "No update available right now" : `Could not check for updates: ${e}`);
     else console.warn("update check failed", e);
   } finally {
     busy = false;
@@ -67,24 +67,24 @@ export function isNoUpdateAvailable(e: unknown): boolean {
   return /valid release JSON|platform .* was not found|404|not found/i.test(String(e));
 }
 
-type Update =NonNullable<Awaited<ReturnType<typeof import("@tauri-apps/plugin-updater").check>>>;
+type Update = NonNullable<Awaited<ReturnType<typeof import("@tauri-apps/plugin-updater").check>>>;
 
 async function install(ui: UpdateUi, update: Update) {
   let total = 0;
   let received = 0;
-  ui.notice(`Henter DocView ${update.version}…`);
+  ui.notice(`Downloading DocView ${update.version}…`);
   try {
     await update.downloadAndInstall((event) => {
       if (event.event === "Started") total = event.data.contentLength ?? 0;
       else if (event.event === "Progress") {
         received += event.data.chunkLength;
-        if (total) ui.notice(`Henter DocView ${update.version}… ${Math.round((received / total) * 100)} %`);
-      } else if (event.event === "Finished") ui.notice("Installerer…");
+        if (total) ui.notice(`Downloading DocView ${update.version}… ${Math.round((received / total) * 100)} %`);
+      } else if (event.event === "Finished") ui.notice("Installing…");
     });
     // On Windows the installer closes the app itself; elsewhere restart it.
     const { relaunch } = await import("@tauri-apps/plugin-process");
     await relaunch();
   } catch (e) {
-    ui.notice(`Opdateringen mislykkedes: ${e}`, [{ label: "Luk", run: () => ui.clearNotice() }]);
+    ui.notice(`The update failed: ${e}`, [{ label: "Close", run: () => ui.clearNotice() }]);
   }
 }

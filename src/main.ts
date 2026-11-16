@@ -85,11 +85,11 @@ async function init() {
   await loadPending();
   const scError = await backend.shortcutStatus();
   if (scError && !state.content) {
-    ui.shortcutHint.textContent = `${displayShortcut(scError)} Vælg en anden genvej under Indstillinger (⚙).`;
+    ui.shortcutHint.textContent = `${displayShortcut(scError)} Pick another shortcut under Settings (⚙).`;
   }
   if (isWindows) {
     (ui.settingsForm.elements.namedItem("shortcut") as HTMLInputElement).placeholder = "Win+Alt+V";
-    $("shortcut-help").innerHTML = "Fx <code>Win+Alt+V</code>, <code>Ctrl+Shift+F12</code>.";
+    $("shortcut-help").innerHTML = "E.g. <code>Win+Alt+V</code>, <code>Ctrl+Shift+F12</code>.";
   }
 
   $("btn-check-update").addEventListener("click", () => void checkForUpdate(updateUi, true));
@@ -157,7 +157,7 @@ async function render() {
   const token = ++renderToken;
   const lang = state.lang;
   const notices: string[] = [];
-  if (c.truncated) notices.push("Filen er stor – kun begyndelsen vises.");
+  if (c.truncated) notices.push("The file is large – only the beginning is shown.");
 
   let text = c.text.replace(/\r\n?/g, "\n");
   if (settings.format && FORMATTABLE.has(lang)) {
@@ -169,9 +169,9 @@ async function render() {
     });
     if (token !== renderToken) return; // a newer render started meanwhile
     text = r.text;
-    if (r.error) notices.push(`Kunne ikke formatere som ${LANG_BY_ID.get(lang)?.label}: ${r.error}`);
+    if (r.error) notices.push(`Could not format as ${LANG_BY_ID.get(lang)?.label}: ${r.error}`);
   }
-  if (text.length > MAX_HIGHLIGHT_CHARS) notices.push("Teksten er meget stor – farvelægning er slået fra.");
+  if (text.length > MAX_HIGHLIGHT_CHARS) notices.push("The text is very large – highlighting is turned off.");
 
   state.shown = text;
   ui.code.className = `code language-${lang}`;
@@ -180,9 +180,9 @@ async function render() {
 
   const src = state.detection?.source;
   ui.detectSource.textContent =
-    lang !== state.detection?.lang ? "(valgt manuelt)" : src === "file" ? "(filtype)" : src === "parsed" ? "(genkendt)" : "(gæt)";
+    lang !== state.detection?.lang ? "(manual)" : src === "file" ? "(file type)" : src === "parsed" ? "(recognized)" : "(guess)";
   const lines = text.split("\n").length;
-  ui.info.textContent = `${c.name ? c.name + " · " : ""}${lines} linje${lines === 1 ? "" : "r"}`;
+  ui.info.textContent = `${c.name ? c.name + " · " : ""}${lines} line${lines === 1 ? "" : "s"}`;
   ui.notice.textContent = notices.join("  ");
   ui.notice.hidden = notices.length === 0;
   search.refresh();
@@ -194,9 +194,9 @@ async function pasteFromClipboard() {
   try {
     const text = await backend.readClipboard();
     if (text) setContent({ text });
-    else toast("Udklipsholderen indeholder ingen tekst");
+    else toast("The clipboard contains no text");
   } catch (e) {
-    toast(`Kunne ikke læse udklipsholderen: ${e}`);
+    toast(`Could not read the clipboard: ${e}`);
   }
 }
 
@@ -219,14 +219,14 @@ async function openPath(path: string) {
   try {
     setContent(await backend.readFile(path));
   } catch (e) {
-    toast(`Kunne ikke åbne filen: ${e}`);
+    toast(`Could not open the file: ${e}`);
   }
 }
 
 async function copyShown() {
   if (!state.content) return;
   await backend.writeClipboard(state.shown);
-  toast("Kopieret");
+  toast("Copied");
 }
 
 async function openInEditor() {
@@ -236,7 +236,7 @@ async function openInEditor() {
     const path = state.content.path && !state.content.truncated && !settings.format ? state.content.path : undefined;
     await backend.openInEditor(state.shown, LANG_BY_ID.get(state.lang)?.ext ?? "txt", path);
   } catch (e) {
-    toast(`Kunne ikke åbne editor: ${e}`);
+    toast(`Could not open the editor: ${e}`);
   }
 }
 
@@ -259,7 +259,7 @@ function applySettings() {
   ui.optWrap.checked = settings.wrap;
   ui.optLines.checked = settings.lineNumbers;
   ui.shortcutHint.textContent = backend.isTauri
-    ? `Global genvej: ${displayShortcut(settings.shortcut)} – viser indholdet af udklipsholderen.`
+    ? `Global shortcut: ${displayShortcut(settings.shortcut)} – shows what is on the clipboard.`
     : "";
 }
 

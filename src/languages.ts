@@ -7,7 +7,7 @@ export interface LangInfo {
 }
 
 export const LANGUAGES: LangInfo[] = [
-  { id: "plaintext", label: "Ren tekst", hljs: "plaintext", ext: "txt" },
+  { id: "plaintext", label: "Plain text", hljs: "plaintext", ext: "txt" },
   { id: "json", label: "JSON", hljs: "json", ext: "json" },
   { id: "sql", label: "SQL", hljs: "sql", ext: "sql" },
   { id: "xml", label: "XML", hljs: "xml", ext: "xml" },

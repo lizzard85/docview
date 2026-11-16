@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="da">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,26 +8,26 @@
   </head>
   <body>
     <header class="toolbar">
-      <select id="lang" title="Sprog (vælg manuelt hvis gættet er forkert)"></select>
+      <select id="lang" title="Language (pick manually if the guess is wrong)"></select>
       <span id="detect-source" class="muted"></span>
-      <label class="toggle" title="Formatér koden (F)"><input type="checkbox" id="opt-format" /> Formatér</label>
-      <label class="toggle" title="Ombryd lange linjer (W)"><input type="checkbox" id="opt-wrap" /> Ombryd</label>
-      <label class="toggle" title="Vis linjenumre (L)"><input type="checkbox" id="opt-lines" /> Linjenr.</label>
+      <label class="toggle" title="Format the code (F)"><input type="checkbox" id="opt-format" /> Format</label>
+      <label class="toggle" title="Wrap long lines (W)"><input type="checkbox" id="opt-wrap" /> Wrap</label>
+      <label class="toggle" title="Show line numbers (L)"><input type="checkbox" id="opt-lines" /> Line no.</label>
       <span class="spacer"></span>
       <span id="info" class="muted"></span>
-      <button id="btn-paste" title="Indsæt fra udklipsholder (Ctrl+V)">Indsæt</button>
-      <button id="btn-open" title="Åbn fil (Ctrl+O)">Åbn…</button>
-      <button id="btn-copy" title="Kopiér formateret tekst (Ctrl+Shift+C)">Kopiér</button>
-      <button id="btn-editor" title="Åbn i ekstern editor (Ctrl+E)">Editor</button>
-      <button id="btn-settings" class="icon" title="Indstillinger" aria-label="Indstillinger">⚙</button>
+      <button id="btn-paste" title="Paste from clipboard (Ctrl+V)">Paste</button>
+      <button id="btn-open" title="Open file (Ctrl+O)">Open…</button>
+      <button id="btn-copy" title="Copy formatted text (Ctrl+Shift+C)">Copy</button>
+      <button id="btn-editor" title="Open in external editor (Ctrl+E)">Editor</button>
+      <button id="btn-settings" class="icon" title="Settings" aria-label="Settings">⚙</button>
     </header>
 
     <div id="searchbar" class="searchbar" hidden>
-      <input id="search" type="search" placeholder="Søg…" spellcheck="false" />
+      <input id="search" type="search" placeholder="Search…" spellcheck="false" />
       <span id="search-count" class="muted"></span>
-      <button id="search-prev" title="Forrige (Shift+Enter)">↑</button>
-      <button id="search-next" title="Næste (Enter)">↓</button>
-      <button id="search-close" title="Luk (Esc)">✕</button>
+      <button id="search-prev" title="Previous (Shift+Enter)">↑</button>
+      <button id="search-next" title="Next (Enter)">↓</button>
+      <button id="search-close" title="Close (Esc)">✕</button>
     </div>
 
     <div id="update-bar" class="notice update-bar" hidden></div>
@@ -36,7 +36,7 @@
     <main id="viewer" tabindex="0">
       <div id="empty" class="empty">
         <h1>DocView</h1>
-        <p>Indsæt kode med <kbd>Ctrl</kbd>+<kbd>V</kbd>, træk en fil herind, eller tryk <kbd>Ctrl</kbd>+<kbd>O</kbd>.</p>
+        <p>Paste code with <kbd>Ctrl</kbd>+<kbd>V</kbd>, drop a file here, or press <kbd>Ctrl</kbd>+<kbd>O</kbd>.</p>
         <p class="muted" id="shortcut-hint"></p>
       </div>
       <div id="code" class="code"></div>
@@ -44,21 +44,21 @@
 
     <dialog id="settings">
       <form method="dialog" id="settings-form">
-        <h2>Indstillinger</h2>
-        <label>Global genvej
+        <h2>Settings</h2>
+        <label>Global shortcut
           <input name="shortcut" placeholder="Super+Alt+V" />
-          <small id="shortcut-help">Fx <code>Super+Alt+V</code> (Super = Windows-tasten), <code>Ctrl+Shift+F12</code>.</small>
+          <small id="shortcut-help">E.g. <code>Super+Alt+V</code> (Super = the Windows key), <code>Ctrl+Shift+F12</code>.</small>
         </label>
-        <label>Tema
+        <label>Theme
           <select name="theme">
-            <option value="auto">Følg system</option>
-            <option value="light">Lyst</option>
-            <option value="dark">Mørkt</option>
+            <option value="auto">Follow system</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
           </select>
         </label>
-        <label>Skriftstørrelse <input name="fontSize" type="number" min="8" max="40" /></label>
-        <label>Indrykning (mellemrum) <input name="indent" type="number" min="1" max="8" /></label>
-        <label>SQL-dialekt
+        <label>Font size <input name="fontSize" type="number" min="8" max="40" /></label>
+        <label>Indentation (spaces) <input name="indent" type="number" min="1" max="8" /></label>
+        <label>SQL dialect
           <select name="sqlDialect">
             <option value="transactsql">T-SQL (SQL Server)</option>
             <option value="sql">Standard SQL</option>
@@ -72,25 +72,25 @@
             <option value="snowflake">Snowflake</option>
           </select>
         </label>
-        <label>SQL-nøgleord
+        <label>SQL keywords
           <select name="sqlKeywordCase">
-            <option value="preserve">Som skrevet</option>
-            <option value="upper">STORE BOGSTAVER</option>
-            <option value="lower">små bogstaver</option>
+            <option value="preserve">As written</option>
+            <option value="upper">UPPERCASE</option>
+            <option value="lower">lowercase</option>
           </select>
         </label>
-        <label>Ekstern editor
-          <input name="editorPath" placeholder="Tom = Notepad++ hvis installeret (ellers Notepad / xdg-open)" />
+        <label>External editor
+          <input name="editorPath" placeholder="Empty = Notepad++ if installed (otherwise Notepad / xdg-open)" />
         </label>
-        <label class="row"><input type="checkbox" name="autostart" /> Start automatisk ved login (kører i baggrunden)</label>
-        <label class="row"><input type="checkbox" name="autoUpdate" /> Søg automatisk efter opdateringer</label>
-        <p class="update-row"><span id="app-version" class="muted"></span> <button type="button" id="btn-check-update">Søg efter opdateringer nu</button></p>
+        <label class="row"><input type="checkbox" name="autostart" /> Start automatically at login (runs in the background)</label>
+        <label class="row"><input type="checkbox" name="autoUpdate" /> Check for updates automatically</label>
+        <p class="update-row"><span id="app-version" class="muted"></span> <button type="button" id="btn-check-update">Check for updates now</button></p>
         <div id="settings-update" class="notice update-bar settings-update" hidden></div>
         <p id="settings-toast" class="muted settings-toast" hidden></p>
         <p id="settings-error" class="error"></p>
         <div class="buttons">
-          <button value="cancel" formnovalidate>Annullér</button>
-          <button value="save" id="settings-save" class="primary">Gem</button>
+          <button value="cancel" formnovalidate>Cancel</button>
+          <button value="save" id="settings-save" class="primary">Save</button>
         </div>
       </form>
     </dialog>

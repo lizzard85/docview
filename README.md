@@ -9,7 +9,7 @@ A small program for **viewing** code snippets and files. It is not an editor. Pa
 - Light/dark theme, line numbers, word wrap, zoom and search.
 - Builds for **Windows** and **Linux** (Tauri v2).
 
-The user interface is in Danish.
+The user interface is in English.
 
 ## Shortcuts
 
