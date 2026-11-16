@@ -76,3 +76,17 @@ describe("SQL with parameters", () => {
     expect(detectLanguage(ef)).toEqual({ lang: "sql", source: "parsed" });
   });
 });
+
+describe("CSV", () => {
+  it("detects CSV and TSV", () => {
+    expect(detectLanguage("id,name,price\n1,Apple,1.5\n2,Pear,2\n").lang).toBe("csv");
+    expect(detectLanguage("id\tname\n1\tApple\n").lang).toBe("csv");
+    expect(detectLanguage("x", "data.tsv").lang).toBe("csv");
+  });
+
+  it("does not take other languages for CSV", () => {
+    expect(detectLanguage("- a, b\n- c, d\n- e, f\n").lang).not.toBe("csv");
+    expect(detectLanguage('{"a":1,"b":2}\n{"a":3,"b":4}\n{"a":5,"b":6}\n').lang).not.toBe("csv");
+    expect(detectLanguage("foo(a, b);\nbar(c, d);\nbaz(e, f);\n").lang).not.toBe("csv");
+  });
+});

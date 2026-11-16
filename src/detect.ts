@@ -8,6 +8,7 @@
 import { XMLValidator } from "fast-xml-parser";
 import { format as formatSql } from "sql-formatter";
 import hljs from "./hljs";
+import { detectDelimiter } from "./csv";
 import { languageFromFilename } from "./languages";
 import { parseSqlWithParams } from "./sqlParams";
 
@@ -36,6 +37,9 @@ export function detectLanguage(text: string, filename?: string): Detection {
     const markup = detectMarkup(t);
     if (markup) return markup;
   }
+
+  // Tables: same number of delimited fields on every line (see csv.ts).
+  if (detectDelimiter(t)) return { lang: "csv", source: "parsed" };
 
   return detectByScore(t);
 }

@@ -29,6 +29,7 @@ export const LANGUAGES: LangInfo[] = [
   { id: "ini", label: "INI / TOML", hljs: "ini", ext: "ini" },
   { id: "dockerfile", label: "Dockerfile", hljs: "dockerfile", ext: "dockerfile" },
   { id: "diff", label: "Diff", hljs: "diff", ext: "diff" },
+  { id: "csv", label: "CSV / TSV", hljs: "plaintext", ext: "csv" },
 ];
 
 export const LANG_BY_ID = new Map(LANGUAGES.map((l) => [l.id, l]));
@@ -54,7 +55,8 @@ export const EXTENSIONS: Record<string, string> = {
   php: "php",
   ini: "ini", toml: "ini", cfg: "ini", conf: "ini", properties: "ini", env: "ini",
   diff: "diff", patch: "diff",
-  txt: "plaintext", log: "plaintext", csv: "plaintext",
+  csv: "csv", tsv: "csv", tab: "csv",
+  txt: "plaintext", log: "plaintext",
 };
 
 export function languageFromFilename(name: string): string | undefined {

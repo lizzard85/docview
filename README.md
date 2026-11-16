@@ -22,7 +22,7 @@ On Linux, make the AppImage executable (`chmod +x DocView_*.AppImage`) and run i
 ## Features
 
 ### Language detection
-- Detects the language by itself, even for small fragments without `<!DOCTYPE>` or `<?xml>`: a single `<td>`, an `<Order>` element or `select * from x` is enough.
+- Detects the language by itself (including CSV/TSV tables), even for small fragments without `<!DOCTYPE>` or `<?xml>`: a single `<td>`, an `<Order>` element or `select * from x` is enough.
 - Candidates are scored from patterns in the text and, where possible, confirmed with a real parser. Files are recognised by their extension.
 - The toolbar shows how the language was found (file type, recognised, guess) and you can always pick another one from the drop-down.
 
@@ -38,8 +38,8 @@ On Linux, make the AppImage executable (`chmod +x DocView_*.AppImage`) and run i
 - Line numbers, word wrap, zoom and light/dark theme (or follow the system).
 - Search with highlighting of all matches (`Ctrl+F`, `F3` / `Shift+F3`).
 
-### Side panel: JSON and XML tree, Markdown preview
-For JSON, XML and Markdown a panel opens to the right of the code (toggle it with the **Tree**/**Preview** button or `T`; drag the divider to resize it).
+### Side panel: JSON and XML tree, CSV table, Markdown preview
+For JSON, XML, CSV/TSV and Markdown a panel opens to the right of the code (toggle it with the **Tree**/**Table**/**Preview** button or `T`; drag the divider to resize it).
 
 - **JSON tree** – expand and collapse objects and arrays, see their size (`{3 keys}`, `[12 items]`) and values coloured by type.
 - String values that contain a JSON object or array are marked `JSON string` and can be expanded like the object/array itself; paths continue inside them (`$.payload.id`). **Copy value** on the string still copies the raw string.
@@ -49,6 +49,7 @@ For JSON, XML and Markdown a panel opens to the right of the code (toggle it wit
 - **Jump to line** – selecting a node scrolls the code view to that line (toggle with the eye button).
 - Keyboard: arrow keys to move, expand and collapse; `Enter` toggles; `Ctrl+C` copies the value.
 - Large documents stay responsive: tree nodes are only built when expanded.
+- **CSV / TSV table** – CSV and TSV are detected by a consistent number of fields per line (`,`, `;` or tab, quoted fields with delimiters and line breaks per RFC 4180) or by the `.csv`/`.tsv` extension. The table has a sticky header (the first row; toggle with **Header**), sortable columns (click a header: ascending, descending, unsorted; numeric columns sort by value, including decimal commas), a filter box and a row count. Large files render 500 rows at a time (**Show more**). Selecting a cell jumps to its line in the code (eye button), arrow keys move between cells and `Ctrl+C` / **Copy value** copies the cell.
 - **Markdown preview** – GitHub-flavoured Markdown (tables, task lists, fenced code with highlighting). Embedded HTML is sanitised, and links open in your default browser.
 
 ### Always at hand
@@ -86,7 +87,7 @@ On Linux only the AppImage updates itself; a `.deb` installation is updated by i
 | `Ctrl+E` | Open in external editor |
 | `Ctrl +` / `Ctrl -` / `Ctrl 0` | Zoom in / out / reset |
 | `F` / `W` / `L` | Toggle formatting / word wrap / line numbers |
-| `T` | Toggle the side panel (tree / preview) |
+| `T` | Toggle the side panel (tree / table / preview) |
 | `D` | Switch between decoded text (JWT, Base64, URL encoding) and the original |
 | `Ctrl+,` | Settings |
 | `Esc` | Close search, otherwise hide the window |
@@ -95,7 +96,7 @@ The default global shortcut is deliberately not `Ctrl+Shift+V` (already "paste a
 
 ## Settings
 
-Open them with the ⚙ button, `Ctrl+,` or the tray menu: global shortcut, theme, font size, indentation, SQL dialect and keyword case, external editor, start at login, automatic updates and history (with **Clear history**). Formatting, word wrap, line numbers, the side panel and inlining of SQL parameters remember their state.
+Open them with the ⚙ button, `Ctrl+,` or the tray menu: global shortcut, theme, font size, indentation, SQL dialect and keyword case, external editor, start at login, automatic updates and history (with **Clear history**). Formatting, word wrap, line numbers, the side panel, the CSV header toggle and inlining of SQL parameters remember their state.
 
 Settings are stored in `%APPDATA%\io.github.docview\settings.json` on Windows and `~/.config/io.github.docview/settings.json` on Linux; the history is in `history.json` in the same folder.
 
@@ -143,6 +144,8 @@ src/                 Frontend (TypeScript + Vite)
   tree.ts            Lazy tree view with filter
   jsonTree.ts        JSON -> tree nodes
   xmlTree.ts         XML -> tree nodes
+  csv.ts             CSV/TSV parsing, delimiter detection, sorting, filtering
+  tableView.ts       CSV table view
   locate.ts          Maps tree paths to lines in the code view
   escapedJson.ts     JSON escaped inside strings
   history.ts         History list logic (dedupe, caps)

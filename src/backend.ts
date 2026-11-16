@@ -23,6 +23,8 @@ export interface Settings {
   inlineSqlParams: boolean;
   /** Keep a history of recent contents (history.json). */
   history: boolean;
+  /** CSV table view: the first row is the header. */
+  csvHeader: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -43,6 +45,7 @@ export const DEFAULT_SETTINGS: Settings = {
   panelSync: true,
   inlineSqlParams: true,
   history: true,
+  csvHeader: true,
 };
 
 export interface Content {

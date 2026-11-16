@@ -60,7 +60,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** history list logic (dedupe, cap, ordering) as pure functions.
 
-## 6. [ ] CSV / TSV table view
+## 6. [x] CSV / TSV table view
 
 **Behaviour:**
 - Detect CSV and TSV (consistent delimiter count per line; `,`, `;` and tab; quoted fields with embedded delimiters/newlines per RFC 4180). Add a `CSV` language entry.

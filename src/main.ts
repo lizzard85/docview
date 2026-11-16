@@ -4,6 +4,7 @@ import { decodeText, ENCODING_LABEL, jwtSummary, type Decoded } from "./decode";
 import { detectLanguage, type Detection } from "./detect";
 import { unwrapEscapedJson } from "./escapedJson";
 import { FORMATTABLE, formatCode } from "./format";
+import { guessDelimiter, parseCsv } from "./csv";
 import { addToHistory, parseHistory, type HistoryEntry } from "./history";
 import { HistoryMenu } from "./historyMenu";
 import { jsonToTree } from "./jsonTree";
@@ -98,6 +99,8 @@ async function init() {
   panel.onResize = (w) => { settings.panelWidth = Math.round(w); persist(); };
   panel.onSyncChange = (on) => { settings.panelSync = on; persist(); };
   panel.onNavigate = (node) => jumpToPath(node.path);
+  panel.onJumpLine = (line) => jumpToLine(line);
+  panel.onHeaderChange = (on) => { settings.csvHeader = on; persist(); };
   panel.onLink = (href) => backend.openUrl(href).catch((e) => toast(`Could not open the link: ${e}`));
   panel.onCopy = async (text, what) => {
     await backend.writeClipboard(text);
@@ -328,6 +331,9 @@ function panelView(): PanelView | null {
   let view: PanelView | null = null;
   if (state.lang === "markdown") {
     view = { title: "Preview", html: renderMarkdown(c.text) };
+  } else if (state.lang === "csv") {
+    const delimiter = guessDelimiter(c.text);
+    view = { title: delimiter === "\t" ? "TSV" : "CSV", table: parseCsv(c.text, delimiter) };
   } else if (parse) {
     const title = LANG_BY_ID.get(state.lang)?.label ?? state.lang;
     try {
@@ -343,8 +349,8 @@ function panelView(): PanelView | null {
 function updatePanel() {
   const view = panelView();
   ui.btnPanel.hidden = !view;
-  ui.btnPanel.textContent = view?.html !== undefined ? "Preview" : "Tree";
-  ui.btnPanel.title = view?.html !== undefined ? "Show Markdown preview (T)" : "Show tree view (T)";
+  ui.btnPanel.textContent = view?.html !== undefined ? "Preview" : view?.table ? "Table" : "Tree";
+  ui.btnPanel.title = view?.html !== undefined ? "Show Markdown preview (T)" : view?.table ? "Show table view (T)" : "Show tree view (T)";
   ui.btnPanel.classList.toggle("active", !!view && settings.panel);
   panel.update(view, settings.panel);
 }
@@ -470,6 +476,7 @@ function applySettings() {
   root.style.setProperty("--font-size", `${settings.fontSize}px`);
   panel.setWidth(settings.panelWidth);
   panel.setSync(settings.panelSync);
+  panel.setCsvHeader(settings.csvHeader);
   document.body.classList.toggle("wrap", settings.wrap);
   document.body.classList.toggle("no-lines", !settings.lineNumbers);
   ui.optFormat.checked = settings.format;

@@ -49,9 +49,10 @@
       <aside id="side-panel" class="side-panel" hidden>
         <div class="panel-header">
           <strong id="panel-title">Tree</strong>
-          <input id="panel-filter" class="tree-only" type="search" placeholder="Filter…" spellcheck="false" />
+          <input id="panel-filter" class="tree-only table-too" type="search" placeholder="Filter…" spellcheck="false" />
+          <label class="toggle table-only" title="Use the first row as the column header"><input type="checkbox" id="panel-csv-header" checked /> Header</label>
           <span class="spacer html-only"></span>
-          <button id="panel-sync" class="icon tree-only" title="Jump to the line in the code when a node is selected" aria-pressed="false">
+          <button id="panel-sync" class="icon tree-only table-too" title="Jump to the line in the code when a node is selected" aria-pressed="false">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
           <button id="panel-expand" class="icon tree-only" title="Expand all">+</button>
@@ -59,10 +60,10 @@
           <button id="panel-close" class="icon" title="Close (T)">✕</button>
         </div>
         <div id="panel-body" class="panel-body"></div>
-        <div class="panel-footer tree-only">
+        <div class="panel-footer tree-only table-too">
           <span id="panel-path" class="panel-path muted">Select a node</span>
-          <button id="panel-copy-path" title="Copy the path of the selected node" disabled>Copy path</button>
-          <button id="panel-copy-value" title="Copy the value of the selected node (Ctrl+C)" disabled>Copy value</button>
+          <button id="panel-copy-path" class="tree-only" title="Copy the path of the selected node" disabled>Copy path</button>
+          <button id="panel-copy-value" class="table-too" title="Copy the value of the selected node or cell (Ctrl+C)" disabled>Copy value</button>
         </div>
       </aside>
     </div>
