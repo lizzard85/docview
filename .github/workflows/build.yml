@@ -20,8 +20,11 @@ jobs:
       - run: npm test
       - run: npm run build
 
+  # Installers are only built for version tags (v1.2.3) or when started
+  # manually (Actions → Build → Run workflow), to save Actions minutes.
   build:
     needs: test
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     permissions:
       contents: write
     strategy:

@@ -68,7 +68,10 @@ npm run tauri build     # byg installer (.msi/.exe på Windows, .deb/.AppImage p
 
 `npm run dev` starter kun frontend'en i en almindelig browser på http://localhost:1420. Det er praktisk til at arbejde på visningen.
 
-GitHub Actions (`.github/workflows/build.yml`) bygger til Windows og Linux ved hvert push. Installerne kan hentes som artifacts. Hvis du pusher et tag som `v0.1.0`, oprettes der en kladde til en release med installerne.
+GitHub Actions (`.github/workflows/build.yml`) kører testene ved hvert push og hver pull request. Installerne til Windows og Linux bygges kun, når du pusher et versions-tag eller starter workflowet manuelt. Det sparer Actions-minutter.
+
+- Pusher du et tag som `v0.1.0`, oprettes der en kladde til en release med installerne.
+- Starter du workflowet manuelt under Actions → Build → "Run workflow", kan installerne hentes som artifacts under kørslen.
 
 ## Struktur
 
