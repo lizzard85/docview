@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "DocView",
+  "version": "0.1.0",
+  "identifier": "io.github.docview",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "DocView",
+        "width": 1000,
+        "height": 700,
+        "minWidth": 480,
+        "minHeight": 300,
+        "center": true,
+        "visible": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis", "msi", "deb", "appimage"],
+    "category": "DeveloperTool",
+    "shortDescription": "Viewer that detects, formats and highlights code snippets and files",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "fileAssociations": [
+      { "ext": ["json", "jsonc"], "name": "JSON", "role": "Viewer", "mimeType": "application/json" },
+      { "ext": ["sql"], "name": "SQL", "role": "Viewer", "mimeType": "application/sql" },
+      { "ext": ["xml", "xsd", "xslt", "config"], "name": "XML", "role": "Viewer", "mimeType": "application/xml" },
+      { "ext": ["yaml", "yml"], "name": "YAML", "role": "Viewer", "mimeType": "application/yaml" },
+      { "ext": ["log"], "name": "Log", "role": "Viewer", "mimeType": "text/plain" }
+    ],
+    "windows": {
+      "nsis": { "installMode": "currentUser" }
+    },
+    "linux": {
+      "deb": { "depends": [] }
+    }
+  }
+}
