@@ -286,6 +286,32 @@ fn default_editor(target: &Path) -> Command {
     c
 }
 
+/// Opens a link from the Markdown preview in the default browser or mail client.
+/// Only http, https and mailto links are allowed.
+#[tauri::command]
+fn open_url(url: String) -> Result<(), String> {
+    let lower = url.to_ascii_lowercase();
+    if !(lower.starts_with("https://") || lower.starts_with("http://") || lower.starts_with("mailto:")) {
+        return Err("Only http, https and mailto links can be opened".into());
+    }
+    url_command(&url).spawn().map(|_| ()).map_err(|e| e.to_string())
+}
+
+#[cfg(target_os = "windows")]
+fn url_command(url: &str) -> Command {
+    // Not "cmd /c start": cmd would interpret characters like & in the URL.
+    let mut c = Command::new("rundll32.exe");
+    c.args(["url.dll,FileProtocolHandler", url]);
+    c
+}
+
+#[cfg(not(target_os = "windows"))]
+fn url_command(url: &str) -> Command {
+    let mut c = Command::new(if cfg!(target_os = "macos") { "open" } else { "xdg-open" });
+    c.arg(url);
+    c
+}
+
 // ------------------------------------------------------------------ tray
 
 fn build_tray(app: &tauri::App) -> tauri::Result<()> {
@@ -375,7 +401,8 @@ pub fn run() {
             get_settings,
             save_settings,
             shortcut_status,
-            open_in_editor
+            open_in_editor,
+            open_url
         ])
         .run(tauri::generate_context!())
         .expect("error while running DocView");
