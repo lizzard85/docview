@@ -5,6 +5,8 @@ import { FORMATTABLE, formatCode } from "./format";
 import { jsonToTree } from "./jsonTree";
 import { LANGUAGES, LANG_BY_ID } from "./languages";
 import { SidePanel, type PanelView } from "./panel";
+import type { TreeNode } from "./tree";
+import { xmlToTree } from "./xmlTree";
 import { MAX_HIGHLIGHT_CHARS, renderCode } from "./render";
 import { Search } from "./search";
 import { displayShortcut, isWindows, storeShortcut } from "./shortcut";
@@ -211,12 +213,18 @@ function panelView(): PanelView | null {
   if (panelCache?.content === c && panelCache.lang === state.lang && panelCache.indent === settings.indent) {
     return panelCache.view;
   }
+  const parsers: Record<string, (text: string) => TreeNode[]> = {
+    json: (t) => jsonToTree(JSON.parse(t), settings.indent),
+    xml: (t) => xmlToTree(t, settings.indent),
+  };
+  const parse = parsers[state.lang];
   let view: PanelView | null = null;
-  if (state.lang === "json") {
+  if (parse) {
+    const title = LANG_BY_ID.get(state.lang)?.label ?? state.lang;
     try {
-      view = { title: "JSON", nodes: jsonToTree(JSON.parse(c.text), settings.indent) };
+      view = { title, nodes: parse(c.text) };
     } catch (e) {
-      view = { title: "JSON", error: `Could not parse the JSON:\n${e instanceof Error ? e.message : e}` };
+      view = { title, error: `Could not parse the ${title}:\n${e instanceof Error ? e.message : e}` };
     }
   }
   panelCache = { content: c, lang: state.lang, indent: settings.indent, view };
