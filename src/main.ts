@@ -4,6 +4,7 @@ import { detectLanguage, type Detection } from "./detect";
 import { FORMATTABLE, formatCode } from "./format";
 import { jsonToTree } from "./jsonTree";
 import { LANGUAGES, LANG_BY_ID } from "./languages";
+import { findOffset, jsonLocations, lineOf, lineStarts, xmlLocations, type Locations } from "./locate";
 import { renderMarkdown } from "./markdown";
 import { SidePanel, type PanelView } from "./panel";
 import type { TreeNode } from "./tree";
@@ -71,6 +72,8 @@ async function init() {
   ui.btnPanel.addEventListener("click", togglePanel);
   panel.onClose = togglePanel;
   panel.onResize = (w) => { settings.panelWidth = Math.round(w); persist(); };
+  panel.onSyncChange = (on) => { settings.panelSync = on; persist(); };
+  panel.onNavigate = (node) => jumpToPath(node.path);
   panel.onLink = (href) => backend.openUrl(href).catch((e) => toast(`Could not open the link: ${e}`));
   panel.onCopy = async (text, what) => {
     await backend.writeClipboard(text);
@@ -244,6 +247,34 @@ function updatePanel() {
   panel.update(view, settings.panel);
 }
 
+// ------------------------------------------------------------------ jump to line
+
+let locCache: { text: string; lang: string; map: Locations; starts: number[] } | null = null;
+
+/** Scrolls the code view to the line of a tree node (by its JSONPath / XPath). */
+function jumpToPath(path: string) {
+  const lang = state.lang;
+  if (lang !== "json" && lang !== "xml") return;
+  // Positions are taken from the text that is shown, which may be formatted.
+  if (locCache?.text !== state.shown || locCache.lang !== lang) {
+    const map = lang === "json" ? jsonLocations(state.shown) : xmlLocations(state.shown);
+    locCache = { text: state.shown, lang, map, starts: lineStarts(state.shown) };
+  }
+  const offset = findOffset(locCache.map, path, lang);
+  if (offset !== undefined) jumpToLine(lineOf(locCache.starts, offset));
+}
+
+function jumpToLine(index: number) {
+  const line = ui.code.children[index] as HTMLElement | undefined;
+  if (!line) return;
+  const view = ui.viewer.getBoundingClientRect();
+  const rect = line.getBoundingClientRect();
+  ui.viewer.scrollTop += rect.top - view.top - (view.height - rect.height) / 2;
+  ui.code.querySelector(".jump-target")?.classList.remove("jump-target");
+  void line.offsetWidth; // restart the animation when the same line is hit again
+  line.classList.add("jump-target");
+}
+
 function togglePanel() {
   if (!panelView()) return;
   settings.panel = !settings.panel;
@@ -318,6 +349,7 @@ function applySettings() {
   else root.dataset.theme = settings.theme;
   root.style.setProperty("--font-size", `${settings.fontSize}px`);
   panel.setWidth(settings.panelWidth);
+  panel.setSync(settings.panelSync);
   document.body.classList.toggle("wrap", settings.wrap);
   document.body.classList.toggle("no-lines", !settings.lineNumbers);
   ui.optFormat.checked = settings.format;

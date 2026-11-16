@@ -21,6 +21,9 @@ export class SidePanel {
   onCopy: (text: string, what: "path" | "value") => void = () => {};
   /** Called with the href of a link clicked in the HTML view. */
   onLink: (href: string) => void = () => {};
+  /** Called when a node is selected while "jump to line" is on. */
+  onNavigate: (node: TreeNode) => void = () => {};
+  onSyncChange: (on: boolean) => void = () => {};
 
   private view: PanelView | null = null;
   private selected: TreeNode | null = null;
@@ -34,6 +37,8 @@ export class SidePanel {
   private readonly path = byId("panel-path");
   private readonly copyPath = byId<HTMLButtonElement>("panel-copy-path");
   private readonly copyValue = byId<HTMLButtonElement>("panel-copy-value");
+  private readonly syncButton = byId<HTMLButtonElement>("panel-sync");
+  private sync = false;
 
   constructor() {
     this.tree = new TreeView(this.body);
@@ -41,6 +46,11 @@ export class SidePanel {
     this.tree.onCopy = (n) => this.onCopy(n.copyValue(), "value");
 
     byId("panel-close").addEventListener("click", () => this.onClose());
+    this.syncButton.addEventListener("click", () => {
+      this.setSync(!this.sync);
+      this.onSyncChange(this.sync);
+      if (this.sync && this.selected) this.onNavigate(this.selected);
+    });
     byId("panel-expand").addEventListener("click", () => {
       if (!this.tree.expandAll()) this.path.textContent = "Stopped expanding – the tree is very large.";
     });
@@ -78,6 +88,13 @@ export class SidePanel {
   }
 
   get isOpen() { return !this.el.hidden; }
+
+  /** "Jump to line" on/off (the eye button). */
+  setSync(on: boolean) {
+    this.sync = on;
+    this.syncButton.classList.toggle("active", on);
+    this.syncButton.setAttribute("aria-pressed", String(on));
+  }
 
   setWidth(px: number) {
     this.el.style.width = `${Math.max(MIN_WIDTH, px)}px`;
@@ -131,6 +148,7 @@ export class SidePanel {
     this.path.textContent = node ? node.path : "Select a node";
     this.path.title = node?.path ?? "";
     this.copyPath.disabled = this.copyValue.disabled = !node;
+    if (node && this.sync) this.onNavigate(node);
   }
 
   private initSplitter() {

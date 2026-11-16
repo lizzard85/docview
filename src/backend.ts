@@ -17,6 +17,8 @@ export interface Settings {
   /** Side panel (tree view) shown when the content supports it. */
   panel: boolean;
   panelWidth: number;
+  /** Selecting a tree node scrolls the code view to its line. */
+  panelSync: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -34,6 +36,7 @@ export const DEFAULT_SETTINGS: Settings = {
   autoUpdate: true,
   panel: true,
   panelWidth: 380,
+  panelSync: true,
 };
 
 export interface Content {
