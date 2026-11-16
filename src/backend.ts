@@ -14,6 +14,9 @@ export interface Settings {
   editorPath: string;
   autostart: boolean;
   autoUpdate: boolean;
+  /** Side panel (tree view) shown when the content supports it. */
+  panel: boolean;
+  panelWidth: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -29,6 +32,8 @@ export const DEFAULT_SETTINGS: Settings = {
   editorPath: "",
   autostart: false,
   autoUpdate: true,
+  panel: true,
+  panelWidth: 380,
 };
 
 export interface Content {

@@ -85,7 +85,48 @@ input[type="checkbox"] { padding: 0; }
 .settings-toast { margin: 0 0 10px; }
 .settings-toast[hidden] { display: none; }
 
-main { flex: 1; overflow: auto; outline: none; }
+.workspace { flex: 1; display: flex; min-height: 0; }
+main { flex: 1; min-width: 0; overflow: auto; outline: none; }
+.toolbar button.active { border-color: var(--accent); color: var(--accent); }
+
+/* side panel */
+.splitter { flex: none; width: 5px; cursor: col-resize; background: var(--bg-bar); border-left: 1px solid var(--border); }
+.splitter:hover { background: var(--border); }
+.side-panel { flex: none; width: 380px; min-width: 200px; display: flex; flex-direction: column; min-height: 0; }
+.splitter[hidden], .side-panel[hidden] { display: none; }
+.panel-header, .panel-footer {
+  display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: var(--bg-bar);
+}
+.panel-header { border-bottom: 1px solid var(--border); }
+.panel-footer { border-top: 1px solid var(--border); }
+.panel-header input { flex: 1; min-width: 60px; }
+.panel-path {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: "Cascadia Mono", Consolas, "DejaVu Sans Mono", ui-monospace, monospace;
+}
+.panel-body {
+  flex: 1; overflow: auto; outline: none; padding: 4px 0;
+  font-family: "Cascadia Mono", Consolas, "DejaVu Sans Mono", "Ubuntu Mono", ui-monospace, monospace;
+  font-size: calc(var(--font-size) - 1px); line-height: 1.5;
+}
+
+/* tree view */
+.tree-row { white-space: nowrap; padding-right: 8px; cursor: default; width: max-content; min-width: 100%; }
+.tree-row:hover { background: var(--bg-bar); }
+.tree-row.selected { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.panel-body:focus .tree-row.selected { outline: 1px solid var(--accent); outline-offset: -1px; }
+.tree-children[hidden] { display: none; }
+.tree-caret { display: inline-block; width: 1.1em; color: var(--muted); cursor: pointer; user-select: none; }
+.tree-root { color: var(--muted); }
+.tree-prop, .tree-key { color: var(--t-variable); }
+.tree-index { color: var(--muted); }
+.tree-sep { color: var(--muted); }
+.tree-string { color: var(--t-string); }
+.tree-number { color: var(--t-number); }
+.tree-boolean, .tree-null { color: var(--t-keyword); }
+.tree-summary { color: var(--muted); margin-left: 6px; }
+.tree-more { color: var(--accent); cursor: pointer; }
+.tree-message { color: var(--muted); padding: 4px 10px; margin: 0; white-space: pre-wrap; }
 
 .empty { max-width: 520px; margin: 12vh auto; text-align: center; }
 .empty h1 { font-weight: 600; }

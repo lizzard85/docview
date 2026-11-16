@@ -2,7 +2,9 @@ import * as backend from "./backend";
 import type { Content, Settings } from "./backend";
 import { detectLanguage, type Detection } from "./detect";
 import { FORMATTABLE, formatCode } from "./format";
+import { jsonToTree } from "./jsonTree";
 import { LANGUAGES, LANG_BY_ID } from "./languages";
+import { SidePanel, type PanelView } from "./panel";
 import { MAX_HIGHLIGHT_CHARS, renderCode } from "./render";
 import { Search } from "./search";
 import { displayShortcut, isWindows, storeShortcut } from "./shortcut";
@@ -29,6 +31,7 @@ const ui = {
   settingsError: $("settings-error"),
   settingsUpdate: $("settings-update"),
   settingsToast: $("settings-toast"),
+  btnPanel: $<HTMLButtonElement>("btn-panel"),
 };
 
 interface State {
@@ -42,6 +45,7 @@ const state: State = { content: null, detection: null, lang: "plaintext", shown:
 let settings: Settings = { ...backend.DEFAULT_SETTINGS };
 let renderToken = 0;
 const search = new Search(ui.code, $("searchbar"), $<HTMLInputElement>("search"), $("search-count"));
+const panel = new SidePanel();
 
 // ------------------------------------------------------------------ setup
 
@@ -61,6 +65,13 @@ async function init() {
   $("btn-copy").addEventListener("click", copyShown);
   $("btn-editor").addEventListener("click", openInEditor);
   $("btn-settings").addEventListener("click", openSettings);
+  ui.btnPanel.addEventListener("click", togglePanel);
+  panel.onClose = togglePanel;
+  panel.onResize = (w) => { settings.panelWidth = Math.round(w); persist(); };
+  panel.onCopy = async (text, what) => {
+    await backend.writeClipboard(text);
+    toast(what === "path" ? "Copied path" : "Copied value");
+  };
   ui.settingsForm.addEventListener("submit", onSettingsSubmit);
 
   document.addEventListener("paste", (e) => {
@@ -186,6 +197,45 @@ async function render() {
   ui.notice.textContent = notices.join("  ");
   ui.notice.hidden = notices.length === 0;
   search.refresh();
+  updatePanel();
+}
+
+// ------------------------------------------------------------------ side panel
+
+let panelCache: { content: Content; lang: string; indent: number; view: PanelView | null } | null = null;
+
+/** What the side panel can show for the current content (cached per content and language). */
+function panelView(): PanelView | null {
+  const c = state.content;
+  if (!c) return null;
+  if (panelCache?.content === c && panelCache.lang === state.lang && panelCache.indent === settings.indent) {
+    return panelCache.view;
+  }
+  let view: PanelView | null = null;
+  if (state.lang === "json") {
+    try {
+      view = { title: "JSON", nodes: jsonToTree(JSON.parse(c.text), settings.indent) };
+    } catch (e) {
+      view = { title: "JSON", error: `Could not parse the JSON:\n${e instanceof Error ? e.message : e}` };
+    }
+  }
+  panelCache = { content: c, lang: state.lang, indent: settings.indent, view };
+  return view;
+}
+
+function updatePanel() {
+  const view = panelView();
+  ui.btnPanel.hidden = !view;
+  ui.btnPanel.classList.toggle("active", !!view && settings.panel);
+  panel.update(view, settings.panel);
+}
+
+function togglePanel() {
+  if (!panelView()) return;
+  settings.panel = !settings.panel;
+  persist();
+  updatePanel();
+  if (settings.panel) panel.tree.focus();
 }
 
 // ------------------------------------------------------------------ actions
@@ -253,6 +303,7 @@ function applySettings() {
   if (settings.theme === "auto") delete root.dataset.theme;
   else root.dataset.theme = settings.theme;
   root.style.setProperty("--font-size", `${settings.fontSize}px`);
+  panel.setWidth(settings.panelWidth);
   document.body.classList.toggle("wrap", settings.wrap);
   document.body.classList.toggle("no-lines", !settings.lineNumbers);
   ui.optFormat.checked = settings.format;
@@ -344,6 +395,7 @@ function onKey(e: KeyboardEvent) {
   else if (!mod && !e.altKey && key === "f") ui.optFormat.click();
   else if (!mod && !e.altKey && key === "w") ui.optWrap.click();
   else if (!mod && !e.altKey && key === "l") ui.optLines.click();
+  else if (!mod && !e.altKey && key === "t") togglePanel();
 }
 
 // ------------------------------------------------------------------ misc
