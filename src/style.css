@@ -129,6 +129,9 @@ main { flex: 1; min-width: 0; overflow: auto; outline: none; }
 .tree-comment { color: var(--t-comment); font-style: italic; }
 .tree-summary { color: var(--muted); margin-left: 6px; }
 .tree-more { color: var(--accent); cursor: pointer; }
+#panel-sync svg { display: block; }
+#panel-sync { color: var(--muted); }
+#panel-sync.active { color: var(--accent); border-color: var(--accent); }
 .tree-message { color: var(--muted); padding: 4px 10px; margin: 0; white-space: pre-wrap; }
 
 /* Markdown preview (the panel in HTML mode) */
@@ -172,6 +175,11 @@ kbd {
   min-width: max-content; padding: 6px 0;
 }
 .line { display: flex; }
+.line.jump-target { animation: jump-flash 1.6s ease-out; }
+@keyframes jump-flash {
+  from { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+  to { background: transparent; }
+}
 .ln {
   flex: none; position: sticky; left: 0; min-width: 3.5em; padding: 0 12px 0 8px;
   text-align: right; color: var(--muted); background: var(--bg-gutter); user-select: none;
