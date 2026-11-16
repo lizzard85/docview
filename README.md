@@ -52,9 +52,13 @@ On Linux only the AppImage updates itself. A `.deb` installation must be updated
 
 ### Making a release
 
-1. Create a release on GitHub with a new tag `vX.Y.Z` (e.g. `v0.2.1`) targeting `main`, and publish it. Pushing the tag from the command line works too.
-2. The workflow sets the app version from the tag and builds the installers. It then uploads them together with the update packages and `latest.json` to the release. If the workflow had to create the release itself, it is a draft that you publish.
-3. Installed copies pick up the new version on their next check.
+Do not create releases by hand in the GitHub UI. Releases are made by the workflow:
+
+1. Bump `version` in `package.json` (e.g. `npm version 0.2.1 --no-git-tag-version`) in a pull request, and merge it into `main`. An agent can do this for you: ask it to "make a release".
+2. The workflow sees a version without a release. It builds Windows and Linux into a draft release, including the update packages and `latest.json`.
+3. Only when every build has succeeded is the release published and tagged `vX.Y.Z`. Installed copies therefore never see a release that is missing files. They pick up the new version on their next check.
+
+If a build fails, nothing is published. Fix the problem and merge the fix; the next push to `main` finishes the release. Pushing a tag `vX.Y.Z` also triggers a release. "Run workflow" under Actions builds installers as artifacts without releasing. The full procedure is in [AGENTS.md](AGENTS.md).
 
 The update packages are signed with a key stored in the repository secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. The matching public key is in `src-tauri/tauri.conf.json`. Keep a backup of the private key: without it, existing installations cannot receive updates. This key is only for updates and has nothing to do with Windows code signing.
 
@@ -90,10 +94,7 @@ npm run tauri build     # build an installer (.msi/.exe on Windows, .deb/.AppIma
 
 `npm run dev` starts only the frontend in a normal browser at http://localhost:1420, which is handy when working on the viewer.
 
-GitHub Actions (`.github/workflows/build.yml`) runs the tests on every push and pull request. The Windows and Linux installers are only built when you push a version tag or start the workflow manually, to save Actions minutes.
-
-- Pushing a tag such as `v0.1.0` creates a draft release with the installers.
-- Starting the workflow manually under Actions → Build → "Run workflow" makes the installers available as artifacts on the run.
+GitHub Actions (`.github/workflows/build.yml`) runs the tests on every push and pull request. Installers are only built for a release (see [Making a release](#making-a-release)) or a manual run.
 
 ## Structure
 
