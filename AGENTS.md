@@ -11,6 +11,7 @@ DocView is a desktop viewer for code snippets and files: paste or open SQL, HTML
 - **Everything written to git/GitHub is in English**: commit messages, PR titles and descriptions, code comments, README, docs.
 - **The app's user interface is in English** (labels, messages, toasts, tray menu).
 - Never commit to `main` directly. Work on a branch and open a pull request. The owner merges, unless the owner asks the agent to merge (see "How to make a release").
+- Stacked PRs (a PR whose base is another PR's branch): before merging the lower PR, retarget every PR on top of it to `main` (`gh pr edit <n> --base main`). Deleting a PR's base branch closes the PRs that target it.
 - Do not change the updater public key in `src-tauri/tauri.conf.json` or the signing secrets. Doing so breaks updates for every installed copy.
 
 ## Commands
