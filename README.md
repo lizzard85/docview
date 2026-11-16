@@ -59,6 +59,12 @@ For JSON, XML, CSV/TSV and Markdown a panel opens to the right of the code (togg
 - Optional **start at login**.
 - Only one instance runs; opening a file while DocView is running sends it to the open window.
 
+### Tabs
+- Several documents can be open at once. Files (open, drag & drop, *Open with*) and the clipboard shortcut open in a new tab; this can be changed in the settings to replace the current tab instead. Pasting with `Ctrl+V` and picking from the history replace the current tab.
+- `Ctrl+T` new empty tab, `Ctrl+W` close (the last tab is emptied), `Ctrl+Tab` / `Ctrl+Shift+Tab` switch, middle-click closes a tab.
+- Each tab keeps its own content, language choice, scroll position and side panel state (open/closed and filter). The tab bar appears when more than one tab is open; a tab is titled by its file name or the start of the snippet.
+- Open tabs are not restored after a restart – the history covers that.
+
 ### Compare
 - **Compare** button or `Ctrl+D`: the current content becomes the left side; paste (`Ctrl+V`), open/drop a file or pick from the history for the right side.
 - Side-by-side view with a line diff and changed characters highlighted, synchronized scrolling and the number of changes. `F7` / `Shift+F7` (or the arrow buttons) go to the next / previous change, `Esc` leaves compare mode.
@@ -88,6 +94,8 @@ On Linux only the AppImage updates itself; a `.deb` installation is updated by i
 | `Ctrl+O` | Open file |
 | `Ctrl+H` | History of recent contents |
 | `Ctrl+D` | Compare with another snippet |
+| `Ctrl+T` / `Ctrl+W` | New tab / close tab |
+| `Ctrl+Tab` / `Ctrl+Shift+Tab` | Next / previous tab |
 | `F7` / `Shift+F7` | Next / previous change (compare mode) |
 | `Ctrl+F`, `F3` / `Shift+F3` | Search, next / previous match |
 | `Ctrl+Shift+C` | Copy the shown (formatted) text |
@@ -104,7 +112,7 @@ The default global shortcut is deliberately not `Ctrl+Shift+V` (already "paste a
 
 ## Settings
 
-Open them with the ⚙ button, `Ctrl+,` or the tray menu: global shortcut, theme, font size, indentation, SQL dialect and keyword case, external editor, start at login, automatic updates and history (with **Clear history**). Formatting, word wrap, line numbers, the side panel, the CSV header toggle and inlining of SQL parameters remember their state.
+Open them with the ⚙ button, `Ctrl+,` or the tray menu: global shortcut, theme, font size, indentation, SQL dialect and keyword case, external editor, new tab or current tab for files and the clipboard shortcut, start at login, automatic updates and history (with **Clear history**). Formatting, word wrap, line numbers, the side panel, the CSV header toggle and inlining of SQL parameters remember their state.
 
 Settings are stored in `%APPDATA%\io.github.docview\settings.json` on Windows and `~/.config/io.github.docview/settings.json` on Linux; the history is in `history.json` in the same folder.
 
@@ -159,6 +167,7 @@ src/                 Frontend (TypeScript + Vite)
   history.ts         History list logic (dedupe, caps)
   richCopy.ts        Highlighted HTML with inline styles (Copy with colours)
   convert.ts         JSON / YAML / XML conversions and minify
+  tabs.ts            Tab list logic
   compare.ts         Line and character diff for Compare
   compareView.ts     Side-by-side compare view
   dropdown.ts        Drop-down menus (History, Convert)

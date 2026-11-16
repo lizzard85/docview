@@ -20,6 +20,7 @@ import { xmlToTree } from "./xmlTree";
 import { MAX_HIGHLIGHT_CHARS, renderCode } from "./render";
 import { colouredHtml } from "./richCopy";
 import { Search } from "./search";
+import { activate, activeTab, addTab, closeTab, createTabs, cycle, tabTitle, updateTab, type Tabs } from "./tabs";
 import { inlineSqlParams } from "./sqlParams";
 import { displayShortcut, isWindows, storeShortcut } from "./shortcut";
 import { appVersion, checkForUpdate, type UpdateUi } from "./update";
@@ -63,6 +64,16 @@ interface State {
   unescaped: number; // levels of string escaping removed from the content (0 = none)
   /** Set when the content is the result of a conversion (for the notice and Undo). */
   conversion: ConversionState | null;
+  /** Side panel open in this tab. */
+  panelOpen: boolean;
+}
+
+/** What a tab keeps while it is not the active one. */
+interface TabData {
+  state: State;
+  scrollTop: number;
+  scrollLeft: number;
+  filter: string;
 }
 
 interface ConversionState {
@@ -77,8 +88,16 @@ interface ConversionState {
   previousConversion: ConversionState | null;
 }
 
-const state: State = { original: null, decoded: null, showOriginal: false, content: null, detection: null, lang: "plaintext", shown: "", unescaped: 0, conversion: null };
+function emptyState(): State {
+  return {
+    original: null, decoded: null, showOriginal: false, content: null, detection: null,
+    lang: "plaintext", shown: "", unescaped: 0, conversion: null, panelOpen: settings.panel,
+  };
+}
+
 let settings: Settings = { ...backend.DEFAULT_SETTINGS };
+const state: State = emptyState();
+let tabs: Tabs<TabData> = createTabs(emptyTabData());
 let renderToken = 0;
 const search = new Search(ui.code, $("searchbar"), $<HTMLInputElement>("search"), $("search-count"));
 const panel = new SidePanel();
@@ -97,7 +116,13 @@ for (const l of LANGUAGES) ui.lang.add(new Option(l.label, l.id));
 
 async function init() {
   settings = await backend.loadSettings();
+  state.panelOpen = settings.panel;
   applySettings();
+  $("tabbar").addEventListener("click", onTabBarClick);
+  $("tabbar").addEventListener("auxclick", (e) => {
+    const id = tabIdOf(e.target);
+    if (e.button === 1 && id !== undefined) { e.preventDefault(); closeTabById(id); }
+  });
   if (settings.history) history = parseHistory(await backend.loadHistory().catch(() => []));
 
   ui.lang.addEventListener("change", () => { state.lang = ui.lang.value; void render(); });
@@ -211,22 +236,29 @@ function autoCheck() {
 
 async function loadPending() {
   const c = await backend.takePending();
-  if (c) setContent(c);
+  if (c) setContent(c, { newTab: settings.newTab });
 }
 
 // ------------------------------------------------------------------ content
 
 /**
  * Shows new content. `conversion` is set for the result of a conversion;
- * `record` adds the content to the history (not for conversions and Undo).
+ * `record` adds the content to the history (not for conversions and Undo);
+ * `newTab` opens it in a new tab unless the current tab is empty.
  */
-function setContent(c: Content, opts: { conversion?: ConversionState | null; record?: boolean } = {}) {
+function setContent(c: Content, opts: { conversion?: ConversionState | null; record?: boolean; newTab?: boolean } = {}) {
   // In compare mode new content becomes the right side.
   if (compare && !opts.conversion) {
     compare.right = c;
     recordHistory(c, detectLanguage(c.text, c.name).lang);
     void runCompare();
     return;
+  }
+  if (opts.newTab && state.original) {
+    saveActiveTab();
+    tabs = addTab(tabs, emptyTabData());
+    Object.assign(state, emptyState());
+    panel.filterText = "";
   }
   const conversion = opts.conversion ?? null;
   // Encoded text is decoded, unless the file type already says what it is.
@@ -367,9 +399,138 @@ function showContent() {
   state.detection = state.conversion ? { lang: state.conversion.to, source: "parsed" } : detectLanguage(c.text, c.name);
   state.lang = state.detection.lang;
   ui.lang.value = state.lang;
-  void backend.setTitle(c.name ? `${c.name} – DocView` : "DocView");
   ui.viewer.scrollTo(0, 0);
+  updateTitle();
   void render();
+}
+
+/** Window title and tab bar for the active tab. */
+function updateTitle() {
+  const name = state.content?.name;
+  void backend.setTitle(name ? `${name} – DocView` : "DocView");
+  renderTabBar();
+}
+
+// ------------------------------------------------------------------ tabs
+
+function emptyTabData(): TabData {
+  return { state: emptyState(), scrollTop: 0, scrollLeft: 0, filter: "" };
+}
+
+/** Stores the view state of the active tab. */
+function saveActiveTab() {
+  tabs = updateTab(tabs, tabs.active, {
+    state: { ...state },
+    scrollTop: ui.viewer.scrollTop,
+    scrollLeft: ui.viewer.scrollLeft,
+    filter: panel.filterText,
+  });
+}
+
+/** Shows the active tab from its stored view state. */
+async function restoreActiveTab() {
+  const data = activeTab(tabs).data;
+  Object.assign(state, data.state);
+  panel.filterText = data.filter;
+  ui.lang.value = state.lang;
+  updateTitle();
+  if (!state.content) { showEmpty(); return; }
+  await render();
+  ui.viewer.scrollTo(data.scrollLeft, data.scrollTop);
+}
+
+function switchTab(id: number) {
+  if (id === tabs.active) return;
+  if (compare) leaveCompare();
+  saveActiveTab();
+  tabs = activate(tabs, id);
+  void restoreActiveTab();
+}
+
+function cycleTab(dir: 1 | -1) {
+  if (tabs.tabs.length < 2) return;
+  saveActiveTab();
+  tabs = cycle(tabs, dir);
+  void restoreActiveTab();
+}
+
+function newTab() {
+  if (compare) leaveCompare();
+  saveActiveTab();
+  tabs = addTab(tabs, emptyTabData());
+  void restoreActiveTab();
+}
+
+function closeTabById(id: number) {
+  if (compare) leaveCompare();
+  const wasActive = id === tabs.active;
+  tabs = closeTab(tabs, id, emptyTabData());
+  if (wasActive) void restoreActiveTab();
+  else renderTabBar();
+}
+
+/** The empty start screen (a new or emptied tab). */
+function showEmpty() {
+  renderToken++;
+  state.shown = "";
+  ui.code.innerHTML = "";
+  ui.code.className = "code";
+  document.body.classList.remove("has-content");
+  ui.info.textContent = "";
+  ui.detectSource.textContent = "";
+  showNotices([]);
+  search.refresh();
+  updatePanel();
+}
+
+function tabIdOf(target: EventTarget | null): number | undefined {
+  const el = (target as HTMLElement | null)?.closest<HTMLElement>("[data-tab]");
+  return el ? Number(el.dataset.tab) : undefined;
+}
+
+function onTabBarClick(e: MouseEvent) {
+  const t = e.target as HTMLElement;
+  if (t.closest(".tab-new")) { newTab(); return; }
+  const id = tabIdOf(t);
+  if (id === undefined) return;
+  if (t.closest(".tab-close")) closeTabById(id);
+  else switchTab(id);
+}
+
+/** The tab bar is shown when more than one tab is open. */
+function renderTabBar() {
+  const bar = $("tabbar");
+  bar.hidden = tabs.tabs.length < 2;
+  if (bar.hidden) { bar.replaceChildren(); return; }
+  bar.replaceChildren();
+  for (const tab of tabs.tabs) {
+    const active = tab.id === tabs.active;
+    const content = active ? state.content : tab.data.state.content;
+    const el = document.createElement("div");
+    el.className = active ? "tab active" : "tab";
+    el.dataset.tab = String(tab.id);
+    el.title = content?.name ?? tabTitle(content);
+    el.setAttribute("role", "tab");
+    el.setAttribute("aria-selected", String(active));
+    const title = document.createElement("span");
+    title.className = "tab-title";
+    title.textContent = tabTitle(content);
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "tab-close";
+    close.title = "Close (Ctrl+W)";
+    close.setAttribute("aria-label", "Close tab");
+    close.textContent = "×";
+    el.append(title, close);
+    bar.append(el);
+  }
+  const plus = document.createElement("button");
+  plus.type = "button";
+  plus.className = "tab-new";
+  plus.title = "New tab (Ctrl+T)";
+  plus.textContent = "+";
+  bar.append(plus);
+  bar.querySelector(".tab.active")?.scrollIntoView({ block: "nearest", inline: "nearest" });
 }
 
 async function render() {
@@ -495,8 +656,8 @@ function updatePanel() {
   ui.btnPanel.hidden = !view;
   ui.btnPanel.textContent = view?.html !== undefined ? "Preview" : view?.table ? "Table" : "Tree";
   ui.btnPanel.title = view?.html !== undefined ? "Show Markdown preview (T)" : view?.table ? "Show table view (T)" : "Show tree view (T)";
-  ui.btnPanel.classList.toggle("active", !!view && settings.panel);
-  panel.update(view, settings.panel);
+  ui.btnPanel.classList.toggle("active", !!view && state.panelOpen);
+  panel.update(view, state.panelOpen);
 }
 
 // ------------------------------------------------------------------ jump to line
@@ -529,10 +690,11 @@ function jumpToLine(index: number) {
 
 function togglePanel() {
   if (!panelView()) return;
-  settings.panel = !settings.panel;
+  // Per tab; the last choice is also the default for new tabs.
+  state.panelOpen = settings.panel = !state.panelOpen;
   persist();
   updatePanel();
-  if (settings.panel) panel.tree.focus();
+  if (state.panelOpen) panel.tree.focus();
 }
 
 // ------------------------------------------------------------------ actions
@@ -553,7 +715,7 @@ async function openFileDialog() {
     input.type = "file";
     input.onchange = async () => {
       const f = input.files?.[0];
-      if (f) setContent({ text: await f.text(), name: f.name });
+      if (f) setContent({ text: await f.text(), name: f.name }, { newTab: settings.newTab });
     };
     input.click();
     return;
@@ -564,7 +726,7 @@ async function openFileDialog() {
 
 async function openPath(path: string) {
   try {
-    setContent(await backend.readFile(path));
+    setContent(await backend.readFile(path), { newTab: settings.newTab });
   } catch (e) {
     toast(`Could not open the file: ${e}`);
   }
@@ -670,6 +832,7 @@ async function onSettingsSubmit(e: SubmitEvent) {
     autostart: f.autostart.checked,
     autoUpdate: f.autoUpdate.checked,
     history: f.history.checked,
+    newTab: f.newTab.value === "true",
   };
   try {
     await backend.saveSettings(next);
@@ -711,6 +874,9 @@ function onKey(e: KeyboardEvent) {
     else if (mod && key === "h") { e.preventDefault(); toggleHistoryMenu(); }
     return;
   }
+  if (mod && e.key === "Tab") { e.preventDefault(); cycleTab(e.shiftKey ? -1 : 1); return; }
+  if (mod && !e.shiftKey && key === "t") { e.preventDefault(); newTab(); return; }
+  if (mod && !e.shiftKey && key === "w") { e.preventDefault(); closeTabById(tabs.active); return; }
   if (mod && key === "f") { e.preventDefault(); search.open(); return; }
   if (e.key === "F3") { e.preventDefault(); search.step(e.shiftKey ? -1 : 1); return; }
   if (isEditable(e.target)) return;

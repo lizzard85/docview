@@ -121,6 +121,10 @@ export class SidePanel {
 
   get isOpen() { return !this.el.hidden; }
 
+  /** Text in the filter box (kept per tab). */
+  get filterText(): string { return this.filter.value; }
+  set filterText(v: string) { this.filter.value = v; }
+
   /** Whether the first CSV row is shown as the header. */
   setCsvHeader(on: boolean) {
     this.headerToggle.checked = on;

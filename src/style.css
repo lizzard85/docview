@@ -299,3 +299,21 @@ body.comparing .workspace, body.comparing #notice, body.comparing #searchbar { d
 .cmp-changed mark { background: var(--diff-mark); color: inherit; border-radius: 2px; }
 .cmp-filler { background: repeating-linear-gradient(-45deg, transparent 0 4px, var(--bg-bar) 4px 8px); }
 .cmp-current .ln { box-shadow: inset 3px 0 0 var(--accent); }
+
+/* Tabs */
+.tabbar {
+  display: flex; align-items: flex-end; gap: 2px; padding: 4px 8px 0; overflow-x: auto;
+  background: var(--bg-bar); border-bottom: 1px solid var(--border); flex: none;
+}
+.tabbar[hidden] { display: none; }
+.tab {
+  display: flex; align-items: center; gap: 4px; max-width: 220px; padding: 3px 4px 3px 10px;
+  border: 1px solid var(--border); border-bottom: none; border-radius: 6px 6px 0 0;
+  background: var(--bg-gutter); color: var(--muted); cursor: pointer; user-select: none; margin-bottom: -1px;
+}
+.tab.active { background: var(--bg); color: var(--fg); border-bottom: 1px solid var(--bg); }
+.tab:hover:not(.active) { color: var(--fg); }
+.tab-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tab-close { border: none; background: none; padding: 0 4px; line-height: 1.2; border-radius: 3px; color: inherit; }
+.tab-close:hover { background: var(--border); }
+.tab-new { border: none; background: none; padding: 2px 8px; margin-bottom: 2px; }

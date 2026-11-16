@@ -27,6 +27,8 @@
       <button id="btn-settings" class="icon" title="Settings" aria-label="Settings">⚙</button>
     </header>
 
+    <nav id="tabbar" class="tabbar" role="tablist" hidden></nav>
+
     <div id="searchbar" class="searchbar" hidden>
       <input id="search" type="search" placeholder="Search…" spellcheck="false" />
       <span id="search-count" class="muted"></span>
@@ -131,6 +133,12 @@
         </label>
         <label>External editor
           <input name="editorPath" placeholder="Empty = Notepad++ if installed (otherwise Notepad / xdg-open)" />
+        </label>
+        <label>Open files and the clipboard shortcut in
+          <select name="newTab">
+            <option value="true">A new tab</option>
+            <option value="false">The current tab (replace)</option>
+          </select>
         </label>
         <label class="row"><input type="checkbox" name="autostart" /> Start automatically at login (runs in the background)</label>
         <label class="row"><input type="checkbox" name="autoUpdate" /> Check for updates automatically</label>

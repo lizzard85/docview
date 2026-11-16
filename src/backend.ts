@@ -25,6 +25,8 @@ export interface Settings {
   history: boolean;
   /** CSV table view: the first row is the header. */
   csvHeader: boolean;
+  /** Files and the clipboard shortcut open in a new tab (false: replace the current one). */
+  newTab: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -46,6 +48,7 @@ export const DEFAULT_SETTINGS: Settings = {
   inlineSqlParams: true,
   history: true,
   csvHeader: true,
+  newTab: true,
 };
 
 export interface Content {
