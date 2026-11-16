@@ -5,6 +5,7 @@ import { FORMATTABLE, formatCode } from "./format";
 import { LANGUAGES, LANG_BY_ID } from "./languages";
 import { MAX_HIGHLIGHT_CHARS, renderCode } from "./render";
 import { Search } from "./search";
+import { appVersion, checkForUpdate, type UpdateUi } from "./update";
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -18,6 +19,8 @@ const ui = {
   code: $("code"),
   viewer: $("viewer"),
   notice: $("notice"),
+  updateBar: $("update-bar"),
+  appVersion: $("app-version"),
   toast: $("toast"),
   shortcutHint: $("shortcut-hint"),
   settings: $<HTMLDialogElement>("settings"),
@@ -73,6 +76,7 @@ async function init() {
   await backend.onMenu((action) => {
     if (action === "open") void openFileDialog();
     else if (action === "settings") openSettings();
+    else if (action === "check-update") void checkForUpdate(updateUi, true);
   });
   await backend.onFileDrop((path) => void openPath(path));
   await loadPending();
@@ -80,6 +84,38 @@ async function init() {
   if (scError && !state.content) {
     ui.shortcutHint.textContent = `${scError} Vælg en anden genvej under Indstillinger (⚙).`;
   }
+
+  $("btn-check-update").addEventListener("click", () => void checkForUpdate(updateUi, true));
+  ui.appVersion.textContent = `Version ${await appVersion()}`;
+  if (backend.isTauri) {
+    setTimeout(autoCheck, 10_000);
+    setInterval(autoCheck, 6 * 60 * 60 * 1000);
+  }
+}
+
+// ------------------------------------------------------------------ updates
+
+const updateUi: UpdateUi = {
+  notice(message, actions = []) {
+    ui.updateBar.replaceChildren(document.createTextNode(message));
+    for (const a of actions) {
+      const b = document.createElement("button");
+      b.textContent = a.label;
+      if (a.primary) b.className = "primary";
+      b.addEventListener("click", a.run);
+      ui.updateBar.append(b);
+    }
+    ui.updateBar.hidden = false;
+  },
+  clearNotice() {
+    ui.updateBar.hidden = true;
+    ui.updateBar.replaceChildren();
+  },
+  toast: (m) => toast(m),
+};
+
+function autoCheck() {
+  if (settings.autoUpdate) void checkForUpdate(updateUi, false);
 }
 
 async function loadPending() {
@@ -251,6 +287,7 @@ async function onSettingsSubmit(e: SubmitEvent) {
     sqlKeywordCase: f.sqlKeywordCase.value as Settings["sqlKeywordCase"],
     editorPath: f.editorPath.value.trim(),
     autostart: f.autostart.checked,
+    autoUpdate: f.autoUpdate.checked,
   };
   try {
     await backend.saveSettings(next);
