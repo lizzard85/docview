@@ -5,6 +5,7 @@ import { FORMATTABLE, formatCode } from "./format";
 import { LANGUAGES, LANG_BY_ID } from "./languages";
 import { MAX_HIGHLIGHT_CHARS, renderCode } from "./render";
 import { Search } from "./search";
+import { displayShortcut, isWindows, storeShortcut } from "./shortcut";
 import { appVersion, checkForUpdate, type UpdateUi } from "./update";
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -26,6 +27,8 @@ const ui = {
   settings: $<HTMLDialogElement>("settings"),
   settingsForm: $<HTMLFormElement>("settings-form"),
   settingsError: $("settings-error"),
+  settingsUpdate: $("settings-update"),
+  settingsToast: $("settings-toast"),
 };
 
 interface State {
@@ -82,7 +85,11 @@ async function init() {
   await loadPending();
   const scError = await backend.shortcutStatus();
   if (scError && !state.content) {
-    ui.shortcutHint.textContent = `${scError} Vælg en anden genvej under Indstillinger (⚙).`;
+    ui.shortcutHint.textContent = `${displayShortcut(scError)} Vælg en anden genvej under Indstillinger (⚙).`;
+  }
+  if (isWindows) {
+    (ui.settingsForm.elements.namedItem("shortcut") as HTMLInputElement).placeholder = "Win+Alt+V";
+    $("shortcut-help").innerHTML = "Fx <code>Win+Alt+V</code>, <code>Ctrl+Shift+F12</code>.";
   }
 
   $("btn-check-update").addEventListener("click", () => void checkForUpdate(updateUi, true));
@@ -95,21 +102,30 @@ async function init() {
 
 // ------------------------------------------------------------------ updates
 
+// The update notice is shown both in the main window and inside the settings
+// dialog, so an update can be installed without closing settings first.
+const updateBars = [ui.updateBar, ui.settingsUpdate];
+
 const updateUi: UpdateUi = {
   notice(message, actions = []) {
-    ui.updateBar.replaceChildren(document.createTextNode(message));
-    for (const a of actions) {
-      const b = document.createElement("button");
-      b.textContent = a.label;
-      if (a.primary) b.className = "primary";
-      b.addEventListener("click", a.run);
-      ui.updateBar.append(b);
+    for (const bar of updateBars) {
+      bar.replaceChildren(document.createTextNode(message));
+      for (const a of actions) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = a.label;
+        if (a.primary) b.className = "primary";
+        b.addEventListener("click", a.run);
+        bar.append(b);
+      }
+      bar.hidden = false;
     }
-    ui.updateBar.hidden = false;
   },
   clearNotice() {
-    ui.updateBar.hidden = true;
-    ui.updateBar.replaceChildren();
+    for (const bar of updateBars) {
+      bar.hidden = true;
+      bar.replaceChildren();
+    }
   },
   toast: (m) => toast(m),
 };
@@ -243,13 +259,8 @@ function applySettings() {
   ui.optWrap.checked = settings.wrap;
   ui.optLines.checked = settings.lineNumbers;
   ui.shortcutHint.textContent = backend.isTauri
-    ? `Global genvej: ${prettyShortcut(settings.shortcut)} – viser indholdet af udklipsholderen.`
+    ? `Global genvej: ${displayShortcut(settings.shortcut)} – viser indholdet af udklipsholderen.`
     : "";
-}
-
-function prettyShortcut(s: string): string {
-  const win = navigator.userAgent.includes("Windows");
-  return s.replace(/\bSuper\b/i, win ? "Win" : "Super");
 }
 
 let persistTimer: number | undefined;
@@ -268,7 +279,9 @@ function openSettings() {
     if (el.type === "checkbox") el.checked = Boolean(value);
     else el.value = String(value);
   }
+  f.shortcut.value = displayShortcut(settings.shortcut);
   ui.settingsError.textContent = "";
+  ui.settingsToast.hidden = true;
   ui.settings.showModal();
 }
 
@@ -279,7 +292,7 @@ async function onSettingsSubmit(e: SubmitEvent) {
   const f = ui.settingsForm.elements as unknown as Record<string, HTMLInputElement>;
   const next: Settings = {
     ...settings,
-    shortcut: f.shortcut.value.trim() || backend.DEFAULT_SETTINGS.shortcut,
+    shortcut: storeShortcut(f.shortcut.value) || backend.DEFAULT_SETTINGS.shortcut,
     theme: f.theme.value as Settings["theme"],
     fontSize: Number(f.fontSize.value) || 14,
     indent: Number(f.indent.value) || 2,
@@ -292,7 +305,7 @@ async function onSettingsSubmit(e: SubmitEvent) {
   try {
     await backend.saveSettings(next);
   } catch (err) {
-    ui.settingsError.textContent = String(err);
+    ui.settingsError.textContent = displayShortcut(String(err));
     return;
   }
   settings = next;
@@ -337,10 +350,12 @@ function onKey(e: KeyboardEvent) {
 
 let toastTimer: number | undefined;
 function toast(msg: string) {
-  ui.toast.textContent = msg;
-  ui.toast.hidden = false;
+  // The modal settings dialog covers the normal toast, so show it in the dialog instead.
+  const el = ui.settings.open ? ui.settingsToast : ui.toast;
+  el.textContent = msg;
+  el.hidden = false;
   clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => (ui.toast.hidden = true), 2500);
+  toastTimer = window.setTimeout(() => (el.hidden = true), el === ui.toast ? 2500 : 5000);
 }
 
 void init();
