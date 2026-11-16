@@ -52,14 +52,22 @@ export async function checkForUpdate(ui: UpdateUi, manual: boolean): Promise<voi
       },
     ]);
   } catch (e) {
-    if (manual) ui.toast(`Kunne ikke søge efter opdateringer: ${e}`);
+    if (manual) ui.toast(isNoUpdateAvailable(e) ? "Ingen opdatering tilgængelig lige nu" : `Kunne ikke søge efter opdateringer: ${e}`);
     else console.warn("update check failed", e);
   } finally {
     busy = false;
   }
 }
 
-type Update = NonNullable<Awaited<ReturnType<typeof import("@tauri-apps/plugin-updater").check>>>;
+/**
+ * The release has no usable latest.json (none yet, or not for this platform).
+ * Not a real error for the user.
+ */
+export function isNoUpdateAvailable(e: unknown): boolean {
+  return /valid release JSON|platform .* was not found|404|not found/i.test(String(e));
+}
+
+type Update =NonNullable<Awaited<ReturnType<typeof import("@tauri-apps/plugin-updater").check>>>;
 
 async function install(ui: UpdateUi, update: Update) {
   let total = 0;

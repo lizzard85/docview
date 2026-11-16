@@ -1,11 +1,26 @@
 name: Build
 
+# Release flow (see AGENTS.md):
+# - A push to main whose package.json version has no release yet, or a pushed
+#   tag vX.Y.Z, builds a release.
+# - The release is created as a draft first. It is only published, which makes
+#   it "latest" and visible to the in-app updater, after every platform has
+#   built and uploaded its files. Installed apps therefore never see a release
+#   that is missing files.
+# - Pull requests and other pushes only run the tests.
+# - "Run workflow" (manual) builds installers as artifacts without releasing.
+
 on:
   push:
     branches: [main]
     tags: ["v*"]
   pull_request:
   workflow_dispatch:
+
+# Never run two releases at the same time.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.ref) || 'release' }}
+  cancel-in-progress: false
 
 jobs:
   test:
@@ -20,11 +35,70 @@ jobs:
       - run: npm test
       - run: npm run build
 
-  # Installers are only built for version tags (v1.2.3) or when started
-  # manually (Actions → Build → Run workflow), to save Actions minutes.
-  build:
+  # Decides whether this run makes a release, and creates the draft release.
+  prepare:
     needs: test
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.decide.outputs.version }}
+      release: ${{ steps.decide.outputs.release }}
+      release_id: ${{ steps.draft.outputs.release_id }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Decide version and whether to release
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version="$(node -p "require('./package.json').version")"
+          fi
+          release=false
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            published="$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate \
+              --jq ".[] | select(.tag_name == \"v$version\" and .draft == false) | .id")"
+            if [[ -n "$published" ]]; then
+              echo "Release v$version is already published - nothing to do."
+            elif [[ "$GITHUB_REF" == refs/tags/v* ]] || ! gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v$version" >/dev/null 2>&1; then
+              release=true
+            else
+              echo "Tag v$version already exists - nothing to do."
+            fi
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "release=$release" >> "$GITHUB_OUTPUT"
+          echo "Version: $version, release: $release"
+
+      - name: Create or reuse draft release
+        id: draft
+        if: steps.decide.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.decide.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          id="$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate \
+            --jq ".[] | select(.tag_name == \"v$VERSION\" and .draft == true) | .id" | head -n1)"
+          if [[ -z "$id" ]]; then
+            id="$(gh api "repos/$GITHUB_REPOSITORY/releases" -X POST \
+              -f tag_name="v$VERSION" -f target_commitish="$GITHUB_SHA" \
+              -f name="DocView v$VERSION" -F draft=true -F generate_release_notes=true --jq .id)"
+          fi
+          echo "release_id=$id" >> "$GITHUB_OUTPUT"
+          echo "Draft release id: $id"
+
+  build:
+    needs: prepare
+    if: needs.prepare.outputs.release == 'true' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: write
     strategy:
@@ -54,15 +128,14 @@ jobs:
 
       - run: npm ci
 
-      # The app version comes from the tag (v1.2.3 -> 1.2.3), so nothing has to
-      # be bumped by hand before a release.
-      - name: Set version from tag
-        if: startsWith(github.ref, 'refs/tags/v')
+      # tauri.conf.json reads its version from package.json.
+      - name: Set app version
         shell: bash
-        run: npm version "${GITHUB_REF_NAME#v}" --no-git-tag-version --allow-same-version
+        run: npm version "${{ needs.prepare.outputs.version }}" --no-git-tag-version --allow-same-version
 
-      # On a version tag (v1.2.3) the installers, update packages and latest.json
-      # are uploaded to the release for that tag (created as a draft if missing).
+      # With releaseId set, the installers, update packages (.sig) and
+      # latest.json are uploaded to the draft release. Without it (manual run)
+      # it only builds.
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,9 +144,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '' }}
-          releaseName: DocView ${{ github.ref_name }}
-          releaseDraft: true
+          releaseId: ${{ needs.prepare.outputs.release_id }}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -84,3 +155,36 @@ jobs:
             src-tauri/target/release/bundle/deb/*.deb
             src-tauri/target/release/bundle/appimage/*.AppImage
           if-no-files-found: ignore
+
+  # Runs only if every build job succeeded. Publishing creates the tag (if it
+  # does not exist yet) and makes this the latest release for the updater.
+  publish:
+    needs: [prepare, build]
+    if: needs.prepare.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check that latest.json covers all platforms
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ needs.prepare.outputs.release_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          asset="$(gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets" --paginate \
+            --jq '.[] | select(.name == "latest.json") | .id')"
+          if [[ -z "$asset" ]]; then echo "latest.json is missing"; exit 1; fi
+          gh api "repos/$GITHUB_REPOSITORY/releases/assets/$asset" -H "Accept: application/octet-stream" > latest.json
+          for p in windows-x86_64 linux-x86_64; do
+            node -e "const j=require('./latest.json'); if(!j.platforms['$p']) { console.error('missing $p'); process.exit(1) }"
+          done
+          echo "latest.json OK"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ needs.prepare.outputs.release_id }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" -X PATCH \
+            -F draft=false -f make_latest=true --jq '.html_url'
