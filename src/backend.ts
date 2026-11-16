@@ -133,6 +133,20 @@ export async function writeClipboard(text: string): Promise<void> {
   return navigator.clipboard.writeText(text);
 }
 
+/** Puts HTML and a plain-text alternative on the clipboard (for pasting with colours). */
+export async function writeClipboardHtml(html: string, text: string): Promise<void> {
+  if (isTauri) {
+    const { writeHtml } = await import("@tauri-apps/plugin-clipboard-manager");
+    return writeHtml(html, text);
+  }
+  await navigator.clipboard.write([
+    new ClipboardItem({
+      "text/html": new Blob([html], { type: "text/html" }),
+      "text/plain": new Blob([text], { type: "text/plain" }),
+    }),
+  ]);
+}
+
 export async function openInEditor(text: string, ext: string, path?: string): Promise<void> {
   return invoke("open_in_editor", { text, ext, path: path ?? null });
 }

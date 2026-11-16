@@ -34,6 +34,7 @@ On Linux, make the AppImage executable (`chmod +x DocView_*.AppImage`) and run i
 - **Highlights** all of the above plus C#, Java, Python, PowerShell, Shell, PHP, INI/TOML, Dockerfile and diffs/patches.
 - **Escaped JSON**: when the pasted text is JSON stored inside a string (`"{\"id\":1}"` or a bare `{\"id\":1}`, as often found in logs), the inner JSON is shown and formatted, with a notice. Nested escaping is unwrapped up to 5 levels.
 - Formatting can be turned off (`F`) to see the text exactly as it was. If something cannot be formatted, the original is shown with a note explaining why.
+- **Copy with colours** (`Ctrl+Shift+Alt+C` or the **Copy colours** button) puts the highlighted code on the clipboard as HTML with inline styles (plus plain text), so pasting into Outlook, Teams or Word keeps the colours. It always uses the light theme colours and a monospace font, so the result is readable on a white page or e-mail.
 - Line numbers, word wrap, zoom and light/dark theme (or follow the system).
 - Search with highlighting of all matches (`Ctrl+F`, `F3` / `Shift+F3`).
 
@@ -75,6 +76,7 @@ On Linux only the AppImage updates itself; a `.deb` installation is updated by i
 | `Ctrl+O` | Open file |
 | `Ctrl+F`, `F3` / `Shift+F3` | Search, next / previous match |
 | `Ctrl+Shift+C` | Copy the shown (formatted) text |
+| `Ctrl+Shift+Alt+C` | Copy with colours (for Outlook, Teams, Word) |
 | `Ctrl+E` | Open in external editor |
 | `Ctrl +` / `Ctrl -` / `Ctrl 0` | Zoom in / out / reset |
 | `F` / `W` / `L` | Toggle formatting / word wrap / line numbers |
@@ -137,6 +139,7 @@ src/                 Frontend (TypeScript + Vite)
   xmlTree.ts         XML -> tree nodes
   locate.ts          Maps tree paths to lines in the code view
   escapedJson.ts     JSON escaped inside strings
+  richCopy.ts        Highlighted HTML with inline styles (Copy with colours)
   decode.ts          JWT, Base64 and URL decoding
   sqlParams.ts       sp_executesql / EF Core parameters -> inlined SQL
   markdown.ts        Markdown preview (marked + DOMPurify)

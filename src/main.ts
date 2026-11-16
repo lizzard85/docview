@@ -12,6 +12,7 @@ import { SidePanel, type PanelView } from "./panel";
 import type { TreeNode } from "./tree";
 import { xmlToTree } from "./xmlTree";
 import { MAX_HIGHLIGHT_CHARS, renderCode } from "./render";
+import { colouredHtml } from "./richCopy";
 import { Search } from "./search";
 import { inlineSqlParams } from "./sqlParams";
 import { displayShortcut, isWindows, storeShortcut } from "./shortcut";
@@ -78,6 +79,7 @@ async function init() {
   $("btn-paste").addEventListener("click", pasteFromClipboard);
   $("btn-open").addEventListener("click", openFileDialog);
   $("btn-copy").addEventListener("click", copyShown);
+  $("btn-copy-rich").addEventListener("click", copyColoured);
   $("btn-editor").addEventListener("click", openInEditor);
   $("btn-settings").addEventListener("click", openSettings);
   ui.btnPanel.addEventListener("click", togglePanel);
@@ -397,6 +399,17 @@ async function copyShown() {
   toast("Copied");
 }
 
+/** Copies the shown text as highlighted HTML (light theme, inline styles) plus plain text. */
+async function copyColoured() {
+  if (!state.content) return;
+  try {
+    await backend.writeClipboardHtml(colouredHtml(state.shown, state.lang), state.shown);
+    toast("Copied with colours");
+  } catch (e) {
+    toast(`Could not copy: ${e}`);
+  }
+}
+
 async function openInEditor() {
   if (!state.content) return;
   try {
@@ -512,6 +525,7 @@ function onKey(e: KeyboardEvent) {
   if (isEditable(e.target)) return;
 
   if (mod && key === "o") { e.preventDefault(); void openFileDialog(); }
+  else if (mod && e.shiftKey && e.altKey && e.code === "KeyC") { e.preventDefault(); void copyColoured(); }
   else if (mod && e.shiftKey && key === "c") { e.preventDefault(); void copyShown(); }
   else if (mod && key === "e") { e.preventDefault(); void openInEditor(); }
   else if (mod && (key === "+" || key === "=")) { e.preventDefault(); zoom(1); }
