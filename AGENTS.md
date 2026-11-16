@@ -30,12 +30,12 @@ On Linux the Tauri build needs `libwebkit2gtk-4.1-dev libappindicator3-dev librs
 
 Planned features are in [docs/ROADMAP.md](docs/ROADMAP.md). When the owner asks you to work on the roadmap (e.g. "work through the roadmap", "take the next roadmap item"):
 
-1. Take the first item marked `[ ]`, top to bottom. Do one item per pull request; when it is done, continue with the next item unless the owner asked for only one.
-2. Branch from the latest `main` for the first item. If earlier roadmap PRs are still open (not merged), branch from the last of them instead and use it as the PR base (a stacked PR), so the items do not conflict. Say so in the PR description.
+1. **Find where to continue.** Earlier roadmap work may not be merged yet, so `main` alone is not the truth. Run `git fetch origin` and list the roadmap branches (`git branch -r --list "origin/roadmap/*"`). Branches are named `roadmap/<N>-<short-name>` (e.g. `roadmap/2-sql-parameters`). If any exist that are not merged into `main`, the one with the highest number is the starting point: check it out and read `docs/ROADMAP.md` there. A branch for an item that has no `[x]` yet is unfinished work from an interrupted session – finish it on that branch instead of starting over.
+2. Take the first item marked `[ ]`, top to bottom. Do one item per pull request; when it is done, continue with the next item unless the owner asked for only one. Create the branch `roadmap/<N>-<short-name>` from the starting point found in step 1 (`main` if there are no open roadmap branches). When it is based on another roadmap branch, use that branch as the PR base (a stacked PR) and say so in the PR description.
 3. Implement the item as described. If something is unclear, make a sensible, simple decision and list it under **Decisions** in the PR description – do not stop to ask; the owner may not be around.
 4. Add unit tests for the logic (keep logic in pure functions/modules so it can be tested without a DOM), run `npm test` and `npm run build`. Both must pass.
 5. Update `README.md` (features, shortcuts, settings) and mark the item `[x]` in `docs/ROADMAP.md` in the same PR.
-6. Open the PR titled `Roadmap N: <item title>`. The description lists what was done, **Decisions**, and a **How to test** checklist for the owner (you cannot run the desktop app; the owner tests it).
+6. Commit and push often while working, so an interrupted session (e.g. a usage limit) loses little. Open the PR titled `Roadmap N: <item title>`. The description lists what was done, **Decisions**, and a **How to test** checklist for the owner (you cannot run the desktop app; the owner tests it).
 7. Do not bump the version or make a release; the owner asks for that separately. Do not merge roadmap PRs unless the owner asks.
 8. If an item turns out to be much bigger than described or blocked, open a draft PR with what you have, explain the problem, and move on to the next item.
 
