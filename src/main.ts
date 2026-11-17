@@ -5,6 +5,7 @@ import { FORMATTABLE, formatCode } from "./format";
 import { jsonToTree } from "./jsonTree";
 import { LANGUAGES, LANG_BY_ID } from "./languages";
 import { findOffset, jsonLocations, lineOf, lineStarts, xmlLocations, type Locations } from "./locate";
+import { parseJsonLenient } from "./json";
 import { renderMarkdown } from "./markdown";
 import { SidePanel, type PanelView } from "./panel";
 import type { TreeNode } from "./tree";
@@ -187,6 +188,7 @@ async function render() {
     });
     if (token !== renderToken) return; // a newer render started meanwhile
     text = r.text;
+    if (r.warning) notices.push(r.warning);
     if (r.error) notices.push(`Could not format as ${LANG_BY_ID.get(lang)?.label}: ${r.error}`);
   }
   if (text.length > MAX_HIGHLIGHT_CHARS) notices.push("The text is very large – highlighting is turned off.");
@@ -219,7 +221,7 @@ function panelView(): PanelView | null {
     return panelCache.view;
   }
   const parsers: Record<string, (text: string) => TreeNode[]> = {
-    json: (t) => jsonToTree(JSON.parse(t), settings.indent),
+    json: (t) => jsonToTree(parseJsonLenient(t).value, settings.indent),
     xml: (t) => xmlToTree(t, settings.indent),
   };
   const parse = parsers[state.lang];

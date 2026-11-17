@@ -9,6 +9,7 @@ import { XMLValidator } from "fast-xml-parser";
 import { format as formatSql } from "sql-formatter";
 import hljs from "./hljs";
 import { languageFromFilename } from "./languages";
+import { parseJsonLenient } from "./json";
 
 export interface Detection {
   lang: string;
@@ -38,41 +39,13 @@ export function detectLanguage(text: string, filename?: string): Detection {
 
 // ---------------------------------------------------------------- JSON
 
-export function stripJsonComments(s: string): string {
-  // Remove // and /* */ comments outside strings, and trailing commas.
-  let out = "";
-  let i = 0;
-  let inStr = false;
-  while (i < s.length) {
-    const c = s[i];
-    if (inStr) {
-      out += c;
-      if (c === "\\") { out += s[i + 1] ?? ""; i += 2; continue; }
-      if (c === '"') inStr = false;
-      i++;
-    } else if (c === '"') {
-      inStr = true; out += c; i++;
-    } else if (c === "/" && s[i + 1] === "/") {
-      while (i < s.length && s[i] !== "\n") i++;
-    } else if (c === "/" && s[i + 1] === "*") {
-      const end = s.indexOf("*/", i + 2);
-      i = end < 0 ? s.length : end + 2;
-    } else {
-      out += c; i++;
-    }
-  }
-  return out.replace(/,(\s*[}\]])/g, "$1");
-}
+export { stripJsonComments } from "./json";
 
 function detectJson(t: string): Detection | null {
   const first = t[0];
   if (first !== "{" && first !== "[") return null;
   try {
-    JSON.parse(t);
-    return { lang: "json", source: "parsed" };
-  } catch { /* try relaxed */ }
-  try {
-    JSON.parse(stripJsonComments(t));
+    parseJsonLenient(t);
     return { lang: "json", source: "parsed" };
   } catch {
     return null;
