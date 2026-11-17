@@ -2,7 +2,7 @@
 
 import { format as formatSql, type SqlLanguage, type KeywordCase } from "sql-formatter";
 import xmlFormat from "xml-formatter";
-import { stripJsonComments } from "./detect";
+import { parseJsonLenient } from "./json";
 
 export interface FormatOptions {
   indent: number;
@@ -22,6 +22,8 @@ export interface FormatResult {
   text: string;
   formatted: boolean;
   error?: string;
+  /** Set when the input was not valid as-is and had to be repaired. */
+  warning?: string;
 }
 
 /** Removes indentation common to all lines (pasted code is often indented). */
@@ -46,6 +48,10 @@ const PRETTIER_PARSERS: Record<string, string> = {
   graphql: "graphql",
 };
 
+export const JSON_REPAIRED_WARNING =
+  "The JSON had line breaks or other control characters inside strings – they were escaped. " +
+  "(Business Central's Message() shows every backslash as a line break.)";
+
 export const FORMATTABLE = new Set(["json", "sql", "xml", ...Object.keys(PRETTIER_PARSERS)]);
 
 export async function formatCode(
@@ -57,7 +63,14 @@ export async function formatCode(
   try {
     switch (lang) {
       case "json":
-        return { text: formatJson(src, opts), formatted: true };
+      {
+        const { value, repaired } = parseJsonLenient(src);
+        return {
+          text: JSON.stringify(value, null, opts.indent),
+          formatted: true,
+          warning: repaired ? JSON_REPAIRED_WARNING : undefined,
+        };
+      }
       case "sql":
         return {
           text: formatSql(src, {
@@ -83,17 +96,6 @@ export async function formatCode(
 function errorMessage(e: unknown): string {
   const msg = e instanceof Error ? e.message : String(e);
   return msg.split("\n")[0].slice(0, 200);
-}
-
-function formatJson(src: string, opts: FormatOptions): string {
-  let value: unknown;
-  try {
-    value = JSON.parse(src);
-  } catch {
-    // JSON with comments / trailing commas: comments are dropped in the view.
-    value = JSON.parse(stripJsonComments(src));
-  }
-  return JSON.stringify(value, null, opts.indent);
 }
 
 function formatXml(src: string, opts: FormatOptions): string {

@@ -28,6 +28,7 @@ On Linux, make the AppImage executable (`chmod +x DocView_*.AppImage`) and run i
 
 ### Formatting and highlighting
 - **Formats** JSON, SQL, XML, HTML, CSS/SCSS/LESS, JavaScript/TypeScript, YAML, Markdown and GraphQL.
+- **Forgiving JSON**: comments, trailing commas and raw line breaks inside strings are accepted. JSON copied from a Business Central `Message()` dialog (which shows every `\` as a line break) is repaired, so `\u2019` etc. come back.
 - SQL formatting supports T-SQL (SQL Server), standard SQL, PostgreSQL, MySQL, MariaDB, SQLite, Oracle PL/SQL, DB2, BigQuery and Snowflake, with keywords kept as written, in UPPERCASE or in lowercase.
 - **Highlights** all of the above plus C#, Java, Python, PowerShell, Shell, PHP, INI/TOML, Dockerfile and diffs/patches.
 - Formatting can be turned off (`F`) to see the text exactly as it was. If something cannot be formatted, the original is shown with a note explaining why.
@@ -128,6 +129,7 @@ src/                 Frontend (TypeScript + Vite)
   search.ts          In-view search
   panel.ts           Side panel
   tree.ts            Lazy tree view with filter
+  json.ts            lenient JSON parsing (comments, control characters)
   jsonTree.ts        JSON -> tree nodes
   xmlTree.ts         XML -> tree nodes
   locate.ts          Maps tree paths to lines in the code view
