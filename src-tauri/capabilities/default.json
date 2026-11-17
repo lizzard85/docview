@@ -12,6 +12,7 @@
     "dialog:allow-open",
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
+    "clipboard-manager:allow-write-html",
     "autostart:allow-enable",
     "autostart:allow-disable",
     "autostart:allow-is-enabled",

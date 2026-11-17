@@ -8,7 +8,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 ---
 
-## 1. [ ] Escaped JSON inside strings
+## 1. [x] Escaped JSON inside strings ([#18](https://github.com/lizzard85/docview/pull/18))
 
 **Problem:** Logs and API responses often contain JSON stored as a string, e.g. `"{\"id\":1,\"name\":\"x\"}"`, or a whole pasted value that is one escaped JSON string. It is unreadable.
 
@@ -19,7 +19,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** detection/unwrapping of nested escaped strings; tree expansion of an embedded JSON string; plain strings that merely start with `{` but are invalid stay strings.
 
-## 2. [ ] SQL with parameters from EF Core / SQL Profiler
+## 2. [x] SQL with parameters from EF Core / SQL Profiler ([#19](https://github.com/lizzard85/docview/pull/19))
 
 **Problem:** SQL captured from SQL Server Profiler / Extended Events comes as `exec sp_executesql N'SELECT … WHERE Id = @p0', N'@p0 int', @p0=42`, and EF Core logs print the SQL and the parameters separately (`Executed DbCommand (3ms) [Parameters=[@__id_0='42' (Nullable = true)], CommandType='Text', CommandTimeout='30']` followed by the SQL). Neither can be run directly in SSMS.
 
@@ -32,7 +32,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** sp_executesql with several types and `@p1`/`@p10`; EF Core log line with multiple parameters, including strings with quotes and NULL; text without parameters is untouched.
 
-## 3. [ ] Decode Base64, URL encoding and JWT
+## 3. [x] Decode Base64, URL encoding and JWT ([#20](https://github.com/lizzard85/docview/pull/20))
 
 **Behaviour:**
 - New language entries (or a "decoded" view) for: **JWT** (three base64url parts separated by dots), **Base64** (long text consisting only of base64 characters, decodes to valid UTF-8), **URL-encoded** text (contains `%XX` sequences or is a query string).
@@ -42,7 +42,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** JWT decoding and expiry; base64 of JSON detected as JSON; URL-encoded query string; false positives (normal words, hex strings, short strings) are not decoded.
 
-## 4. [ ] Copy with colours
+## 4. [x] Copy with colours ([#21](https://github.com/lizzard85/docview/pull/21))
 
 **Behaviour:**
 - A **Copy with colours** action (a small menu on the Copy button or a second button; shortcut `Ctrl+Shift+Alt+C` is fine, but no `Ctrl+Alt+<key>` because that is AltGr on European layouts). It puts both `text/html` (highlighted, inline styles, monospace font; current theme colours or always the light theme – decide and document) and `text/plain` on the clipboard.
@@ -51,7 +51,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** the HTML produced uses inline styles (no classes) and escapes the text correctly.
 
-## 5. [ ] History
+## 5. [x] History ([#22](https://github.com/lizzard85/docview/pull/22))
 
 **Behaviour:**
 - Keep the last 30 contents (pasted text, clipboard via shortcut, opened files) with timestamp, detected language and a short preview. Identical consecutive content is not duplicated.
@@ -60,7 +60,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** history list logic (dedupe, cap, ordering) as pure functions.
 
-## 6. [ ] CSV / TSV table view
+## 6. [x] CSV / TSV table view ([#23](https://github.com/lizzard85/docview/pull/23))
 
 **Behaviour:**
 - Detect CSV and TSV (consistent delimiter count per line; `,`, `;` and tab; quoted fields with embedded delimiters/newlines per RFC 4180). Add a `CSV` language entry.
@@ -69,7 +69,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** CSV parsing (quotes, escaped quotes, newlines in fields, `;` delimiter, TSV), delimiter detection, sorting.
 
-## 7. [ ] Conversions
+## 7. [x] Conversions ([#24](https://github.com/lizzard85/docview/pull/24))
 
 **Behaviour:**
 - A **Convert** menu in the toolbar with the options valid for the current language: JSON → YAML, YAML → JSON, XML → JSON, JSON → XML (only when it maps cleanly), minify JSON, minify XML.
@@ -78,7 +78,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** each conversion, including attributes in XML → JSON and arrays in JSON → YAML.
 
-## 8. [ ] Compare two snippets
+## 8. [x] Compare two snippets ([#25](https://github.com/lizzard85/docview/pull/25))
 
 **Behaviour:**
 - **Compare** button / `Ctrl+D`: takes the current content as the left side and asks for the right side (paste, open file, or pick from history if #5 exists).
@@ -88,7 +88,7 @@ When something is unclear, make a sensible decision, keep it simple, and write t
 
 **Tests:** diff of formatted JSON where only key order/whitespace differs (no changes), real changes detected.
 
-## 9. [ ] Tabs
+## 9. [x] Tabs ([#26](https://github.com/lizzard85/docview/pull/26))
 
 **Behaviour:**
 - Several documents open at once; new content from the global shortcut or a file opens in a new tab (setting: new tab vs replace current), `Ctrl+T` new empty tab, `Ctrl+W` close, `Ctrl+Tab` / `Ctrl+Shift+Tab` switch, middle-click closes.

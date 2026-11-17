@@ -19,6 +19,14 @@ export interface Settings {
   panelWidth: number;
   /** Selecting a tree node scrolls the code view to its line. */
   panelSync: boolean;
+  /** SQL from sp_executesql / EF Core logs is shown with the parameters substituted. */
+  inlineSqlParams: boolean;
+  /** Keep a history of recent contents (history.json). */
+  history: boolean;
+  /** CSV table view: the first row is the header. */
+  csvHeader: boolean;
+  /** Files and the clipboard shortcut open in a new tab (false: replace the current one). */
+  newTab: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -37,6 +45,10 @@ export const DEFAULT_SETTINGS: Settings = {
   panel: true,
   panelWidth: 380,
   panelSync: true,
+  inlineSqlParams: true,
+  history: true,
+  csvHeader: true,
+  newTab: true,
 };
 
 export interface Content {
@@ -114,6 +126,32 @@ export async function onFileDrop(cb: (path: string) => void): Promise<void> {
   });
 }
 
+const HISTORY_KEY = "docview.history";
+
+/** The stored history (unvalidated JSON; see history.ts). */
+export async function loadHistory(): Promise<unknown> {
+  if (!isTauri) {
+    try {
+      return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? "[]");
+    } catch {
+      return [];
+    }
+  }
+  return invoke("load_history");
+}
+
+/** Stores the history; an empty list removes it. */
+export async function saveHistory(history: unknown[]): Promise<void> {
+  if (!isTauri) {
+    try {
+      if (history.length) localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      else localStorage.removeItem(HISTORY_KEY);
+    } catch { /* storage full or unavailable */ }
+    return;
+  }
+  await invoke("save_history", { history });
+}
+
 export async function readClipboard(): Promise<string> {
   if (isTauri) {
     const { readText } = await import("@tauri-apps/plugin-clipboard-manager");
@@ -128,6 +166,20 @@ export async function writeClipboard(text: string): Promise<void> {
     return writeText(text);
   }
   return navigator.clipboard.writeText(text);
+}
+
+/** Puts HTML and a plain-text alternative on the clipboard (for pasting with colours). */
+export async function writeClipboardHtml(html: string, text: string): Promise<void> {
+  if (isTauri) {
+    const { writeHtml } = await import("@tauri-apps/plugin-clipboard-manager");
+    return writeHtml(html, text);
+  }
+  await navigator.clipboard.write([
+    new ClipboardItem({
+      "text/html": new Blob([html], { type: "text/html" }),
+      "text/plain": new Blob([text], { type: "text/plain" }),
+    }),
+  ]);
 }
 
 export async function openInEditor(text: string, ext: string, path?: string): Promise<void> {

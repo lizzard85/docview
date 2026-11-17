@@ -16,6 +16,8 @@ export interface TreeNode {
   copyValue: () => string;
   /** Lower-case text the filter matches against. */
   searchText: string;
+  /** A string value holding JSON, shown expandable with a marker. */
+  embedded?: boolean;
   /** Expanded when shown (used by the filter to reveal matches). */
   open?: boolean;
 }
@@ -143,7 +145,7 @@ export class TreeView {
     caret.textContent = node.childCount ? "▸" : "";
     row.append(caret, span(node.key, node.keyClass ?? "tree-key"));
     if (node.value !== undefined) row.append(span(": ", "tree-sep"), span(node.value, node.valueClass ?? ""));
-    if (node.summary) row.append(span(node.summary, "tree-summary"));
+    if (node.summary) row.append(span(node.summary, node.embedded ? "tree-summary tree-embedded" : "tree-summary"));
     item.append(row);
 
     if (node.childCount && node.children) {

@@ -65,3 +65,28 @@ describe("detectLanguage (files)", () => {
     expect(detectLanguage(`select 1 from x`, "notes.txt").lang).toBe("sql");
   });
 });
+
+describe("SQL with parameters", () => {
+  it("detects sp_executesql and EF Core logs as SQL", () => {
+    expect(detectLanguage("exec sp_executesql N'SELECT * FROM Orders WHERE Id = @p0',N'@p0 int',@p0=42")).toEqual({ lang: "sql", source: "parsed" });
+    const ef =
+      "info: Microsoft.EntityFrameworkCore.Database.Command[20101]\n" +
+      "      Executed DbCommand (3ms) [Parameters=[@__id_0='42' (Nullable = true)], CommandType='Text', CommandTimeout='30']\n" +
+      "      SELECT [o].[Id], [o].[Name]\n      FROM [Orders] AS [o]\n      WHERE [o].[Id] = @__id_0";
+    expect(detectLanguage(ef)).toEqual({ lang: "sql", source: "parsed" });
+  });
+});
+
+describe("CSV", () => {
+  it("detects CSV and TSV", () => {
+    expect(detectLanguage("id,name,price\n1,Apple,1.5\n2,Pear,2\n").lang).toBe("csv");
+    expect(detectLanguage("id\tname\n1\tApple\n").lang).toBe("csv");
+    expect(detectLanguage("x", "data.tsv").lang).toBe("csv");
+  });
+
+  it("does not take other languages for CSV", () => {
+    expect(detectLanguage("- a, b\n- c, d\n- e, f\n").lang).not.toBe("csv");
+    expect(detectLanguage('{"a":1,"b":2}\n{"a":3,"b":4}\n{"a":5,"b":6}\n').lang).not.toBe("csv");
+    expect(detectLanguage("foo(a, b);\nbar(c, d);\nbaz(e, f);\n").lang).not.toBe("csv");
+  });
+});

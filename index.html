@@ -14,14 +14,20 @@
       <label class="toggle" title="Wrap long lines (W)"><input type="checkbox" id="opt-wrap" /> Wrap</label>
       <label class="toggle" title="Show line numbers (L)"><input type="checkbox" id="opt-lines" /> Line no.</label>
       <button id="btn-panel" title="Show tree view (T)" hidden>Tree</button>
+      <button id="btn-convert" title="Convert to another format" aria-haspopup="true" hidden>Convert ▾</button>
       <span class="spacer"></span>
       <span id="info" class="muted"></span>
+      <button id="btn-history" title="Recent contents (Ctrl+H)" aria-haspopup="true">History</button>
       <button id="btn-paste" title="Paste from clipboard (Ctrl+V)">Paste</button>
       <button id="btn-open" title="Open file (Ctrl+O)">Open…</button>
+      <button id="btn-compare" title="Compare with another snippet (Ctrl+D)">Compare</button>
       <button id="btn-copy" title="Copy formatted text (Ctrl+Shift+C)">Copy</button>
+      <button id="btn-copy-rich" title="Copy with colours, for pasting into Outlook, Teams or Word (Ctrl+Shift+Alt+C)">Copy colours</button>
       <button id="btn-editor" title="Open in external editor (Ctrl+E)">Editor</button>
       <button id="btn-settings" class="icon" title="Settings" aria-label="Settings">⚙</button>
     </header>
+
+    <nav id="tabbar" class="tabbar" role="tablist" hidden></nav>
 
     <div id="searchbar" class="searchbar" hidden>
       <input id="search" type="search" placeholder="Search…" spellcheck="false" />
@@ -33,6 +39,28 @@
 
     <div id="update-bar" class="notice update-bar" hidden></div>
     <div id="notice" class="notice" hidden></div>
+    <div id="compare-prompt" class="notice update-bar" hidden>
+      <span>Compare: paste (<kbd>Ctrl</kbd>+<kbd>V</kbd>), open a file or pick from the history for the right side.</span>
+      <button type="button" id="compare-paste">Paste</button>
+      <button type="button" id="compare-open">Open…</button>
+      <button type="button" id="compare-history">History</button>
+      <button type="button" id="compare-cancel">Cancel</button>
+    </div>
+    <section id="compare" class="compare" hidden>
+      <div class="compare-bar">
+        <span class="compare-labels"><strong id="compare-left-label"></strong> ↔ <strong id="compare-right-label"></strong></span>
+        <span id="compare-count" class="muted"></span>
+        <span class="spacer"></span>
+        <label class="toggle" title="Compare the texts as they are, without formatting"><input type="checkbox" id="compare-raw" /> Raw text</label>
+        <button id="compare-prev" title="Previous change (Shift+F7)">↑</button>
+        <button id="compare-next" title="Next change (F7)">↓</button>
+        <button id="compare-close" title="Leave compare mode (Esc)">✕</button>
+      </div>
+      <div class="compare-panes">
+        <div id="compare-left" class="compare-pane code"></div>
+        <div id="compare-right" class="compare-pane code"></div>
+      </div>
+    </section>
 
     <div class="workspace">
       <main id="viewer" tabindex="0">
@@ -47,9 +75,10 @@
       <aside id="side-panel" class="side-panel" hidden>
         <div class="panel-header">
           <strong id="panel-title">Tree</strong>
-          <input id="panel-filter" class="tree-only" type="search" placeholder="Filter…" spellcheck="false" />
+          <input id="panel-filter" class="tree-only table-too" type="search" placeholder="Filter…" spellcheck="false" />
+          <label class="toggle table-only" title="Use the first row as the column header"><input type="checkbox" id="panel-csv-header" checked /> Header</label>
           <span class="spacer html-only"></span>
-          <button id="panel-sync" class="icon tree-only" title="Jump to the line in the code when a node is selected" aria-pressed="false">
+          <button id="panel-sync" class="icon tree-only table-too" title="Jump to the line in the code when a node is selected" aria-pressed="false">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
           <button id="panel-expand" class="icon tree-only" title="Expand all">+</button>
@@ -57,10 +86,10 @@
           <button id="panel-close" class="icon" title="Close (T)">✕</button>
         </div>
         <div id="panel-body" class="panel-body"></div>
-        <div class="panel-footer tree-only">
+        <div class="panel-footer tree-only table-too">
           <span id="panel-path" class="panel-path muted">Select a node</span>
-          <button id="panel-copy-path" title="Copy the path of the selected node" disabled>Copy path</button>
-          <button id="panel-copy-value" title="Copy the value of the selected node (Ctrl+C)" disabled>Copy value</button>
+          <button id="panel-copy-path" class="tree-only" title="Copy the path of the selected node" disabled>Copy path</button>
+          <button id="panel-copy-value" class="table-too" title="Copy the value of the selected node or cell (Ctrl+C)" disabled>Copy value</button>
         </div>
       </aside>
     </div>
@@ -105,8 +134,18 @@
         <label>External editor
           <input name="editorPath" placeholder="Empty = Notepad++ if installed (otherwise Notepad / xdg-open)" />
         </label>
+        <label>Open files and the clipboard shortcut in
+          <select name="newTab">
+            <option value="true">A new tab</option>
+            <option value="false">The current tab (replace)</option>
+          </select>
+        </label>
         <label class="row"><input type="checkbox" name="autostart" /> Start automatically at login (runs in the background)</label>
         <label class="row"><input type="checkbox" name="autoUpdate" /> Check for updates automatically</label>
+        <p class="history-row">
+          <label class="row"><input type="checkbox" name="history" /> Keep a history of recent contents</label>
+          <button type="button" id="btn-clear-history">Clear history</button>
+        </p>
         <p class="update-row"><span id="app-version" class="muted"></span> <button type="button" id="btn-check-update">Check for updates now</button></p>
         <div id="settings-update" class="notice update-bar settings-update" hidden></div>
         <p id="settings-toast" class="muted settings-toast" hidden></p>
@@ -118,6 +157,8 @@
       </form>
     </dialog>
 
+    <div id="history-menu" class="dropdown wide" tabindex="-1" hidden></div>
+    <div id="convert-menu" class="dropdown" tabindex="-1" hidden></div>
     <div id="toast" class="toast" hidden></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

@@ -186,6 +186,15 @@ fn register_shortcut(app: &AppHandle, shortcut: &str) -> Result<(), String> {
     }
 }
 
+// ------------------------------------------------------------------ history
+
+/// Upper limit for history.json; the UI keeps it well below (about 10 MB).
+const MAX_HISTORY_BYTES: usize = 16 * 1024 * 1024;
+
+fn history_path(app: &AppHandle) -> Option<PathBuf> {
+    app.path().app_config_dir().ok().map(|d| d.join("history.json"))
+}
+
 // ------------------------------------------------------------------ commands
 
 #[tauri::command]
@@ -222,6 +231,39 @@ fn save_settings(app: AppHandle, state: State<AppState>, settings: Value) -> Res
     fs::write(&path, text).map_err(|e| e.to_string())?;
     *state.settings.lock().unwrap() = settings;
     Ok(())
+}
+
+#[tauri::command]
+fn load_history(app: AppHandle) -> Value {
+    history_path(&app)
+        .and_then(|p| fs::read_to_string(p).ok())
+        .and_then(|s| serde_json::from_str::<Value>(&s).ok())
+        .filter(Value::is_array)
+        .unwrap_or_else(|| json!([]))
+}
+
+/// Writes the history (a JSON array). An empty array deletes the file.
+#[tauri::command]
+fn save_history(app: AppHandle, history: Value) -> Result<(), String> {
+    let entries = history.as_array().ok_or("Invalid history")?;
+    let path = history_path(&app).ok_or("No config directory")?;
+    if entries.is_empty() {
+        return match fs::remove_file(&path) {
+            Err(e) if e.kind() != std::io::ErrorKind::NotFound => Err(e.to_string()),
+            _ => Ok(()),
+        };
+    }
+    let text = serde_json::to_string(&history).map_err(|e| e.to_string())?;
+    if text.len() > MAX_HISTORY_BYTES {
+        return Err("The history is too large".into());
+    }
+    if let Some(dir) = path.parent() {
+        fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+    }
+    // Write to a temporary file first so a crash never leaves a half-written history.
+    let tmp = path.with_extension("json.tmp");
+    fs::write(&tmp, text).map_err(|e| e.to_string())?;
+    fs::rename(&tmp, &path).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -402,7 +444,9 @@ pub fn run() {
             save_settings,
             shortcut_status,
             open_in_editor,
-            open_url
+            open_url,
+            load_history,
+            save_history
         ])
         .run(tauri::generate_context!())
         .expect("error while running DocView");

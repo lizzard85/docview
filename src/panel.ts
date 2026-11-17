@@ -1,4 +1,6 @@
 // The side panel to the right of the code view (tree view of JSON, …).
+import type { CsvData } from "./csv";
+import { TableView } from "./tableView";
 import { filterTree, TreeView, type TreeNode } from "./tree";
 
 export interface PanelView {
@@ -7,6 +9,8 @@ export interface PanelView {
   nodes?: TreeNode[];
   /** Sanitized HTML to show (Markdown preview). */
   html?: string;
+  /** Table to show (CSV / TSV). */
+  table?: CsvData;
   /** Shown instead when the text could not be parsed. */
   error?: string;
 }
@@ -15,6 +19,7 @@ const MIN_WIDTH = 200;
 
 export class SidePanel {
   readonly tree: TreeView;
+  readonly table: TableView;
   /** Called when the user closes the panel or resizes it. */
   onClose: () => void = () => {};
   onResize: (width: number) => void = () => {};
@@ -24,6 +29,10 @@ export class SidePanel {
   /** Called when a node is selected while "jump to line" is on. */
   onNavigate: (node: TreeNode) => void = () => {};
   onSyncChange: (on: boolean) => void = () => {};
+  /** Called with a 0-based line when a table cell is selected while "jump to line" is on. */
+  onJumpLine: (line: number) => void = () => {};
+  /** Called when the "first row is the header" toggle changes. */
+  onHeaderChange: (on: boolean) => void = () => {};
 
   private view: PanelView | null = null;
   private selected: TreeNode | null = null;
@@ -38,25 +47,48 @@ export class SidePanel {
   private readonly copyPath = byId<HTMLButtonElement>("panel-copy-path");
   private readonly copyValue = byId<HTMLButtonElement>("panel-copy-value");
   private readonly syncButton = byId<HTMLButtonElement>("panel-sync");
+  private readonly headerToggle = byId<HTMLInputElement>("panel-csv-header");
   private sync = false;
+  /** Selected table cell (line to jump to, value to copy). */
+  private cell: { line: number; value: string } | null = null;
+  /** Status text of the table view (row count). */
+  private status = "";
 
   constructor() {
     this.tree = new TreeView(this.body);
     this.tree.onSelect = (n) => this.onSelect(n);
     this.tree.onCopy = (n) => this.onCopy(n.copyValue(), "value");
+    this.table = new TableView(this.body);
+    this.table.onCopy = (v) => this.onCopy(v, "value");
+    this.table.onStatus = (text) => { this.status = text; this.path.textContent = text; this.path.title = ""; };
+    this.table.onSelect = (cell) => {
+      this.cell = cell;
+      this.copyValue.disabled = !cell;
+      this.path.textContent = cell ? `Row ${cell.row} · ${cell.column}` : this.status;
+      this.path.title = cell?.value ?? "";
+      if (cell && this.sync) this.onJumpLine(cell.line);
+    };
+    this.headerToggle.addEventListener("change", () => {
+      this.table.setHeader(this.headerToggle.checked);
+      this.onHeaderChange(this.headerToggle.checked);
+    });
 
     byId("panel-close").addEventListener("click", () => this.onClose());
     this.syncButton.addEventListener("click", () => {
       this.setSync(!this.sync);
       this.onSyncChange(this.sync);
-      if (this.sync && this.selected) this.onNavigate(this.selected);
+      if (this.sync && this.cell && this.table.active) this.onJumpLine(this.cell.line);
+      else if (this.sync && this.selected) this.onNavigate(this.selected);
     });
     byId("panel-expand").addEventListener("click", () => {
       if (!this.tree.expandAll()) this.path.textContent = "Stopped expanding – the tree is very large.";
     });
     byId("panel-collapse").addEventListener("click", () => this.tree.collapseAll());
     this.copyPath.addEventListener("click", () => this.selected && this.onCopy(this.selected.path, "path"));
-    this.copyValue.addEventListener("click", () => this.selected && this.onCopy(this.selected.copyValue(), "value"));
+    this.copyValue.addEventListener("click", () => {
+      if (this.table.active) { if (this.cell) this.onCopy(this.cell.value, "value"); }
+      else if (this.selected) this.onCopy(this.selected.copyValue(), "value");
+    });
 
     this.filter.addEventListener("input", () => {
       clearTimeout(this.filterTimer);
@@ -89,6 +121,16 @@ export class SidePanel {
 
   get isOpen() { return !this.el.hidden; }
 
+  /** Text in the filter box (kept per tab). */
+  get filterText(): string { return this.filter.value; }
+  set filterText(v: string) { this.filter.value = v; }
+
+  /** Whether the first CSV row is shown as the header. */
+  setCsvHeader(on: boolean) {
+    this.headerToggle.checked = on;
+    this.table.setHeader(on);
+  }
+
   /** "Jump to line" on/off (the eye button). */
   setSync(on: boolean) {
     this.sync = on;
@@ -111,18 +153,29 @@ export class SidePanel {
     }
     this.view = view;
     this.title.textContent = view.title;
-    this.renderTree();
+    this.renderTree(true);
   }
 
-  private renderTree() {
+  /** Renders the current view; `fresh` is false when only the filter changed. */
+  private renderTree(fresh = false) {
     const view = this.view;
     if (!view) return;
     const htmlMode = view.html !== undefined;
+    const tableMode = view.table !== undefined;
     this.el.classList.toggle("html-mode", htmlMode);
+    this.el.classList.toggle("table-mode", tableMode);
     this.body.classList.toggle("markdown-body", htmlMode);
     if (htmlMode) {
       this.body.innerHTML = view.html!;
       this.body.scrollTop = 0;
+      return;
+    }
+    if (tableMode) {
+      this.filter.disabled = false;
+      this.copyValue.disabled = true;
+      this.cell = null;
+      if (fresh) this.table.show(view.table!, this.headerToggle.checked, this.filter.value);
+      else this.table.setFilter(this.filter.value);
       return;
     }
     this.filter.disabled = !view.nodes;
