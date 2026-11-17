@@ -252,6 +252,38 @@ dialog small { color: var(--muted); }
 dialog .buttons { display: flex; justify-content: flex-end; gap: 8px; }
 .error { color: #d1242f; min-height: 1em; margin: 4px 0; }
 
+/* Settings: pages chosen from a list on the left */
+dialog.settings { width: min(720px, 94vw); }
+.settings-body { display: flex; gap: 16px; height: min(460px, 64vh); margin-bottom: 8px; }
+.settings-nav {
+  flex: none; display: flex; flex-direction: column; gap: 2px; width: 130px;
+  border-right: 1px solid var(--border); padding-right: 10px;
+}
+.settings-nav button { text-align: left; border-color: transparent; background: none; padding: 5px 8px; }
+.settings-nav button:hover { background: var(--bg-bar); }
+.settings-nav button[aria-selected="true"] { background: var(--bg-bar); border-color: var(--border); color: var(--accent); font-weight: 600; }
+.settings-pages { flex: 1; min-width: 0; overflow-y: auto; padding-right: 6px; }
+.settings-page[hidden] { display: none; }
+.settings-page h3 { margin: 14px 0 8px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.settings-page h3:first-child { margin-top: 0; }
+.settings-page p { margin: 0 0 10px; }
+
+/* Shortcuts page */
+.keys-table { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 12px; margin-bottom: 4px; }
+.keys-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.keys-actions { display: inline-flex; gap: 4px; justify-content: flex-end; }
+.keys-actions button[hidden] { visibility: hidden; display: inline-block; }
+.keys-hint { margin: -4px 0 8px !important; }
+.key-record {
+  min-width: 150px; text-align: center;
+  font: 12px "Cascadia Mono", Consolas, "DejaVu Sans Mono", ui-monospace, monospace;
+  border-bottom-width: 2px;
+}
+.key-record.unset { color: var(--muted); font-style: italic; }
+.key-record.recording { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+.keys-status { border: 1px solid var(--border); border-radius: 6px; margin: 0 0 10px; }
+.keys-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 14px !important; }
+
 .toast {
   position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
   background: var(--fg); color: var(--bg); padding: 6px 14px; border-radius: 6px;
@@ -275,8 +307,6 @@ dialog .buttons { display: flex; justify-content: flex-end; gap: 8px; }
 .dropdown-label.mono { font-family: "Cascadia Mono", Consolas, "DejaVu Sans Mono", ui-monospace, monospace; }
 .dropdown-meta { font-size: 0.85em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dropdown-empty { margin: 8px; }
-.history-row { display: flex; align-items: center; gap: 12px; justify-content: space-between; margin: 0 0 10px; }
-.history-row label { margin-bottom: 0; }
 .table-mode .panel-body { padding: 0; }
 
 /* Compare */
@@ -317,3 +347,4 @@ body.comparing .workspace, body.comparing #notice, body.comparing #searchbar { d
 .tab-close { border: none; background: none; padding: 0 4px; line-height: 1.2; border-radius: 3px; color: inherit; }
 .tab-close:hover { background: var(--border); }
 .tab-new { border: none; background: none; padding: 2px 8px; margin-bottom: 2px; }
+.keys-actions button:disabled { opacity: 0.4; cursor: default; border-color: var(--border); }

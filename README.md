@@ -56,7 +56,7 @@ For JSON, XML, CSV/TSV and Markdown a panel opens to the right of the code (togg
 
 ### Always at hand
 - Runs in the background with an icon in the **system tray**. Closing the window only hides it; quit from the tray menu.
-- **Global shortcut** (`Win+Alt+V` on Windows, `Super+Alt+V` on Linux, configurable) shows the window with the current clipboard contents.
+- **Global shortcut** (`Win+Alt+V` on Windows, `Super+Alt+V` on Linux, can be changed in the settings) shows the window with the current clipboard contents.
 - Optional **start at login**.
 - Only one instance runs; opening a file while DocView is running sends it to the open window.
 
@@ -91,7 +91,7 @@ On Linux only the AppImage updates itself; a `.deb` installation is updated by i
 
 | Shortcut | Action |
 |---|---|
-| `Win+Alt+V` / `Super+Alt+V` (global, configurable) | Show DocView with the clipboard contents |
+| `Win+Alt+V` / `Super+Alt+V` (global) | Show DocView with the clipboard contents |
 | `Ctrl+V` | Paste new content |
 | `Ctrl+O` | Open file |
 | `Ctrl+S` | Save the shown text as a file |
@@ -102,7 +102,7 @@ On Linux only the AppImage updates itself; a `.deb` installation is updated by i
 | `F7` / `Shift+F7` | Next / previous change (compare mode) |
 | `Ctrl+F`, `F3` / `Shift+F3` | Search, next / previous match |
 | `Ctrl+Shift+C` | Copy the shown (formatted) text |
-| `Ctrl+Shift+Alt+C` | Copy with colours (for Outlook, Teams, Word) |
+| `Ctrl+Alt+Shift+C` | Copy with colours (for Outlook, Teams, Word) |
 | `Ctrl+E` | Open in external editor |
 | `Ctrl +` / `Ctrl -` / `Ctrl 0` | Zoom in / out / reset |
 | `F` / `W` / `L` | Toggle formatting / word wrap / line numbers |
@@ -111,11 +111,21 @@ On Linux only the AppImage updates itself; a `.deb` installation is updated by i
 | `Ctrl+,` | Settings |
 | `Esc` | Close a menu, search or compare mode, otherwise hide the window |
 
+All shortcuts except `Esc` can be changed under **Settings → Shortcuts**: click the shortcut and press the new keys (`Esc` cancels). A key that is already used by another action is moved, and the other action is left without a shortcut. Each shortcut can be reset (↺) or removed (✕), and **Reset all to defaults** restores them all. Tooltips and hints in the app show the current keys. Shortcuts without `Ctrl`, `Alt` or `Win` (e.g. `F`, `T`) do not work while typing in a text field such as the search box. `Ctrl+V` always pastes; a different paste shortcut works in addition to it.
+
 The default global shortcut is deliberately not `Ctrl+Shift+V` (already "paste as plain text" in browsers, Office, Teams and others), and `Ctrl+Alt` combinations are avoided because `Ctrl+Alt` acts as `AltGr` on many European keyboard layouts.
 
 ## Settings
 
-Open them with the ⚙ button, `Ctrl+,` or the tray menu: global shortcut, theme, font size, indentation, SQL dialect and keyword case, external editor, new tab or current tab for files and the clipboard shortcut, start at login, automatic updates and history (with **Clear history**). Formatting, word wrap, line numbers, the side panel, the CSV header toggle and inlining of SQL parameters remember their state.
+Open them with the ⚙ button, `Ctrl+,` or the tray menu. They are grouped in pages:
+
+- **General** – theme, font size, new tab or current tab for files and the clipboard shortcut, external editor, start at login.
+- **Formatting** – indentation, SQL dialect and keyword case.
+- **Shortcuts** – the global shortcut and all keyboard shortcuts in the app, recorded by pressing them (see [Keyboard shortcuts](#keyboard-shortcuts)). The global shortcut needs `Ctrl`, `Alt` or `Win`/`Super`, or a function key.
+- **History** – keep a history of recent contents, **Clear history**.
+- **Updates** – automatic update check, the version and **Check for updates now**.
+
+Formatting, word wrap, line numbers, the side panel, the CSV header toggle and inlining of SQL parameters remember their state.
 
 Settings are stored in `%APPDATA%\io.github.docview\settings.json` on Windows and `~/.config/io.github.docview/settings.json` on Linux; the history is in `history.json` in the same folder.
 
