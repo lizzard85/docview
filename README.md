@@ -28,6 +28,7 @@ On Linux, make the AppImage executable (`chmod +x DocView_*.AppImage`) and run i
 
 ### Formatting and highlighting
 - **Formats** JSON, SQL, XML, HTML, CSS/SCSS/LESS, JavaScript/TypeScript, YAML, Markdown and GraphQL.
+- **Forgiving JSON**: comments, trailing commas and raw line breaks inside strings are accepted. JSON copied from a Business Central `Message()` dialog (which shows every `\` as a line break) is repaired, so `\u2019` etc. come back.
 - SQL formatting supports T-SQL (SQL Server), standard SQL, PostgreSQL, MySQL, MariaDB, SQLite, Oracle PL/SQL, DB2, BigQuery and Snowflake, with keywords kept as written, in UPPERCASE or in lowercase.
 - **SQL with parameters**: SQL captured from SQL Server Profiler / Extended Events (`exec sp_executesql N'…', N'@p0 int', @p0=42`) and EF Core command logs (`Executed DbCommand … [Parameters=[@__id_0='42'], …]` followed by the SQL) are recognised. The parameters are substituted with literals so the SQL can be run directly in SSMS; a notice offers **Show original** / **Inline parameters**, and the choice is remembered.
 - **Decodes** encoded text: a **JWT** is shown as JSON with its header and payload, plus the `exp`, `iat` and `nbf` times in local time and whether the token is expired (the signature is never verified). **Base64** and **URL-encoded** text (including query strings, shown as one `key=value` per line) are decoded, and the decoded text gets its own language detection – Base64-encoded JSON is shown as formatted JSON. `D` switches between the decoded text and the original. Short strings, normal words and hex strings are never decoded.
@@ -158,6 +159,7 @@ src/                 Frontend (TypeScript + Vite)
   search.ts          In-view search
   panel.ts           Side panel
   tree.ts            Lazy tree view with filter
+  json.ts            lenient JSON parsing (comments, control characters)
   jsonTree.ts        JSON -> tree nodes
   xmlTree.ts         XML -> tree nodes
   csv.ts             CSV/TSV parsing, delimiter detection, sorting, filtering

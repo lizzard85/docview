@@ -13,6 +13,7 @@ import { Dropdown, type DropdownItem } from "./dropdown";
 import { jsonToTree } from "./jsonTree";
 import { LANGUAGES, LANG_BY_ID, languageFromFilename } from "./languages";
 import { findOffset, jsonLocations, lineOf, lineStarts, xmlLocations, type Locations } from "./locate";
+import { parseJsonLenient } from "./json";
 import { renderMarkdown } from "./markdown";
 import { SidePanel, type PanelView } from "./panel";
 import type { TreeNode } from "./tree";
@@ -249,8 +250,12 @@ async function loadPending() {
 function setContent(c: Content, opts: { conversion?: ConversionState | null; record?: boolean; newTab?: boolean } = {}) {
   // In compare mode new content becomes the right side.
   if (compare && !opts.conversion) {
-    compare.right = c;
-    recordHistory(c, detectLanguage(c.text, c.name).lang);
+    // Decoded and unescaped like the left side (the current content) is.
+    const typed = c.name ? (languageFromFilename(c.name) ?? "plaintext") !== "plaintext" : false;
+    let text = (c.truncated || typed ? null : decodeText(c.text))?.text ?? c.text;
+    text = (c.truncated ? null : unwrapEscapedJson(text))?.text ?? text;
+    compare.right = { ...c, text };
+    recordHistory(c, detectLanguage(text, c.name).lang);
     void runCompare();
     return;
   }
@@ -347,8 +352,8 @@ function toggleConvertMenu() {
     let problem: string | null = null;
     if (conv.id === "json-xml") {
       try {
-        problem = jsonToXmlProblem(JSON.parse(c.text));
-      } catch { /* JSON with comments: checked when converting */ }
+        problem = jsonToXmlProblem(parseJsonLenient(c.text).value);
+      } catch { /* not valid JSON: reported when converting */ }
     }
     return {
       label: conv.label,
@@ -574,6 +579,7 @@ async function render() {
     });
     if (token !== renderToken) return; // a newer render started meanwhile
     text = r.text;
+    if (r.warning) notices.push({ text: r.warning });
     if (r.error) notices.push({ text: `Could not format as ${LANG_BY_ID.get(lang)?.label}: ${r.error}` });
   }
   if (text.length > MAX_HIGHLIGHT_CHARS) notices.push({ text: "The text is very large – highlighting is turned off." });
@@ -628,7 +634,7 @@ function panelView(): PanelView | null {
     return panelCache.view;
   }
   const parsers: Record<string, (text: string) => TreeNode[]> = {
-    json: (t) => jsonToTree(JSON.parse(t), settings.indent),
+    json: (t) => jsonToTree(parseJsonLenient(t).value, settings.indent),
     xml: (t) => xmlToTree(t, settings.indent),
   };
   const parse = parsers[state.lang];

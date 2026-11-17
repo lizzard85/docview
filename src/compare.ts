@@ -1,8 +1,8 @@
 // Side-by-side comparison of two texts: line diff with inline highlighting of
 // changed characters. Pure functions (no DOM).
 import { diffChars, diffLines } from "diff";
-import { stripJsonComments } from "./detect";
 import { formatCode, type FormatOptions } from "./format";
+import { parseJsonLenient } from "./json";
 
 export interface Segment {
   text: string;
@@ -117,13 +117,7 @@ export function sortKeys(v: unknown): unknown {
 export async function normalizeForCompare(text: string, lang: string, opts: FormatOptions): Promise<string> {
   if (lang === "json") {
     try {
-      let value: unknown;
-      try {
-        value = JSON.parse(text);
-      } catch {
-        value = JSON.parse(stripJsonComments(text));
-      }
-      return JSON.stringify(sortKeys(value), null, opts.indent);
+      return JSON.stringify(sortKeys(parseJsonLenient(text).value), null, opts.indent);
     } catch { /* not valid JSON: fall through */ }
   }
   const r = await formatCode(text, lang, opts);

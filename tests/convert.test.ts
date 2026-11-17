@@ -86,3 +86,10 @@ describe("minify", () => {
     expect(convert("xml-min", "<a>\n  <b x=\"1\">text</b>\n  <c/>\n</a>\n")).toBe('<a><b x="1">text</b><c/></a>');
   });
 });
+
+describe("lenient JSON input", () => {
+  it("converts JSON with raw line breaks inside strings (Business Central)", () => {
+    const bc = '{"name":"it\nu2019s","note":"a\nb"}';
+    expect(convert("json-min", bc)).toBe(JSON.stringify({ name: "it’s", note: "a\nb" }));
+  });
+});

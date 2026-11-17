@@ -82,3 +82,10 @@ describe("helpers", () => {
     expect(stepChange([], 0, 1)).toBeUndefined();
   });
 });
+
+describe("lenient JSON comparison", () => {
+  it("normalizes JSON with raw line breaks inside strings", async () => {
+    const a = await normalizeForCompare('{"b":"x\ny","a":1}', "json", DEFAULT_FORMAT_OPTIONS);
+    expect(a).toBe(JSON.stringify({ a: 1, b: "x\ny" }, null, DEFAULT_FORMAT_OPTIONS.indent));
+  });
+});

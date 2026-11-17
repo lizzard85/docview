@@ -2,7 +2,7 @@
 import { XMLBuilder, XMLParser, XMLValidator } from "fast-xml-parser";
 import xmlFormat from "xml-formatter";
 import YAML from "yaml";
-import { stripJsonComments } from "./detect";
+import { parseJsonLenient } from "./json";
 
 export type ConversionId = "json-yaml" | "yaml-json" | "xml-json" | "json-xml" | "json-min" | "xml-min";
 
@@ -35,12 +35,9 @@ export function conversionsFor(lang: string): Conversion[] {
 const ATTR_PREFIX = "@";
 const TEXT_KEY = "#text";
 
+/** JSON with comments, trailing commas or raw line breaks in strings is accepted too. */
 function parseJson(text: string): unknown {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return JSON.parse(stripJsonComments(text)); // JSON with comments / trailing commas
-  }
+  return parseJsonLenient(text).value;
 }
 
 const XML_NAME = /^[A-Za-z_][\w.-]*(?::[A-Za-z_][\w.-]*)?$/;
