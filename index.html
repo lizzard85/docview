@@ -10,22 +10,22 @@
     <header class="toolbar">
       <select id="lang" title="Language (pick manually if the guess is wrong)"></select>
       <span id="detect-source" class="muted"></span>
-      <label class="toggle" title="Format the code (F)"><input type="checkbox" id="opt-format" /> Format</label>
-      <label class="toggle" title="Wrap long lines (W)"><input type="checkbox" id="opt-wrap" /> Wrap</label>
-      <label class="toggle" title="Show line numbers (L)"><input type="checkbox" id="opt-lines" /> Line no.</label>
+      <label class="toggle" title="Format the code" data-action="format"><input type="checkbox" id="opt-format" /> Format</label>
+      <label class="toggle" title="Wrap long lines" data-action="wrap"><input type="checkbox" id="opt-wrap" /> Wrap</label>
+      <label class="toggle" title="Show line numbers" data-action="lineNumbers"><input type="checkbox" id="opt-lines" /> Line no.</label>
       <button id="btn-panel" title="Show tree view (T)" hidden>Tree</button>
       <button id="btn-convert" title="Convert to another format" aria-haspopup="true" hidden>Convert ▾</button>
       <span class="spacer"></span>
       <span id="info" class="muted"></span>
-      <button id="btn-history" title="Recent contents (Ctrl+H)" aria-haspopup="true">History</button>
-      <button id="btn-paste" title="Paste from clipboard (Ctrl+V)">Paste</button>
-      <button id="btn-open" title="Open file (Ctrl+O)">Open…</button>
-      <button id="btn-save" title="Save as a file (Ctrl+S)">Save…</button>
-      <button id="btn-compare" title="Compare with another snippet (Ctrl+D)">Compare</button>
-      <button id="btn-copy" title="Copy formatted text (Ctrl+Shift+C)">Copy</button>
-      <button id="btn-copy-rich" title="Copy with colours, for pasting into Outlook, Teams or Word (Ctrl+Shift+Alt+C)">Copy colours</button>
-      <button id="btn-editor" title="Open in external editor (Ctrl+E)">Editor</button>
-      <button id="btn-settings" class="icon" title="Settings" aria-label="Settings">⚙</button>
+      <button id="btn-history" title="Recent contents" data-action="history" aria-haspopup="true">History</button>
+      <button id="btn-paste" title="Paste from clipboard" data-action="paste">Paste</button>
+      <button id="btn-open" title="Open file" data-action="open">Open…</button>
+      <button id="btn-save" title="Save as a file" data-action="save">Save…</button>
+      <button id="btn-compare" title="Compare with another snippet" data-action="compare">Compare</button>
+      <button id="btn-copy" title="Copy formatted text" data-action="copy">Copy</button>
+      <button id="btn-copy-rich" title="Copy with colours, for pasting into Outlook, Teams or Word" data-action="copyRich">Copy colours</button>
+      <button id="btn-editor" title="Open in external editor" data-action="editor">Editor</button>
+      <button id="btn-settings" class="icon" title="Settings" data-action="settings" aria-label="Settings">⚙</button>
     </header>
 
     <nav id="tabbar" class="tabbar" role="tablist" hidden></nav>
@@ -53,8 +53,8 @@
         <span id="compare-count" class="muted"></span>
         <span class="spacer"></span>
         <label class="toggle" title="Compare the texts as they are, without formatting"><input type="checkbox" id="compare-raw" /> Raw text</label>
-        <button id="compare-prev" title="Previous change (Shift+F7)">↑</button>
-        <button id="compare-next" title="Next change (F7)">↓</button>
+        <button id="compare-prev" title="Previous change" data-action="comparePrev">↑</button>
+        <button id="compare-next" title="Next change" data-action="compareNext">↓</button>
         <button id="compare-close" title="Leave compare mode (Esc)">✕</button>
       </div>
       <div class="compare-panes">
@@ -67,7 +67,7 @@
       <main id="viewer" tabindex="0">
         <div id="empty" class="empty">
           <h1>DocView</h1>
-          <p>Paste code with <kbd>Ctrl</kbd>+<kbd>V</kbd>, drop a file here, or press <kbd>Ctrl</kbd>+<kbd>O</kbd>.</p>
+          <p>Paste code with <kbd>Ctrl</kbd>+<kbd>V</kbd>, drop a file here<span id="open-hint">, or press <kbd data-key="open">Ctrl+O</kbd></span>.</p>
           <p class="muted" id="shortcut-hint"></p>
         </div>
         <div id="code" class="code"></div>
@@ -84,7 +84,7 @@
           </button>
           <button id="panel-expand" class="icon tree-only" title="Expand all">+</button>
           <button id="panel-collapse" class="icon tree-only" title="Collapse all">−</button>
-          <button id="panel-close" class="icon" title="Close (T)">✕</button>
+          <button id="panel-close" class="icon" title="Close" data-action="panel">✕</button>
         </div>
         <div id="panel-body" class="panel-body"></div>
         <div class="panel-footer tree-only table-too">
@@ -95,59 +95,88 @@
       </aside>
     </div>
 
-    <dialog id="settings">
+    <dialog id="settings" class="settings">
       <form method="dialog" id="settings-form">
         <h2>Settings</h2>
-        <label>Global shortcut
-          <input name="shortcut" placeholder="Super+Alt+V" />
-          <small id="shortcut-help">E.g. <code>Super+Alt+V</code> (Super = the Windows key), <code>Ctrl+Shift+F12</code>.</small>
-        </label>
-        <label>Theme
-          <select name="theme">
-            <option value="auto">Follow system</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </label>
-        <label>Font size <input name="fontSize" type="number" min="8" max="40" /></label>
-        <label>Indentation (spaces) <input name="indent" type="number" min="1" max="8" /></label>
-        <label>SQL dialect
-          <select name="sqlDialect">
-            <option value="transactsql">T-SQL (SQL Server)</option>
-            <option value="sql">Standard SQL</option>
-            <option value="postgresql">PostgreSQL</option>
-            <option value="mysql">MySQL</option>
-            <option value="mariadb">MariaDB</option>
-            <option value="sqlite">SQLite</option>
-            <option value="plsql">Oracle PL/SQL</option>
-            <option value="db2">DB2</option>
-            <option value="bigquery">BigQuery</option>
-            <option value="snowflake">Snowflake</option>
-          </select>
-        </label>
-        <label>SQL keywords
-          <select name="sqlKeywordCase">
-            <option value="preserve">As written</option>
-            <option value="upper">UPPERCASE</option>
-            <option value="lower">lowercase</option>
-          </select>
-        </label>
-        <label>External editor
-          <input name="editorPath" placeholder="Empty = Notepad++ if installed (otherwise Notepad / xdg-open)" />
-        </label>
-        <label>Open files and the clipboard shortcut in
-          <select name="newTab">
-            <option value="true">A new tab</option>
-            <option value="false">The current tab (replace)</option>
-          </select>
-        </label>
-        <label class="row"><input type="checkbox" name="autostart" /> Start automatically at login (runs in the background)</label>
-        <label class="row"><input type="checkbox" name="autoUpdate" /> Check for updates automatically</label>
-        <p class="history-row">
-          <label class="row"><input type="checkbox" name="history" /> Keep a history of recent contents</label>
-          <button type="button" id="btn-clear-history">Clear history</button>
-        </p>
-        <p class="update-row"><span id="app-version" class="muted"></span> <button type="button" id="btn-check-update">Check for updates now</button></p>
+        <div class="settings-body">
+          <nav class="settings-nav" role="tablist" aria-label="Settings pages">
+            <button type="button" role="tab" data-page="general" aria-selected="true">General</button>
+            <button type="button" role="tab" data-page="formatting" aria-selected="false">Formatting</button>
+            <button type="button" role="tab" data-page="shortcuts" aria-selected="false">Shortcuts</button>
+            <button type="button" role="tab" data-page="history" aria-selected="false">History</button>
+            <button type="button" role="tab" data-page="updates" aria-selected="false">Updates</button>
+          </nav>
+          <div class="settings-pages">
+            <section class="settings-page" data-page="general" role="tabpanel">
+              <h3>Appearance</h3>
+              <label>Theme
+                <select name="theme">
+                  <option value="auto">Follow system</option>
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </label>
+              <label>Font size <input name="fontSize" type="number" min="8" max="40" /></label>
+              <h3>Opening content</h3>
+              <label>Open files and the clipboard shortcut in
+                <select name="newTab">
+                  <option value="true">A new tab</option>
+                  <option value="false">The current tab (replace)</option>
+                </select>
+              </label>
+              <label>External editor
+                <input name="editorPath" placeholder="Empty = Notepad++ if installed (otherwise Notepad / xdg-open)" />
+              </label>
+              <h3>System</h3>
+              <label class="row"><input type="checkbox" name="autostart" /> Start automatically at login (runs in the background)</label>
+            </section>
+
+            <section class="settings-page" data-page="formatting" role="tabpanel" hidden>
+              <h3>General</h3>
+              <label>Indentation (spaces) <input name="indent" type="number" min="1" max="8" /></label>
+              <h3>SQL</h3>
+              <label>Dialect
+                <select name="sqlDialect">
+                  <option value="transactsql">T-SQL (SQL Server)</option>
+                  <option value="sql">Standard SQL</option>
+                  <option value="postgresql">PostgreSQL</option>
+                  <option value="mysql">MySQL</option>
+                  <option value="mariadb">MariaDB</option>
+                  <option value="sqlite">SQLite</option>
+                  <option value="plsql">Oracle PL/SQL</option>
+                  <option value="db2">DB2</option>
+                  <option value="bigquery">BigQuery</option>
+                  <option value="snowflake">Snowflake</option>
+                </select>
+              </label>
+              <label>Keywords
+                <select name="sqlKeywordCase">
+                  <option value="preserve">As written</option>
+                  <option value="upper">UPPERCASE</option>
+                  <option value="lower">lowercase</option>
+                </select>
+              </label>
+            </section>
+
+            <section class="settings-page" data-page="shortcuts" role="tabpanel" hidden>
+              <p id="keys-status" class="notice keys-status" hidden></p>
+              <div id="keys-editor"></div>
+            </section>
+
+            <section class="settings-page" data-page="history" role="tabpanel" hidden>
+              <h3>History</h3>
+              <label class="row"><input type="checkbox" name="history" /> Keep a history of recent contents</label>
+              <p class="muted">The last 30 contents are kept. Turning the history off also deletes it.</p>
+              <p><button type="button" id="btn-clear-history">Clear history</button></p>
+            </section>
+
+            <section class="settings-page" data-page="updates" role="tabpanel" hidden>
+              <h3>Updates</h3>
+              <label class="row"><input type="checkbox" name="autoUpdate" /> Check for updates automatically</label>
+              <p class="update-row"><span id="app-version" class="muted"></span> <button type="button" id="btn-check-update">Check for updates now</button></p>
+            </section>
+          </div>
+        </div>
         <div id="settings-update" class="notice update-bar settings-update" hidden></div>
         <p id="settings-toast" class="muted settings-toast" hidden></p>
         <p id="settings-error" class="error"></p>

@@ -23,7 +23,9 @@ import { colouredHtml } from "./richCopy";
 import { Search } from "./search";
 import { activate, activeTab, addTab, closeTab, createTabs, cycle, tabTitle, updateTab, type Tabs } from "./tabs";
 import { inlineSqlParams } from "./sqlParams";
-import { displayShortcut, isWindows, storeShortcut } from "./shortcut";
+import { displayShortcut, isWindows } from "./shortcut";
+import { actionApplies, eventToCombo, keyMap, resolveBindings, type ActionId, type Bindings, type KeyOverrides } from "./keymap";
+import { KeysEditor } from "./keysEditor";
 import { appVersion, checkForUpdate, type UpdateUi } from "./update";
 import { saveFilters, suggestFileName, suggestPath, withLineEndings } from "./save";
 
@@ -111,6 +113,10 @@ const compareView = new CompareView();
 let compare: { left: Content; lang: string; right: Content | null } | null = null;
 let compareToken = 0;
 let history: HistoryEntry[] = [];
+/** The app shortcuts (defaults merged with the user's changes) and combo -> action. */
+let bindings: Bindings = resolveBindings({});
+let keys = keyMap(bindings);
+const keysEditor = new KeysEditor($("keys-editor"), $("keys-status"));
 
 // ------------------------------------------------------------------ setup
 
@@ -165,6 +171,12 @@ async function init() {
     toast(what === "path" ? "Copied path" : "Copied value");
   };
   ui.settingsForm.addEventListener("submit", onSettingsSubmit);
+  for (const tab of ui.settings.querySelectorAll<HTMLElement>(".settings-nav [data-page]")) {
+    tab.addEventListener("click", () => showSettingsPage(tab.dataset.page!));
+  }
+  // Esc while recording a shortcut cancels the recording, not the dialog.
+  ui.settings.addEventListener("cancel", (e) => { if (keysEditor.takeEscape()) e.preventDefault(); });
+  ui.settings.addEventListener("close", () => keysEditor.stop());
 
   document.addEventListener("paste", (e) => {
     if (isEditable(e.target) || ui.settings.open) return;
@@ -189,10 +201,6 @@ async function init() {
   const scError = await backend.shortcutStatus();
   if (scError && !state.content) {
     ui.shortcutHint.textContent = `${displayShortcut(scError)} Pick another shortcut under Settings (⚙).`;
-  }
-  if (isWindows) {
-    (ui.settingsForm.elements.namedItem("shortcut") as HTMLInputElement).placeholder = "Win+Alt+V";
-    $("shortcut-help").innerHTML = "E.g. <code>Win+Alt+V</code>, <code>Ctrl+Shift+F12</code>.";
   }
 
   $("btn-check-update").addEventListener("click", () => void checkForUpdate(updateUi, true));
@@ -525,7 +533,7 @@ function renderTabBar() {
     const close = document.createElement("button");
     close.type = "button";
     close.className = "tab-close";
-    close.title = "Close (Ctrl+W)";
+    close.title = withKey("Close", "closeTab");
     close.setAttribute("aria-label", "Close tab");
     close.textContent = "×";
     el.append(title, close);
@@ -534,7 +542,7 @@ function renderTabBar() {
   const plus = document.createElement("button");
   plus.type = "button";
   plus.className = "tab-new";
-  plus.title = "New tab (Ctrl+T)";
+  plus.title = withKey("New tab", "newTab");
   plus.textContent = "+";
   bar.append(plus);
   bar.querySelector(".tab.active")?.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -551,9 +559,16 @@ async function render() {
   const dec = state.decoded;
   if (dec) {
     const label = ENCODING_LABEL[dec.kind];
-    if (state.showOriginal) notices.push({ text: `Showing the original ${label} – press D to decode.` });
-    else if (dec.kind === "jwt" && dec.payload) notices.push({ text: `${jwtSummary(dec.payload)} Press D to show the original.` });
-    else notices.push({ text: `Decoded from ${label} – press D to show the original.` });
+    const k = keyLabel("decoded");
+    const toOriginal = k ? undefined : { label: "Show original", run: toggleDecoded };
+    if (state.showOriginal) {
+      notices.push(k ? { text: `Showing the original ${label} – press ${k} to decode.` }
+        : { text: `Showing the original ${label} –`, action: { label: "Decode", run: toggleDecoded } });
+    } else if (dec.kind === "jwt" && dec.payload) {
+      notices.push({ text: `${jwtSummary(dec.payload)}${k ? ` Press ${k} to show the original.` : ""}`, action: toOriginal });
+    } else {
+      notices.push({ text: `Decoded from ${label}${k ? ` – press ${k} to show the original.` : " –"}`, action: toOriginal });
+    }
   }
   if (state.unescaped === 1) notices.push({ text: "Showing JSON that was escaped inside a string." });
   else if (state.unescaped > 1) notices.push({ text: `Showing JSON that was escaped inside a string (${state.unescaped} levels).` });
@@ -663,7 +678,7 @@ function updatePanel() {
   const view = panelView();
   ui.btnPanel.hidden = !view;
   ui.btnPanel.textContent = view?.html !== undefined ? "Preview" : view?.table ? "Table" : "Tree";
-  ui.btnPanel.title = view?.html !== undefined ? "Show Markdown preview (T)" : view?.table ? "Show table view (T)" : "Show tree view (T)";
+  ui.btnPanel.title = withKey(view?.html !== undefined ? "Show Markdown preview" : view?.table ? "Show table view" : "Show tree view", "panel");
   ui.btnPanel.classList.toggle("active", !!view && state.panelOpen);
   panel.update(view, state.panelOpen);
 }
@@ -818,6 +833,32 @@ function applySettings() {
   ui.shortcutHint.textContent = backend.isTauri
     ? `Global shortcut: ${displayShortcut(settings.shortcut)} – shows what is on the clipboard.`
     : "";
+  applyKeys();
+}
+
+/** Rebuilds the shortcut table and the shortcuts shown in tooltips and hints. */
+function applyKeys() {
+  bindings = resolveBindings(settings.keys);
+  keys = keyMap(bindings);
+  for (const el of document.querySelectorAll<HTMLElement>("[data-action]")) {
+    el.dataset.label ??= el.title;
+    el.title = withKey(el.dataset.label, el.dataset.action as ActionId);
+  }
+  for (const el of document.querySelectorAll<HTMLElement>("[data-key]")) {
+    el.textContent = keyLabel(el.dataset.key as ActionId);
+  }
+  $("open-hint").hidden = !bindings.open;
+}
+
+/** The shortcut of an action as shown to the user ("" when it has none). */
+function keyLabel(id: ActionId): string {
+  return displayShortcut(bindings[id]);
+}
+
+/** "Label (shortcut)", or just the label when the action has no shortcut. */
+function withKey(label: string, id: ActionId): string {
+  const k = keyLabel(id);
+  return k ? `${label} (${k})` : label;
 }
 
 let persistTimer: number | undefined;
@@ -836,10 +877,23 @@ function openSettings() {
     if (el.type === "checkbox") el.checked = Boolean(value);
     else el.value = String(value);
   }
-  f.shortcut.value = displayShortcut(settings.shortcut);
+  keysEditor.load(validKeys(settings.keys), settings.shortcut, backend.DEFAULT_SETTINGS.shortcut);
   ui.settingsError.textContent = "";
   ui.settingsToast.hidden = true;
+  showSettingsPage("general");
   ui.settings.showModal();
+}
+
+function validKeys(k: unknown): KeyOverrides {
+  return k && typeof k === "object" && !Array.isArray(k) ? (k as KeyOverrides) : {};
+}
+
+function showSettingsPage(page: string) {
+  for (const el of ui.settings.querySelectorAll<HTMLElement>("[data-page]")) {
+    const on = el.dataset.page === page;
+    if (el.getAttribute("role") === "tab") el.setAttribute("aria-selected", String(on));
+    else el.hidden = !on;
+  }
 }
 
 async function onSettingsSubmit(e: SubmitEvent) {
@@ -849,7 +903,8 @@ async function onSettingsSubmit(e: SubmitEvent) {
   const f = ui.settingsForm.elements as unknown as Record<string, HTMLInputElement>;
   const next: Settings = {
     ...settings,
-    shortcut: storeShortcut(f.shortcut.value) || backend.DEFAULT_SETTINGS.shortcut,
+    shortcut: keysEditor.global || backend.DEFAULT_SETTINGS.shortcut,
+    keys: keysEditor.keys as Record<string, string>,
     theme: f.theme.value as Settings["theme"],
     fontSize: Number(f.fontSize.value) || 14,
     indent: Number(f.indent.value) || 2,
@@ -865,6 +920,8 @@ async function onSettingsSubmit(e: SubmitEvent) {
     await backend.saveSettings(next);
   } catch (err) {
     ui.settingsError.textContent = displayShortcut(String(err));
+    // Most likely the global shortcut could not be registered.
+    if (/shortcut/i.test(String(err))) showSettingsPage("shortcuts");
     return;
   }
   // Turning history off also removes what was stored.
@@ -883,9 +940,8 @@ function isEditable(t: EventTarget | null): boolean {
 
 function onKey(e: KeyboardEvent) {
   if (ui.settings.open) return;
-  const mod = e.ctrlKey || e.metaKey;
-  const key = e.key.toLowerCase();
 
+  // Esc is fixed: it closes whatever is open, otherwise hides the window.
   if (e.key === "Escape") {
     if (historyMenu.isOpen) historyMenu.close();
     else if (convertMenu.isOpen) convertMenu.close();
@@ -894,37 +950,44 @@ function onKey(e: KeyboardEvent) {
     else void backend.hideWindow();
     return;
   }
-  if (compare) {
-    // Compare mode: only its own keys plus paste/open/history for the right side.
-    if (e.key === "F7") { e.preventDefault(); compareView.step(e.shiftKey ? -1 : 1); }
-    else if (mod && key === "o") { e.preventDefault(); void openFileDialog(); }
-    else if (mod && key === "h") { e.preventDefault(); toggleHistoryMenu(); }
-    return;
-  }
-  if (mod && e.key === "Tab") { e.preventDefault(); cycleTab(e.shiftKey ? -1 : 1); return; }
-  if (mod && !e.shiftKey && key === "t") { e.preventDefault(); newTab(); return; }
-  if (mod && !e.shiftKey && key === "w") { e.preventDefault(); closeTabById(tabs.active); return; }
-  if (mod && key === "f") { e.preventDefault(); search.open(); return; }
-  if (e.key === "F3") { e.preventDefault(); search.step(e.shiftKey ? -1 : 1); return; }
-  if (isEditable(e.target)) return;
-
-  if (mod && key === "h") { e.preventDefault(); toggleHistoryMenu(); }
-  else if (mod && key === "d") { e.preventDefault(); startCompare(); }
-  else if (mod && key === "o") { e.preventDefault(); void openFileDialog(); }
-  else if (mod && e.shiftKey && e.altKey && e.code === "KeyC") { e.preventDefault(); void copyColoured(); }
-  else if (mod && e.shiftKey && key === "c") { e.preventDefault(); void copyShown(); }
-  else if (mod && !e.shiftKey && key === "s") { e.preventDefault(); void saveShown(); }
-  else if (mod && key === "e") { e.preventDefault(); void openInEditor(); }
-  else if (mod && (key === "+" || key === "=")) { e.preventDefault(); zoom(1); }
-  else if (mod && key === "-") { e.preventDefault(); zoom(-1); }
-  else if (mod && key === "0") { e.preventDefault(); zoom(0); }
-  else if (mod && e.key === ",") { e.preventDefault(); openSettings(); }
-  else if (!mod && !e.altKey && key === "f") ui.optFormat.click();
-  else if (!mod && !e.altKey && key === "w") ui.optWrap.click();
-  else if (!mod && !e.altKey && key === "l") ui.optLines.click();
-  else if (!mod && !e.altKey && key === "t") togglePanel();
-  else if (!mod && !e.altKey && key === "d") toggleDecoded();
+  const combo = eventToCombo(e);
+  const action = combo ? keys.get(combo) : undefined;
+  if (!combo || !action) return;
+  if (!actionApplies(action, combo, { comparing: !!compare, inInput: isEditable(e.target) })) return;
+  // Ctrl+V is left to the normal paste event (it also covers Shift+Insert and the context menu).
+  if (action === "paste" && combo === "Ctrl+V") return;
+  e.preventDefault();
+  ACTION_RUN[action]();
 }
+
+const ACTION_RUN: Record<ActionId, () => void> = {
+  paste: () => void pasteFromClipboard(),
+  open: () => void openFileDialog(),
+  save: () => void saveShown(),
+  history: toggleHistoryMenu,
+  editor: () => void openInEditor(),
+  copy: () => void copyShown(),
+  copyRich: () => void copyColoured(),
+  format: () => ui.optFormat.click(),
+  wrap: () => ui.optWrap.click(),
+  lineNumbers: () => ui.optLines.click(),
+  panel: togglePanel,
+  decoded: toggleDecoded,
+  zoomIn: () => zoom(1),
+  zoomOut: () => zoom(-1),
+  zoomReset: () => zoom(0),
+  settings: openSettings,
+  newTab,
+  closeTab: () => closeTabById(tabs.active),
+  nextTab: () => cycleTab(1),
+  prevTab: () => cycleTab(-1),
+  find: () => search.open(),
+  findNext: () => search.step(1),
+  findPrev: () => search.step(-1),
+  compare: startCompare,
+  compareNext: () => compareView.step(1),
+  comparePrev: () => compareView.step(-1),
+};
 
 // ------------------------------------------------------------------ misc
 

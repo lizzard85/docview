@@ -27,6 +27,8 @@ export interface Settings {
   csvHeader: boolean;
   /** Files and the clipboard shortcut open in a new tab (false: replace the current one). */
   newTab: boolean;
+  /** App shortcuts the user changed: action id -> combo ("" = none). See keymap.ts. */
+  keys: Record<string, string>;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -49,6 +51,7 @@ export const DEFAULT_SETTINGS: Settings = {
   history: true,
   csvHeader: true,
   newTab: true,
+  keys: {},
 };
 
 export interface Content {
