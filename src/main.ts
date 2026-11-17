@@ -25,6 +25,7 @@ import { activate, activeTab, addTab, closeTab, createTabs, cycle, tabTitle, upd
 import { inlineSqlParams } from "./sqlParams";
 import { displayShortcut, isWindows, storeShortcut } from "./shortcut";
 import { appVersion, checkForUpdate, type UpdateUi } from "./update";
+import { saveFilters, suggestFileName, suggestPath, withLineEndings } from "./save";
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -149,6 +150,7 @@ async function init() {
   $("btn-copy").addEventListener("click", copyShown);
   $("btn-copy-rich").addEventListener("click", copyColoured);
   $("btn-editor").addEventListener("click", openInEditor);
+  $("btn-save").addEventListener("click", saveShown);
   $("btn-settings").addEventListener("click", openSettings);
   ui.btnPanel.addEventListener("click", togglePanel);
   panel.onClose = togglePanel;
@@ -766,6 +768,25 @@ async function openInEditor() {
   }
 }
 
+/** Saves the shown text (as formatted, decoded or converted – the same as Copy) to a file. */
+async function saveShown() {
+  if (!state.content) { toast("Nothing to save – paste or open something first."); return; }
+  const c = state.content;
+  const text = withLineEndings(state.shown, isWindows);
+  if (!backend.isTauri) {
+    backend.downloadText(suggestFileName(c.name, state.lang), text);
+    return;
+  }
+  try {
+    const path = await backend.pickSavePath(suggestPath(c.path, c.name, state.lang), saveFilters(state.lang));
+    if (!path) return;
+    await backend.writeFile(path, text);
+    toast(`Saved ${path.split(/[\\/]/).pop()}`);
+  } catch (e) {
+    toast(`Could not save the file: ${e}`);
+  }
+}
+
 /** Switches between the decoded text and the original (D). */
 function toggleDecoded() {
   if (!state.decoded) return;
@@ -892,6 +913,7 @@ function onKey(e: KeyboardEvent) {
   else if (mod && key === "o") { e.preventDefault(); void openFileDialog(); }
   else if (mod && e.shiftKey && e.altKey && e.code === "KeyC") { e.preventDefault(); void copyColoured(); }
   else if (mod && e.shiftKey && key === "c") { e.preventDefault(); void copyShown(); }
+  else if (mod && !e.shiftKey && key === "s") { e.preventDefault(); void saveShown(); }
   else if (mod && key === "e") { e.preventDefault(); void openInEditor(); }
   else if (mod && (key === "+" || key === "=")) { e.preventDefault(); zoom(1); }
   else if (mod && key === "-") { e.preventDefault(); zoom(-1); }

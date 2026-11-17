@@ -208,6 +208,11 @@ fn read_file(path: String) -> Result<Content, String> {
 }
 
 #[tauri::command]
+fn write_file(path: String, text: String) -> Result<(), String> {
+    fs::write(&path, text).map_err(|e| format!("{path}: {e}"))
+}
+
+#[tauri::command]
 fn get_settings(state: State<AppState>) -> Value {
     state.settings.lock().unwrap().clone()
 }
@@ -440,6 +445,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             take_pending,
             read_file,
+            write_file,
             get_settings,
             save_settings,
             shortcut_status,

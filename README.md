@@ -78,6 +78,7 @@ For JSON, XML, CSV/TSV and Markdown a panel opens to the right of the code (togg
 
 ### Files
 - Open files with `Ctrl+O`, drag and drop, *Open with*, or from the command line.
+- **Save** (`Ctrl+S` or the **Save…** button) writes the shown text to a file – what you see, i.e. formatted, decoded or converted (the same as **Copy**; turn formatting off with `F` to save the text exactly as pasted). Pasted text is suggested as `snippet.<ext>` for the detected language; an opened file is suggested under its own name and folder. Files are saved as UTF-8 with Windows line endings on Windows.
 - Files up to 20 MB are loaded (larger files show the beginning). Binary files are refused, and files that are not UTF-8 are read as Windows-1252/Latin-1.
 - **Open in external editor** (`Ctrl+E`) – Notepad++ if installed, otherwise Notepad on Windows or the default app on Linux. A different editor can be set in the settings.
 
@@ -93,6 +94,7 @@ On Linux only the AppImage updates itself; a `.deb` installation is updated by i
 | `Win+Alt+V` / `Super+Alt+V` (global, configurable) | Show DocView with the clipboard contents |
 | `Ctrl+V` | Paste new content |
 | `Ctrl+O` | Open file |
+| `Ctrl+S` | Save the shown text as a file |
 | `Ctrl+H` | History of recent contents |
 | `Ctrl+D` | Compare with another snippet |
 | `Ctrl+T` / `Ctrl+W` | New tab / close tab |
