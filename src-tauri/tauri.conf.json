@@ -97,7 +97,8 @@
     },
     "linux": {
       "deb": {
-        "depends": []
+        "depends": [],
+        "desktopTemplate": "linux/docview.desktop"
       }
     },
     "createUpdaterArtifacts": true
