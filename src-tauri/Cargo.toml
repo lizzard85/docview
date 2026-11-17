@@ -30,3 +30,7 @@ lto = true
 opt-level = "s"
 strip = true
 panic = "abort"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# Already used by Tauri; needed to hand the launcher's activation token to the window.
+gtk = "0.18"

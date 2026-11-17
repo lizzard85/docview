@@ -39,11 +39,84 @@ struct AppState {
 // ------------------------------------------------------------------ helpers
 
 fn show_main(app: &AppHandle) {
-    if let Some(w) = app.get_webview_window("main") {
-        let _ = w.unminimize();
-        let _ = w.show();
-        let _ = w.set_focus();
+    let Some(w) = app.get_webview_window("main") else { return };
+    let _ = w.unminimize();
+    let _ = w.show();
+
+    // Linux: a window manager with focus-stealing prevention (GNOME, KDE) only
+    // lets the window take focus with the activation token the launcher gave
+    // the second instance. Without one, fall back to a plain focus request.
+    #[cfg(target_os = "linux")]
+    if let Some(token) = linux_activation::take(app) {
+        let win = w.clone();
+        let _ = app.run_on_main_thread(move || {
+            use gtk::prelude::GtkWindowExt;
+            if let Ok(gw) = win.gtk_window() {
+                gw.set_startup_id(&token);
+                gw.present();
+            }
+        });
+        return;
     }
+
+    // Windows: the second instance hands its right to take the foreground to
+    // this process (single-instance plugin). Briefly making the window topmost
+    // also raises it above other windows if Windows still refuses the focus.
+    #[cfg(target_os = "windows")]
+    {
+        let _ = w.set_always_on_top(true);
+        let _ = w.set_focus();
+        let _ = w.set_always_on_top(false);
+    }
+    #[cfg(not(target_os = "windows"))]
+    let _ = w.set_focus();
+}
+
+/// Activation tokens on Linux. A launcher (start menu, dock, file manager)
+/// gives a new process a token in `XDG_ACTIVATION_TOKEN` (Wayland) or
+/// `DESKTOP_STARTUP_ID` (X11). When DocView is already running, the new
+/// process only forwards its arguments and exits, so it leaves its token in a
+/// file for the running instance to use when it shows the window.
+#[cfg(target_os = "linux")]
+mod linux_activation {
+    use std::path::PathBuf;
+    use std::sync::Mutex;
+
+    use tauri::{AppHandle, Manager};
+
+    fn token_file() -> PathBuf {
+        std::env::var_os("XDG_RUNTIME_DIR")
+            .map(PathBuf::from)
+            .unwrap_or_else(std::env::temp_dir)
+            .join("docview-activation-token")
+    }
+
+    /// Called at start-up of every launch (before GTK reads the variables).
+    /// The file always holds the token of the latest launch, or is absent.
+    pub fn save_own() {
+        let token = ["XDG_ACTIVATION_TOKEN", "DESKTOP_STARTUP_ID"]
+            .iter()
+            .filter_map(|k| std::env::var(k).ok())
+            .find(|t| !t.trim().is_empty());
+        let _ = match token {
+            Some(t) => std::fs::write(token_file(), t),
+            None => std::fs::remove_file(token_file()),
+        };
+    }
+
+    /// Called when a second launch forwarded its arguments: picks up its token.
+    pub fn receive(app: &AppHandle) {
+        let token = std::fs::read_to_string(token_file()).ok().filter(|t| !t.trim().is_empty());
+        let _ = std::fs::remove_file(token_file());
+        *app.state::<Pending>().0.lock().unwrap() = token.map(|t| t.trim().to_string());
+    }
+
+    pub fn take(app: &AppHandle) -> Option<String> {
+        app.try_state::<Pending>()?.0.lock().unwrap().take()
+    }
+
+    #[derive(Default)]
+    pub struct Pending(pub Mutex<Option<String>>);
 }
 
 /// Hands content to the UI. It is parked in state and fetched by the UI
@@ -396,10 +469,22 @@ fn build_tray(app: &tauri::App) -> tauri::Result<()> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    #[cfg(target_os = "linux")]
+    linux_activation::save_own();
+
+    let builder = tauri::Builder::default();
+    #[cfg(target_os = "linux")]
+    let builder = builder.manage(linux_activation::Pending::default());
+
+    builder
         // Must be registered first: forwards argv from a second launch.
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
+            #[cfg(target_os = "linux")]
+            linux_activation::receive(app);
             handle_args(app, &argv, Path::new(&cwd), false);
+            // Tokens are short-lived: never keep one for a later show.
+            #[cfg(target_os = "linux")]
+            linux_activation::take(app);
         }))
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
