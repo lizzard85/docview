@@ -118,6 +118,30 @@ export async function pickFile(): Promise<string | null> {
   return typeof res === "string" ? res : null;
 }
 
+/** Asks where to save; null when cancelled. */
+export async function pickSavePath(
+  defaultPath: string,
+  filters: { name: string; extensions: string[] }[],
+): Promise<string | null> {
+  const { save } = await import("@tauri-apps/plugin-dialog");
+  return save({ defaultPath, filters });
+}
+
+/** Writes text to a file (UTF-8). */
+export async function writeFile(path: string, text: string): Promise<void> {
+  return invoke("write_file", { path, text });
+}
+
+/** Browser fallback: offers the text as a download. */
+export function downloadText(name: string, text: string): void {
+  const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 export async function onFileDrop(cb: (path: string) => void): Promise<void> {
   if (!isTauri) return;
   const { getCurrentWebview } = await import("@tauri-apps/api/webview");

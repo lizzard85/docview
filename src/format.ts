@@ -49,8 +49,7 @@ const PRETTIER_PARSERS: Record<string, string> = {
 };
 
 export const JSON_REPAIRED_WARNING =
-  "The JSON had line breaks or other control characters inside strings – they were escaped. " +
-  "(Business Central's Message() shows every backslash as a line break.)";
+  "The JSON had line breaks or other control characters inside strings – they were escaped.";
 
 export const FORMATTABLE = new Set(["json", "sql", "xml", ...Object.keys(PRETTIER_PARSERS)]);
 
