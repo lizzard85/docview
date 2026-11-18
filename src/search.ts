@@ -58,6 +58,7 @@ export class Search {
     registry()?.delete("search");
     registry()?.delete("search-current");
     this.count.textContent = "";
+    this.count.classList.remove("none");
   }
 
   private run() {
@@ -95,6 +96,7 @@ export class Search {
       (r.startContainer.parentElement as HTMLElement | null)?.scrollIntoView({ block: "center", inline: "nearest" });
     }
     this.count.textContent = this.matches.length ? `${this.current + 1} of ${this.matches.length}` : "No matches";
+    this.count.classList.toggle("none", !this.matches.length);
   }
 }
 

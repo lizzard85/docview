@@ -1,6 +1,7 @@
 // The side panel to the right of the code view (tree view of JSON, …).
 import type { CsvData } from "./csv";
 import { TableView } from "./tableView";
+import { MIN_CODE_WIDTH, MIN_PANEL_WIDTH, PANEL_GAP } from "./layout";
 import { filterTree, TreeView, type TreeNode } from "./tree";
 
 export interface PanelView {
@@ -15,7 +16,6 @@ export interface PanelView {
   error?: string;
 }
 
-const MIN_WIDTH = 200;
 
 export class SidePanel {
   readonly tree: TreeView;
@@ -139,7 +139,7 @@ export class SidePanel {
   }
 
   setWidth(px: number) {
-    this.el.style.width = `${Math.max(MIN_WIDTH, px)}px`;
+    this.el.style.width = `${Math.max(MIN_PANEL_WIDTH, px)}px`;
   }
 
   /** Shows `view` when `open`; hides the panel when there is nothing to show. */
@@ -166,7 +166,7 @@ export class SidePanel {
     this.el.classList.toggle("table-mode", tableMode);
     this.body.classList.toggle("markdown-body", htmlMode);
     if (htmlMode) {
-      this.body.innerHTML = view.html!;
+      this.body.innerHTML = `<div class="md-sheet">${view.html!}</div>`;
       this.body.scrollTop = 0;
       return;
     }
@@ -208,13 +208,15 @@ export class SidePanel {
     this.splitter.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       this.splitter.setPointerCapture(e.pointerId);
+      this.splitter.classList.add("dragging");
       const container = this.el.parentElement!;
       const move = (ev: PointerEvent) => {
         const rect = container.getBoundingClientRect();
-        const width = Math.min(rect.right - ev.clientX, rect.width - MIN_WIDTH);
+        const width = Math.min(rect.right - ev.clientX - PANEL_GAP / 2, rect.width - MIN_CODE_WIDTH - PANEL_GAP);
         this.setWidth(width);
       };
       const up = () => {
+        this.splitter.classList.remove("dragging");
         this.splitter.removeEventListener("pointermove", move);
         this.splitter.removeEventListener("pointerup", up);
         this.onResize(this.el.getBoundingClientRect().width);

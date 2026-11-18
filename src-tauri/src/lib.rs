@@ -222,6 +222,34 @@ fn load_settings(app: &AppHandle) -> Value {
         .unwrap_or_else(|| json!({}))
 }
 
+/// True when the desktop looks like a tiling window manager (no title bars of
+/// its own to replace), so the system title bar is the better default there.
+fn is_tiling_desktop(desktop: &str) -> bool {
+    const TILING: [&str; 14] = [
+        "i3", "sway", "hyprland", "bspwm", "awesome", "dwm", "xmonad", "qtile", "river", "niri",
+        "herbstluftwm", "leftwm", "spectrwm", "wayfire",
+    ];
+    desktop
+        .to_lowercase()
+        .split([':', ';', ' '])
+        .any(|d| TILING.contains(&d.trim()))
+}
+
+/// "Use system title bar": the stored value, else on for tiling window
+/// managers on Linux and off everywhere else.
+fn system_title_bar(settings: &Value) -> bool {
+    if let Some(v) = settings.get("systemTitleBar").and_then(Value::as_bool) {
+        return v;
+    }
+    if !cfg!(target_os = "linux") {
+        return false;
+    }
+    ["XDG_CURRENT_DESKTOP", "XDG_SESSION_DESKTOP", "DESKTOP_SESSION"]
+        .iter()
+        .filter_map(|k| std::env::var(k).ok())
+        .any(|d| is_tiling_desktop(&d))
+}
+
 fn shortcut_of(settings: &Value) -> String {
     settings
         .get("shortcut")
@@ -508,8 +536,17 @@ pub fn run() {
         .manage(AppState::default())
         .setup(|app| {
             let handle = app.handle().clone();
-            let settings = load_settings(&handle);
+            let mut settings = load_settings(&handle);
             let shortcut = shortcut_of(&settings);
+            // The window is created without decorations (DocView draws its own
+            // title bar); the "Use system title bar" setting turns them back on.
+            let native_frame = system_title_bar(&settings);
+            settings["systemTitleBar"] = json!(native_frame);
+            if native_frame {
+                if let Some(w) = app.get_webview_window("main") {
+                    let _ = w.set_decorations(true);
+                }
+            }
             *app.state::<AppState>().settings.lock().unwrap() = settings;
             if let Err(e) = register_shortcut(&handle, &shortcut) {
                 eprintln!("{e}");
@@ -541,4 +578,25 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running DocView");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn detects_tiling_desktops() {
+        assert!(is_tiling_desktop("sway"));
+        assert!(is_tiling_desktop("Hyprland"));
+        assert!(is_tiling_desktop("i3:GNOME"));
+        assert!(!is_tiling_desktop("GNOME"));
+        assert!(!is_tiling_desktop("KDE"));
+        assert!(!is_tiling_desktop("ubuntu:GNOME"));
+    }
+
+    #[test]
+    fn stored_title_bar_setting_wins() {
+        assert!(system_title_bar(&json!({ "systemTitleBar": true })));
+        assert!(!system_title_bar(&json!({ "systemTitleBar": false })));
+    }
 }

@@ -29,12 +29,14 @@ export interface Settings {
   newTab: boolean;
   /** App shortcuts the user changed: action id -> combo ("" = none). See keymap.ts. */
   keys: Record<string, string>;
+  /** Use the native window frame instead of DocView's own title bar. */
+  systemTitleBar: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   shortcut: "Super+Alt+V",
   theme: "auto",
-  fontSize: 14,
+  fontSize: 13.5,
   wrap: false,
   lineNumbers: true,
   format: true,
@@ -45,13 +47,14 @@ export const DEFAULT_SETTINGS: Settings = {
   autostart: false,
   autoUpdate: true,
   panel: true,
-  panelWidth: 380,
+  panelWidth: 430,
   panelSync: true,
   inlineSqlParams: true,
   history: true,
   csvHeader: true,
   newTab: true,
   keys: {},
+  systemTitleBar: false,
 };
 
 export interface Content {
@@ -145,12 +148,48 @@ export function downloadText(name: string, text: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export async function onFileDrop(cb: (path: string) => void): Promise<void> {
+/** `cb` gets dropped files; `hover` is called with true while files are dragged over the window. */
+export async function onFileDrop(cb: (path: string) => void, hover: (over: boolean) => void = () => {}): Promise<void> {
   if (!isTauri) return;
   const { getCurrentWebview } = await import("@tauri-apps/api/webview");
   await getCurrentWebview().onDragDropEvent((e) => {
-    if (e.payload.type === "drop" && e.payload.paths.length) cb(e.payload.paths[0]);
+    const t = e.payload.type;
+    hover(t === "enter" || t === "over");
+    if (t === "drop" && e.payload.paths.length) cb(e.payload.paths[0]);
   });
+}
+
+// ------------------------------------------------------------------ window (custom title bar)
+
+async function currentWindow() {
+  const { getCurrentWindow } = await import("@tauri-apps/api/window");
+  return getCurrentWindow();
+}
+
+export async function minimizeWindow(): Promise<void> {
+  if (isTauri) await (await currentWindow()).minimize();
+}
+
+export async function toggleMaximizeWindow(): Promise<void> {
+  if (isTauri) await (await currentWindow()).toggleMaximize();
+}
+
+/** Closes the window (the app keeps running in the tray). */
+export async function closeWindow(): Promise<void> {
+  if (isTauri) await (await currentWindow()).close();
+}
+
+export async function isMaximized(): Promise<boolean> {
+  return isTauri ? (await currentWindow()).isMaximized() : false;
+}
+
+export async function onWindowResized(cb: () => void): Promise<void> {
+  if (isTauri) await (await currentWindow()).onResized(cb);
+}
+
+/** Native window frame on/off (the "Use system title bar" setting). */
+export async function setDecorations(on: boolean): Promise<void> {
+  if (isTauri) await (await currentWindow()).setDecorations(on);
 }
 
 const HISTORY_KEY = "docview.history";
