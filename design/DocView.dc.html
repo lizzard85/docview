@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/organic-c97e08f3-bf15-4730-a323-890226f124c0/styles.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<script src="_ds/organic-c97e08f3-bf15-4730-a323-890226f124c0/_ds_bundle.js"></script>
+<style>
+html,body{margin:0;background:var(--color-neutral-200);}
+a{color:var(--color-accent-700);}a:hover{color:var(--color-accent-800);}
+
+:root{--font-heading:"Figtree",system-ui,sans-serif;--font-heading-weight:700;--dv-ink:#2e2b25;--dv-ink-text:#f5ead8;--dv-ink-muted:#c0b6a5;}
+[data-dv-theme="dark"]{--color-neutral-100:#2e2b25;--color-neutral-200:#474238;--color-neutral-300:#645c50;--color-neutral-400:#82796a;--color-neutral-500:#a19786;--color-neutral-600:#c0b6a5;--color-neutral-700:#dcd3c4;--color-neutral-800:#eee7db;--color-neutral-900:#f9f4ed;--color-accent-100:#402310;--color-accent-200:#643312;--color-accent-300:#8c491a;--color-accent-400:#b2622d;--color-accent-500:#d67f48;--color-accent-600:#f6a06b;--color-accent-700:#ffc6a5;--color-accent-800:#ffe1d0;--color-accent-900:#fff2eb;--color-accent-2-100:#272e1b;--color-accent-2-200:#3d472b;--color-accent-2-300:#56633f;--color-accent-2-400:#728157;--color-accent-2-500:#8fa073;--color-accent-2-600:#aebf92;--color-accent-2-700:#ccdbb2;--color-accent-2-800:#e1eecc;--color-accent-2-900:#f0fae1;--color-bg:color-mix(in oklch, #2e2b25 70%, black);--color-surface:color-mix(in oklch, #2e2b25 88%, black);--color-text:#f5ead8;--color-divider:color-mix(in srgb, #f5ead8 16%, transparent);--shadow-sm:0 1px 2px rgba(0,0,0,.35);--shadow-md:0 3px 10px rgba(0,0,0,.4);--shadow-lg:0 12px 32px rgba(0,0,0,.5);--dv-ink:color-mix(in oklch, #2e2b25 55%, black);color:var(--color-text);color-scheme:dark;}
+[data-dv-theme="light"]{--color-bg:var(--color-neutral-100);--color-surface:var(--color-neutral-200);--dv-card:color-mix(in srgb, var(--color-neutral-100) 45%, white);--dv-on-bg:var(--color-accent-2-100);--dv-on-text:var(--color-accent-2-800);--dv-hi-bg:var(--color-accent-100);--dv-hi-text:var(--color-accent-700);color:var(--color-text);}
+[data-dv-theme="dark"]{--dv-card:var(--color-neutral-100);--dv-on-bg:var(--color-accent-2-200);--dv-on-text:var(--color-accent-2-900);--dv-hi-bg:var(--color-accent-200);--dv-hi-text:var(--color-accent-800);}
+[data-dv-fixed]{--color-neutral-100:#f9f4ed;--color-neutral-200:#eee7db;--color-neutral-300:#dcd3c4;--color-neutral-400:#c0b6a5;--color-neutral-500:#a19786;--color-neutral-600:#82796a;--color-neutral-700:#645c50;--color-neutral-800:#474238;--color-neutral-900:#2e2b25;--color-accent-100:#fff2eb;--color-accent-200:#ffe1d0;--color-accent-300:#ffc6a5;--color-accent-400:#f6a06b;--color-accent-500:#d67f48;--color-accent-600:#b2622d;--color-accent-700:#8c491a;--color-accent-800:#643312;--color-accent-900:#402310;--color-accent-2-100:#f0fae1;--color-accent-2-200:#e1eecc;--color-accent-2-300:#ccdbb2;--color-accent-2-400:#aebf92;--color-accent-2-500:#8fa073;--color-accent-2-600:#728157;--color-accent-2-700:#56633f;--color-accent-2-800:#3d472b;--color-accent-2-900:#272e1b;--color-bg:#f5ead8;--color-surface:#ebddc5;--color-text:#201e1d;}
+</style>
+</helmet>
+<section style="padding:48px;font-family:var(--font-body);color:var(--color-text);display:flex;flex-direction:column;gap:28px;">
+  <div style="display:flex;flex-direction:column;gap:6px;">
+    <div style="font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:32px;">Runde 2 — bygget på den rigtige app · light og dark</div>
+    <div style="font-size:15px;color:var(--color-neutral-700);max-width:760px;">Alle funktioner fra dine skærmbilleder er med: sprogvalg, Format/Wrap/Line no., Tree/Table, Convert, History, Paste, Open, Save, Compare, Copy, Copy colours, Editor, faner, filter og Copy path/value. <a href="#2a">2a</a> samler alt i én rolig værktøjslinje. <a href="#2b">2b</a> flytter dokumentets egne knapper ind på kodefladen, og appens knapper op i toppen. Light mode er nu helt lyst og mere afdæmpet.</div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;">
+
+  <div id="2a" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="display:flex;align-items:center;gap:10px;"><span class="tag tag-accent" style="font-size:13px;font-weight:700;">2a</span><span style="font-weight:600;">Én samlet værktøjslinje</span></div>
+    <sc-for list="{{ modes }}" as="m" hint-placeholder-count="2">
+    <div style="display:flex;flex-direction:column;gap:8px;"><div style="font-size:13px;font-weight:600;color:var(--color-neutral-700);">{{ m.lang }} · {{ m.themeLabel }}</div><div data-dv-theme="{{ m.theme }}" data-screen-label="2a {{ m.lang }} {{ m.themeLabel }}" style="width:1280px;height:800px;box-sizing:border-box;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:10px;padding:10px 16px 16px;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:6px;height:40px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--color-accent);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:15px;margin-right:8px;flex-shrink:0;">D</div>
+        <sc-for list="{{ m.tabsA }}" as="tb" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 6px 0 14px;border-radius:999px;font-size:13px;max-width:210px;background:{{ tb.bg }};box-shadow:{{ tb.shadow }};font-weight:{{ tb.w }};color:{{ tb.color }};">
+            <span style="width:7px;height:7px;border-radius:50%;background:{{ tb.dot }};flex-shrink:0;"></span>
+            <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ tb.title }}</span>
+            <span style="width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-600);flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></span>
+          </div>
+        </sc-for>
+        <span style="width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-700);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></span>
+        <div style="flex:1;"></div>
+        <div style="display:flex;gap:18px;color:var(--color-neutral-700);padding-right:6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="5" y="5" rx="3"></rect></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:6px;padding:6px;border-radius:999px;background:var(--color-surface);">
+        <div style="display:flex;align-items:center;gap:8px;height:34px;padding:0 12px 0 16px;border-radius:999px;background:var(--color-neutral-100);box-shadow:var(--shadow-sm);font-weight:700;font-size:14px;">{{ m.lang }}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></div>
+        <span style="display:flex;align-items:center;gap:4px;font-size:12.5px;color:var(--color-accent-2-700);margin-right:10px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>recognized</span>
+        <span style="display:flex;align-items:center;gap:6px;height:32px;padding:0 13px;border-radius:999px;font-size:13px;font-weight:600;background:var(--dv-on-bg);color:var(--dv-on-text);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>Format</span>
+        <span style="display:flex;align-items:center;height:30px;padding:0 13px;border-radius:999px;font-size:13px;border:1px solid var(--color-divider);color:var(--color-neutral-800);">Wrap</span>
+        <span style="display:flex;align-items:center;gap:6px;height:32px;padding:0 13px;border-radius:999px;font-size:13px;font-weight:600;background:var(--dv-on-bg);color:var(--dv-on-text);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>Line no.</span>
+        <span style="display:flex;align-items:center;gap:6px;height:32px;padding:0 13px;border-radius:999px;font-size:13px;font-weight:600;background:var(--dv-hi-bg);color:var(--dv-hi-text);margin-left:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M15 3v18"></path></svg>{{ m.panelLabel }}</span>
+        <sc-if value="{{ m.isJson }}" hint-placeholder-val="{{ true }}">
+          <span style="display:flex;align-items:center;gap:4px;height:32px;padding:0 12px;border-radius:999px;font-size:13px;color:var(--color-neutral-800);">Convert<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></span>
+        </sc-if>
+        <div style="flex:1;"></div>
+        <span style="font-size:12.5px;color:var(--color-neutral-700);margin-right:6px;">{{ m.lineCount }}</span>
+        <button class="btn btn-ghost btn-icon" title="History" style="color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg></button>
+        <button class="btn btn-ghost btn-icon" title="Compare" style="color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M13 6h3a2 2 0 0 1 2 2v7"></path><path d="M11 18H8a2 2 0 0 1-2-2V9"></path></svg></button>
+        <button class="btn btn-ghost btn-icon" title="Editor" style="color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path></svg></button>
+        <button class="btn btn-ghost btn-icon" title="Save…" style="color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg></button>
+        <div style="display:flex;align-items:center;height:34px;border-radius:999px;border:1px solid var(--color-divider);font-size:14px;overflow:hidden;margin:0 2px;">
+          <span style="display:flex;align-items:center;gap:6px;padding:0 10px 0 14px;height:100%;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>Copy</span>
+          <span style="display:grid;place-items:center;width:30px;height:100%;border-left:1px solid var(--color-divider);" title="Copy colours"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></span>
+        </div>
+        <button class="btn btn-secondary">Open…</button>
+        <button class="btn btn-primary"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path></svg>Paste</button>
+        <button class="btn btn-ghost btn-icon" title="Settings" style="color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"></path><path d="M14 17H5"></path><circle cx="17" cy="17" r="3"></circle><circle cx="7" cy="7" r="3"></circle></svg></button>
+      </div>
+
+      <main style="display:grid;grid-template-columns:{{ m.cols }};gap:12px;min-height:0;">
+        <section style="min-width:0;min-height:0;overflow:hidden;padding:14px 0;background:var(--dv-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13.5px;line-height:22px;">
+          <sc-for list="{{ m.linesA }}" as="l" hint-placeholder-count="24">
+            <div style="display:flex;overflow:hidden;margin:0 10px;border-radius:8px;background:{{ l.bg }};">
+              <span style="width:44px;flex-shrink:0;text-align:right;padding-right:18px;color:{{ l.numColor }};">{{ l.n }}</span>
+              <span style="white-space:pre;"><sc-for list="{{ l.tokens }}" as="t" hint-placeholder-count="3"><span style="color:{{ t.c }};font-weight:{{ t.w }};">{{ t.t }}</span></sc-for></span>
+            </div>
+          </sc-for>
+        </section>
+
+        <aside style="display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-width:0;min-height:0;background:var(--color-surface);border-radius:var(--radius-lg);overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:6px;padding:14px 12px 10px 20px;">
+            <span style="font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:18px;margin-right:6px;">{{ m.panelLabel }}</span>
+            <div style="flex:1;display:flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:999px;background:var(--color-neutral-100);color:var(--color-neutral-600);font-size:13px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>Filter…</div>
+            <sc-if value="{{ m.isCsv }}" hint-placeholder-val="{{ false }}">
+              <span style="display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--dv-on-bg);color:var(--dv-on-text);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>Header</span>
+            </sc-if>
+            <button class="btn btn-ghost btn-icon" title="Jump to line" style="background:var(--color-accent-200);color:var(--color-accent-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+            <sc-if value="{{ m.isJson }}" hint-placeholder-val="{{ true }}">
+              <button class="btn btn-ghost btn-icon" title="Expand all" style="color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></button>
+              <button class="btn btn-ghost btn-icon" title="Collapse all" style="color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path></svg></button>
+            </sc-if>
+            <button class="btn btn-ghost btn-icon" title="Close panel" style="color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+          </div>
+          <div style="min-height:0;overflow:hidden;padding:0 10px;">
+            <sc-if value="{{ m.isJson }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:1px;font-size:13.5px;">
+                <sc-for list="{{ m.treeA }}" as="r" hint-placeholder-count="18">
+                  <div style="display:flex;align-items:center;gap:6px;height:28px;padding-left:{{ r.pad }};padding-right:12px;border-radius:999px;background:{{ r.bg }};min-width:0;">
+                    <span style="width:12px;flex-shrink:0;color:var(--color-neutral-600);font-size:10px;text-align:center;">{{ r.caret }}</span>
+                    <span style="font-weight:600;color:{{ r.keyColor }};flex-shrink:0;">{{ r.key }}</span>
+                    <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;color:{{ r.valColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{{ r.val }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ m.isCsv }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:2px;font-size:13.5px;">
+                <div style="display:grid;grid-template-columns:28px 40px 1fr 1fr 1.9fr 40px;gap:10px;padding:9px 14px;border-radius:999px;background:var(--color-neutral-300);font-weight:700;">
+                  <sc-for list="{{ tableHead }}" as="h" hint-placeholder-count="6"><span>{{ h }}</span></sc-for>
+                </div>
+                <sc-for list="{{ m.rowsA }}" as="row" hint-placeholder-count="3">
+                  <div style="display:grid;grid-template-columns:28px 40px 1fr 1fr 1.9fr 40px;gap:10px;padding:9px 14px;border-radius:999px;background:{{ row.bg }};">
+                    <sc-for list="{{ row.cells }}" as="c" hint-placeholder-count="6"><span style="color:{{ c.color }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.v }}</span></sc-for>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 12px 20px;">
+            <sc-if value="{{ m.isJson }}" hint-placeholder-val="{{ true }}">
+              <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;padding:5px 12px;border-radius:999px;background:var(--color-neutral-100);">$[5]</span>
+              <div style="flex:1;"></div>
+              <button class="btn btn-secondary">Copy path</button>
+            </sc-if>
+            <sc-if value="{{ m.isCsv }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:13px;color:var(--color-neutral-700);">3 rows · row 3 selected</span>
+              <div style="flex:1;"></div>
+            </sc-if>
+            <button class="btn btn-secondary">Copy value</button>
+          </div>
+        </aside>
+      </main>
+    </div></div>
+    </sc-for>
+  </div>
+
+  <div id="2b" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="display:flex;align-items:center;gap:10px;"><span class="tag tag-accent-2" style="font-size:13px;font-weight:700;">2b</span><span style="font-weight:600;">Dokument-knapper på kodefladen</span></div>
+    <sc-for list="{{ modes }}" as="m" hint-placeholder-count="2">
+    <div style="display:flex;flex-direction:column;gap:8px;"><div style="font-size:13px;font-weight:600;color:var(--color-neutral-700);">{{ m.lang }} · {{ m.themeLabel }}</div><div data-dv-theme="{{ m.theme }}" data-screen-label="2b {{ m.lang }} {{ m.themeLabel }}" style="width:1280px;height:800px;box-sizing:border-box;display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px;padding:12px 16px 16px;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden;">
+      <div style="display:flex;align-items:center;gap:6px;height:44px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-right:14px;flex-shrink:0;">
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--color-accent);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:18px;">D</div>
+          <span style="font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:20px;">DocView</span>
+        </div>
+        <sc-for list="{{ m.tabsB }}" as="tb" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:8px;height:34px;padding:0 6px 0 14px;border-radius:999px;font-size:13px;max-width:200px;background:{{ tb.bg }};font-weight:{{ tb.w }};color:{{ tb.color }};">
+            <span style="width:7px;height:7px;border-radius:50%;background:{{ tb.dot }};flex-shrink:0;"></span>
+            <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ tb.title }}</span>
+            <span style="width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:{{ tb.x }};flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></span>
+          </div>
+        </sc-for>
+        <span style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;border:1.5px dashed var(--color-neutral-500);color:var(--color-neutral-700);box-sizing:border-box;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></span>
+        <div style="flex:1;"></div>
+        <button class="btn btn-ghost btn-icon" title="History" style="color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg></button>
+        <button class="btn btn-ghost btn-icon" title="Compare" style="color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M13 6h3a2 2 0 0 1 2 2v7"></path><path d="M11 18H8a2 2 0 0 1-2-2V9"></path></svg></button>
+        <button class="btn btn-ghost btn-icon" title="Settings" style="color:var(--color-neutral-800);margin-right:4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"></path><path d="M14 17H5"></path><circle cx="17" cy="17" r="3"></circle><circle cx="7" cy="7" r="3"></circle></svg></button>
+        <button class="btn btn-secondary">Open…</button>
+        <button class="btn btn-primary"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path></svg>Paste</button>
+        <div style="display:flex;gap:18px;color:var(--color-neutral-700);padding:0 4px 0 18px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="5" y="5" rx="3"></rect></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </div>
+      </div>
+
+      <main style="display:grid;grid-template-columns:{{ m.cols }};gap:12px;min-height:0;">
+        <section style="display:grid;grid-template-rows:auto minmax(0,1fr);min-width:0;min-height:0;background:var(--dv-card);color:var(--color-text);box-shadow:var(--shadow-sm);border-radius:calc(var(--radius-lg) * 1.15);overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:6px;padding:12px 12px 8px 14px;">
+            <span style="display:flex;align-items:center;gap:8px;height:34px;padding:0 12px 0 16px;flex-shrink:0;white-space:nowrap;margin-right:6px;border-radius:999px;background:var(--color-neutral-200);color:var(--color-text);font-weight:700;font-size:14px;">{{ m.lang }}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></span>
+            <span style="display:flex;align-items:center;gap:5px;height:30px;padding:0 11px;flex-shrink:0;white-space:nowrap;border-radius:999px;font-size:13px;font-weight:600;background:var(--dv-on-bg);color:var(--dv-on-text);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>Format</span>
+            <span style="display:flex;align-items:center;height:28px;padding:0 12px;border-radius:999px;font-size:13px;border:1px solid var(--color-divider);color:var(--color-neutral-800);">Wrap</span>
+            <span style="display:flex;align-items:center;gap:5px;height:30px;padding:0 11px;flex-shrink:0;white-space:nowrap;border-radius:999px;font-size:13px;font-weight:600;background:var(--dv-on-bg);color:var(--dv-on-text);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>Line no.</span>
+            <sc-if value="{{ m.isJson }}" hint-placeholder-val="{{ true }}">
+              <span style="display:flex;align-items:center;gap:4px;height:30px;padding:0 10px;font-size:13px;color:var(--color-neutral-800);">Convert<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></span>
+            </sc-if>
+            <div style="flex:1;"></div>
+            <span style="font-size:12.5px;color:var(--color-neutral-700);margin-right:2px;white-space:nowrap;flex-shrink:0;">{{ m.lineCount }}</span>
+            <span title="Copy" style="width:32px;height:32px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg></span>
+            <span title="Copy colours" style="width:32px;height:32px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg></span>
+            <span title="Save…" style="width:32px;height:32px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg></span>
+            <span title="Editor" style="width:32px;height:32px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path></svg></span>
+            <span style="display:flex;align-items:center;gap:6px;height:34px;padding:0 14px;flex-shrink:0;border-radius:999px;font-size:13px;font-weight:700;background:var(--dv-hi-bg);color:var(--dv-hi-text);margin-left:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M15 3v18"></path></svg>{{ m.panelLabel }}</span>
+          </div>
+          <div style="min-height:0;overflow:hidden;padding:8px 0;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13.5px;line-height:22px;">
+            <sc-for list="{{ m.linesA }}" as="l" hint-placeholder-count="24">
+              <div style="display:flex;overflow:hidden;margin:0 12px;border-radius:8px;background:{{ l.bg }};">
+                <span style="width:44px;flex-shrink:0;text-align:right;padding-right:18px;color:{{ l.numColor }};">{{ l.n }}</span>
+                <span style="white-space:pre;"><sc-for list="{{ l.tokens }}" as="t" hint-placeholder-count="3"><span style="color:{{ t.c }};font-weight:{{ t.w }};">{{ t.t }}</span></sc-for></span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <aside style="display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-width:0;min-height:0;background:var(--color-accent-2-100);border-radius:calc(var(--radius-lg) * 1.15);overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:6px;padding:14px 12px 10px 20px;">
+            <div style="flex:1;display:flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:999px;background:var(--color-bg);color:var(--color-neutral-600);font-size:13px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>Filter {{ m.lang }}…</div>
+            <sc-if value="{{ m.isCsv }}" hint-placeholder-val="{{ false }}">
+              <span style="display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:600;background:var(--color-accent-2-300);color:var(--color-accent-2-900);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>Header</span>
+            </sc-if>
+            <button class="btn btn-ghost btn-icon" title="Jump to line" style="background:var(--color-accent-2-300);color:var(--color-accent-2-900);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+            <sc-if value="{{ m.isJson }}" hint-placeholder-val="{{ true }}">
+              <button class="btn btn-ghost btn-icon" title="Expand all" style="color:var(--color-accent-2-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></button>
+              <button class="btn btn-ghost btn-icon" title="Collapse all" style="color:var(--color-accent-2-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path></svg></button>
+            </sc-if>
+            <button class="btn btn-ghost btn-icon" title="Close panel" style="color:var(--color-accent-2-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+          </div>
+          <div style="min-height:0;overflow:hidden;padding:0 10px;">
+            <sc-if value="{{ m.isJson }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:1px;font-size:13.5px;">
+                <sc-for list="{{ m.treeB }}" as="r" hint-placeholder-count="18">
+                  <div style="display:flex;align-items:center;gap:6px;height:28px;padding-left:{{ r.pad }};padding-right:12px;border-radius:999px;background:{{ r.bg }};min-width:0;">
+                    <span style="width:12px;flex-shrink:0;color:var(--color-accent-2-700);font-size:10px;text-align:center;">{{ r.caret }}</span>
+                    <span style="font-weight:600;color:{{ r.keyColor }};flex-shrink:0;">{{ r.key }}</span>
+                    <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;color:{{ r.valColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">{{ r.val }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ m.isCsv }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:2px;font-size:13.5px;">
+                <div style="display:grid;grid-template-columns:28px 40px 1fr 1fr 1.9fr 40px;gap:10px;padding:9px 14px;border-radius:999px;background:var(--color-accent-2-300);color:var(--color-accent-2-900);font-weight:700;">
+                  <sc-for list="{{ tableHead }}" as="h" hint-placeholder-count="6"><span>{{ h }}</span></sc-for>
+                </div>
+                <sc-for list="{{ m.rowsB }}" as="row" hint-placeholder-count="3">
+                  <div style="display:grid;grid-template-columns:28px 40px 1fr 1fr 1.9fr 40px;gap:10px;padding:9px 14px;border-radius:999px;background:{{ row.bg }};">
+                    <sc-for list="{{ row.cells }}" as="c" hint-placeholder-count="6"><span style="color:{{ c.color }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.v }}</span></sc-for>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 12px 20px;">
+            <sc-if value="{{ m.isJson }}" hint-placeholder-val="{{ true }}">
+              <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;padding:5px 12px;border-radius:999px;background:var(--color-bg);color:var(--color-accent-2-900);">$[5]</span>
+              <div style="flex:1;"></div>
+              <button class="btn btn-secondary">Copy path</button>
+            </sc-if>
+            <sc-if value="{{ m.isCsv }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:13px;color:var(--color-accent-2-800);">3 rows · row 3 selected</span>
+              <div style="flex:1;"></div>
+            </sc-if>
+            <button class="btn btn-secondary">Copy value</button>
+          </div>
+        </aside>
+      </main>
+    </div></div>
+    </sc-for>
+  </div>
+
+  </div>
+</section>
+<section style="padding:48px;font-family:var(--font-body);color:var(--color-text);display:flex;flex-direction:column;gap:28px;">
+  <div style="display:flex;flex-direction:column;gap:6px;">
+    <div style="font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:32px;">DocView — nyt udtryk</div>
+    <div style="font-size:15px;color:var(--color-neutral-700);max-width:720px;">To retninger. <a href="#1a">1a</a> er en rolig arbejdsflade med historik til venstre. <a href="#1b">1b</a> er mere fokuseret: mørk kodeflade, faner øverst, smal ikon-rail.</div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;">
+
+  <!-- 1a -->
+  <div id="1a" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="display:flex;align-items:center;gap:10px;"><span class="tag tag-accent" style="font-size:13px;font-weight:700;">1a</span><span style="font-weight:600;">Rolig arbejdsflade</span></div>
+
+    <div data-screen-label="1a Main" style="width:1280px;height:800px;box-sizing:border-box;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:14px;padding:16px 20px 10px;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden;">
+      <header style="display:flex;align-items:center;gap:20px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--color-accent);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:19px;">D</div>
+          <div style="font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:23px;">DocView</div>
+        </div>
+        <div style="flex:1;max-width:480px;display:flex;align-items:center;gap:10px;height:38px;padding:0 16px;border-radius:999px;background:var(--color-neutral-100);border:1px solid var(--color-divider);color:var(--color-neutral-700);font-size:14px;box-sizing:border-box;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          Search history — or press Ctrl+V anywhere
+        </div>
+        <div style="display:flex;gap:8px;margin-left:auto;">
+          <button class="btn btn-secondary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path></svg>Open file</button>
+          <button class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path></svg>Show clipboard</button>
+          <button class="btn btn-secondary btn-icon" aria-label="Settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"></path><path d="M14 17H5"></path><circle cx="17" cy="17" r="3"></circle><circle cx="7" cy="7" r="3"></circle></svg></button>
+        </div>
+      </header>
+
+      <main style="display:grid;grid-template-columns:232px minmax(0,1fr) 312px;gap:14px;min-height:0;">
+        <nav style="display:flex;flex-direction:column;gap:4px;min-height:0;overflow:hidden;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;padding:6px 14px 8px;">
+            <div style="font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:17px;">History</div>
+            <div style="font-size:12px;color:var(--color-neutral-700);">6 items</div>
+          </div>
+          <sc-for list="{{ history }}" as="h" hint-placeholder-count="6">
+            <div style="display:flex;flex-direction:column;gap:4px;padding:11px 14px;border-radius:var(--radius-md);background:{{ h.bg }};box-shadow:{{ h.shadow }};">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:{{ h.dot }};flex-shrink:0;"></span>
+                <span style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ h.title }}</span>
+              </div>
+              <div style="font-size:12px;color:var(--color-neutral-700);padding-left:16px;">{{ h.lang }} · {{ h.time }}</div>
+            </div>
+          </sc-for>
+        </nav>
+
+        <section style="display:grid;grid-template-rows:auto minmax(0,1fr);min-width:0;min-height:0;background:var(--color-neutral-100);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:12px;padding:14px 14px 12px 22px;">
+            <span style="font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:20px;">order.json</span>
+            <span class="tag tag-accent">JSON · detected</span>
+            <div style="flex:1;"></div>
+            <div class="seg">
+              <span class="seg-opt" style="background:var(--color-accent);color:var(--color-bg);">Formatted</span>
+              <span class="seg-opt">Original</span>
+            </div>
+            <button class="btn btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>Copy</button>
+          </div>
+          <div style="overflow:hidden;padding:2px 0 20px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13.5px;line-height:24px;">
+            <sc-for list="{{ linesLight }}" as="l" hint-placeholder-count="23">
+              <div style="display:flex;background:{{ l.bg }};margin:0 10px;border-radius:999px;">
+                <span style="width:44px;flex-shrink:0;text-align:right;padding-right:18px;color:{{ l.numColor }};user-select:none;">{{ l.n }}</span>
+                <span style="white-space:pre;"><sc-for list="{{ l.tokens }}" as="t" hint-placeholder-count="3"><span style="color:{{ t.c }};font-weight:{{ t.w }};">{{ t.t }}</span></sc-for></span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <aside style="display:grid;grid-template-rows:auto minmax(0,1fr);min-height:0;background:var(--color-surface);border-radius:var(--radius-lg);overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:8px;padding:14px 12px 10px 20px;">
+            <div class="seg" style="background:var(--color-bg);">
+              <span class="seg-opt" style="background:var(--color-accent-2);color:var(--color-bg);">Tree</span>
+              <span class="seg-opt">Decoded</span>
+            </div>
+            <div style="flex:1;"></div>
+            <button class="btn btn-ghost btn-icon" title="Jump to line" style="background:var(--color-accent-200);color:var(--color-accent-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+          </div>
+          <div style="overflow:hidden;padding:0 10px 16px;font-size:13.5px;display:flex;flex-direction:column;gap:1px;">
+            <sc-for list="{{ treeLight }}" as="r" hint-placeholder-count="14">
+              <div style="display:flex;align-items:center;gap:6px;height:30px;padding-left:{{ r.pad }};padding-right:12px;border-radius:999px;background:{{ r.bg }};">
+                <span style="width:14px;color:var(--color-neutral-600);font-size:10px;text-align:center;">{{ r.caret }}</span>
+                <span style="font-weight:600;color:{{ r.keyColor }};">{{ r.key }}</span>
+                <span style="margin-left:auto;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;color:{{ r.valColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;">{{ r.val }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </aside>
+      </main>
+
+      <footer style="display:flex;align-items:center;gap:18px;font-size:12.5px;color:var(--color-neutral-700);padding:0 8px;">
+        <span style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-accent-2);"></span>Valid JSON</span>
+        <span>23 lines</span><span>412 chars</span><span>Ln 5, Col 7</span>
+        <span style="margin-left:auto;">Win+Alt+V shows the clipboard from anywhere</span>
+      </footer>
+    </div>
+
+    <div data-screen-label="1a Settings" style="width:1280px;height:800px;box-sizing:border-box;position:relative;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden;">
+      <div style="position:absolute;inset:0;background:color-mix(in srgb, var(--color-neutral-900) 45%, transparent);"></div>
+      <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:860px;height:600px;display:grid;grid-template-columns:220px minmax(0,1fr);background:var(--color-surface);border-radius:calc(var(--radius-lg) * 1.15);box-shadow:var(--shadow-lg);overflow:hidden;">
+        <div style="display:flex;flex-direction:column;gap:4px;padding:26px 14px;background:var(--color-neutral-300);">
+          <div style="font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:22px;padding:0 14px 14px;">Settings</div>
+          <sc-for list="{{ settingsNav }}" as="s" hint-placeholder-count="5">
+            <div style="padding:10px 16px;border-radius:999px;font-size:14px;font-weight:{{ s.w }};background:{{ s.bg }};color:{{ s.color }};">{{ s.label }}</div>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px;padding:28px 30px;min-height:0;">
+          <div style="display:flex;align-items:flex-start;gap:16px;">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:22px;">Shortcuts</div>
+              <div style="font-size:14px;color:var(--color-neutral-700);">Click a shortcut and press the new keys.</div>
+            </div>
+            <button class="btn btn-ghost btn-icon" style="margin-left:auto;" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <sc-for list="{{ shortcuts }}" as="k" hint-placeholder-count="7">
+              <div style="display:flex;align-items:center;gap:12px;padding:9px 10px 9px 18px;border-radius:999px;background:{{ k.bg }};">
+                <span style="font-size:14px;flex:1;">{{ k.label }}</span>
+                <sc-if value="{{ k.recording }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:13px;color:var(--color-accent-700);font-weight:600;">Press keys…</span>
+                </sc-if>
+                <div style="display:flex;gap:4px;">
+                  <sc-for list="{{ k.keys }}" as="key" hint-placeholder-count="2">
+                    <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;padding:4px 10px;border-radius:999px;background:var(--color-bg);box-shadow:var(--shadow-sm);">{{ key }}</span>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:auto;">
+            <button class="btn btn-secondary">Reset all to defaults</button>
+            <div style="flex:1;"></div>
+            <button class="btn btn-primary">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1b -->
+  <div id="1b" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="display:flex;align-items:center;gap:10px;"><span class="tag tag-accent-2" style="font-size:13px;font-weight:700;">1b</span><span style="font-weight:600;">Fokuseret, mørk kodeflade</span></div>
+
+    <div data-screen-label="1b Main" style="width:1280px;height:800px;box-sizing:border-box;display:grid;grid-template-columns:68px minmax(0,1fr);gap:16px;padding:16px;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden;">
+      <nav style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;background:var(--color-surface);border-radius:999px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--color-accent);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:22px;margin-bottom:10px;">D</div>
+        <div style="width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--color-bg);color:var(--color-accent-700);box-shadow:var(--shadow-sm);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path></svg></div>
+        <div style="width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path></svg></div>
+        <div style="width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg></div>
+        <div style="flex:1;"></div>
+        <div style="width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"></path><path d="M14 17H5"></path><circle cx="17" cy="17" r="3"></circle><circle cx="7" cy="7" r="3"></circle></svg></div>
+      </nav>
+
+      <div style="display:grid;grid-template-rows:auto minmax(0,1fr);gap:14px;min-width:0;min-height:0;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:{{ tb.w }};background:{{ tb.bg }};color:{{ tb.color }};box-shadow:{{ tb.shadow }};">
+              <span style="width:8px;height:8px;border-radius:50%;background:{{ tb.dot }};"></span>{{ tb.title }}
+            </div>
+          </sc-for>
+          <div style="width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1.5px dashed var(--color-neutral-500);color:var(--color-neutral-700);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></div>
+          <div style="margin-left:auto;font-size:13px;color:var(--color-neutral-700);">Paste anywhere · Ctrl+V</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;min-height:0;">
+          <section style="position:relative;display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0;background:var(--color-neutral-900);color:var(--color-neutral-200);border-radius:calc(var(--radius-lg) * 1.15);overflow:hidden;">
+            <div style="display:flex;align-items:center;gap:12px;padding:18px 18px 10px 28px;">
+              <div style="display:flex;flex-direction:column;gap:3px;">
+                <span style="font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:24px;color:var(--color-bg);">order.json</span>
+                <span style="font-size:12.5px;color:var(--color-neutral-400);">Detected JSON · formatted from 1 line</span>
+              </div>
+              <div style="flex:1;"></div>
+              <div style="display:flex;padding:4px;gap:2px;border-radius:999px;background:color-mix(in srgb, var(--color-bg) 10%, transparent);font-size:13px;">
+                <span style="padding:6px 14px;border-radius:999px;background:var(--color-accent);color:var(--color-neutral-900);font-weight:600;">Formatted</span>
+                <span style="padding:6px 14px;border-radius:999px;color:var(--color-neutral-300);">Original</span>
+              </div>
+              <div style="width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb, var(--color-bg) 10%, transparent);color:var(--color-neutral-200);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg></div>
+            </div>
+            <div style="overflow:hidden;padding:8px 0;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:14px;line-height:25px;">
+              <sc-for list="{{ linesDark }}" as="l" hint-placeholder-count="23">
+                <div style="display:flex;background:{{ l.bg }};margin:0 14px;border-radius:999px;">
+                  <span style="width:46px;flex-shrink:0;text-align:right;padding-right:20px;color:{{ l.numColor }};">{{ l.n }}</span>
+                  <span style="white-space:pre;"><sc-for list="{{ l.tokens }}" as="t" hint-placeholder-count="3"><span style="color:{{ t.c }};font-weight:{{ t.w }};">{{ t.t }}</span></sc-for></span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:16px;padding:12px 28px 16px;font-size:12.5px;color:var(--color-neutral-400);">
+              <span style="color:var(--color-accent-2-300);">● Valid</span><span>23 lines</span><span>412 chars</span><span style="margin-left:auto;">Ln 5, Col 7</span>
+            </div>
+          </section>
+
+          <aside style="display:flex;flex-direction:column;gap:12px;min-height:0;">
+            <div style="display:flex;flex-direction:column;min-height:0;flex:1;background:var(--color-accent-2-100);border-radius:calc(var(--radius-lg) * 1.15);overflow:hidden;">
+              <div style="display:flex;align-items:center;gap:8px;padding:18px 14px 10px 22px;">
+                <span style="font-family:var(--font-body);font-weight:700;letter-spacing:-0.01em;font-size:19px;color:var(--color-accent-2-900);">Structure</span>
+                <div style="flex:1;"></div>
+                <span style="display:flex;align-items:center;gap:6px;font-size:12px;padding:5px 10px;border-radius:999px;background:var(--color-accent-2-300);color:var(--color-accent-2-900);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"></path><circle cx="12" cy="12" r="3"></circle></svg>Follow</span>
+              </div>
+              <div style="overflow:hidden;padding:0 10px 14px;font-size:13.5px;display:flex;flex-direction:column;gap:1px;">
+                <sc-for list="{{ treeSage }}" as="r" hint-placeholder-count="14">
+                  <div style="display:flex;align-items:center;gap:6px;height:30px;padding-left:{{ r.pad }};padding-right:12px;border-radius:999px;background:{{ r.bg }};">
+                    <span style="width:14px;color:var(--color-accent-2-700);font-size:10px;text-align:center;">{{ r.caret }}</span>
+                    <span style="font-weight:600;color:{{ r.keyColor }};">{{ r.key }}</span>
+                    <span style="margin-left:auto;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12.5px;color:{{ r.valColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;">{{ r.val }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding:16px 20px;background:var(--color-accent-100);border-radius:var(--radius-lg);">
+              <div style="font-size:12px;font-weight:700;letter-spacing:0.04em;color:var(--color-accent-700);">TIP</div>
+              <div style="font-size:13.5px;color:var(--color-accent-900);">Click a node to jump to its line. Strings holding JSON can be expanded.</div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    if (this._v) return this._v;
+    const obj = {order:{id:4821,customer:{name:"Ida Holm",email:"ida@holm.dk"},items:[{sku:"A-102",qty:2,price:149.5},{sku:"B-330",qty:1,price:89}],paid:true,note:null}};
+    const text = JSON.stringify(obj, null, 2);
+    const SEL = 5;
+    const pal = {
+      light:{key:'var(--color-accent-700)',str:'var(--color-accent-2-700)',num:'var(--color-accent-600)',lit:'var(--color-accent-800)',p:'var(--color-neutral-600)',sel:'var(--color-accent-200)',numc:'var(--color-neutral-500)',numSel:'var(--color-accent-700)'},
+      dark:{key:'var(--color-accent-300)',str:'var(--color-accent-2-300)',num:'var(--color-accent-400)',lit:'var(--color-accent-200)',p:'var(--color-neutral-500)',sel:'color-mix(in srgb, var(--color-accent) 22%, transparent)',numc:'var(--color-neutral-600)',numSel:'var(--color-accent-300)'}
+    };
+    const tok = (line, c) => {
+      const out = []; const re = /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?)|\b(true|false|null)\b|([{}\[\],])|(\s+)/g; let m;
+      while ((m = re.exec(line))) {
+        if (m[1]) { out.push({t:m[1], c:m[2]?c.key:c.str, w:m[2]?600:400}); if (m[2]) out.push({t:m[2], c:c.p, w:400}); }
+        else if (m[3]) out.push({t:m[3], c:c.num, w:400});
+        else if (m[4]) out.push({t:m[4], c:c.lit, w:600});
+        else if (m[5]) out.push({t:m[5], c:c.p, w:400});
+        else out.push({t:m[6], c:c.p, w:400});
+      }
+      return out;
+    };
+    const lines = c => text.split('\n').map((l, i) => ({n:i+1, tokens:tok(l, c), bg:i+1===SEL?c.sel:'transparent', numColor:i+1===SEL?c.numSel:c.numc}));
+    const rows = []; let ln = 1;
+    const walk = (k, v, d) => {
+      const line = ln++; const isObj = v && typeof v === 'object';
+      let val, vt;
+      if (Array.isArray(v)) { val = `[${v.length}]`; vt='meta'; } else if (isObj) { val = `{${Object.keys(v).length}}`; vt='meta'; }
+      else if (typeof v === 'string') { val = `"${v}"`; vt='str'; } else if (typeof v === 'number') { val = String(v); vt='num'; } else { val = String(v); vt='lit'; }
+      rows.push({d, key:k, val, vt, caret:isObj?'▾':'', sel:line===SEL});
+      if (isObj) { const ks = Object.keys(v); if (ks.length) { ks.forEach(kk => walk(Array.isArray(v)?`${kk}`:kk, v[kk], d+1)); ln++; } }
+    };
+    walk('root', obj, 0);
+    const tree = (c, selBg, meta) => rows.map(r => ({pad:(8 + r.d*16)+'px', key:r.key, caret:r.caret, val:r.val, bg:r.sel?selBg:'transparent', keyColor:r.sel?'var(--color-accent-800)':'var(--color-text)', valColor:r.vt==='meta'?meta:c[r.vt]}));
+    const L = pal.light;
+    const hist = [['order.json','JSON','now','var(--color-accent)'],['EF Core query','SQL','2 min ago','var(--color-accent-2)'],['Auth token','JWT','14 min ago','var(--color-accent-400)'],['README.md','Markdown','1 h ago','var(--color-accent-2-400)'],['config.yaml','YAML','Yesterday','var(--color-neutral-500)'],['invoice.xml','XML','Yesterday','var(--color-accent-700)']];
+    pal.light.txt = 'var(--color-text)'; pal.dark.txt = 'var(--color-neutral-200)';
+    const people = [
+      ["Aaliyah Noor","Urdu","Q7HN2KX0P3LMV8RT","Sed ut perspiciatis unde omnis iste natus error sit voluptatem.",3.1],
+      ["Aarav Mehta","Hindi","ZK29XW0PLQ7M3NDE","Nemo enim ipsam voluptatem quia voluptas sit aspernatur.",4.02],
+      ["Aamir Solangi","Sindhi","IAKPO3R4761JDRVG","Vestibulum pharetra libero et velit gravida euismod. Quisque mauris ligula, efficitur porttitor sodales ac.",7.27],
+      ["Abla Dilmurat","Uyghur","5ZVOEPMJUI4MB4EN","Donec lobortis eleifend condimentum. Morbi ac tellus erat.",2.53],
+      ["Adil Eli","Uyghur","6VTI8X6LL0MMPJCC","Vivamus id faucibus velit, id posuere leo. Morbi vitae nisi lacinia, laoreet lorem nec.",6.49],
+      ["Adile Qadir","Uyghur","F2KEU5L7EHYSYFTT","Duis commodo orci ut dolor iaculis facilisis. Morbi ultricies consequat ligula posuere.",1.9],
+      ["Abdukerim Ibrahim","Uyghur","LO6DVTZLRK68528I","Vivamus id faucibus velit, id posuere leo. Nunc aliquet sodales nunc a pulvinar.",5.9]
+    ].map(p => ({name:p[0], language:p[1], id:p[2], bio:p[3], version:p[4]}));
+    const jl = JSON.stringify(people, null, 2).split('\n');
+    const mk = (arr, start, c, tk, sel) => arr.map((l, i) => { const n = start + i; const s = sel && n >= sel[0] && n <= sel[1]; return {n, tokens:tk(l, c, n), bg:s?c.sel:'transparent', numColor:s?c.numSel:c.numc}; });
+    const csvTok = (line, c, n) => line.split(/(,)/).filter(Boolean).map(p => p === ',' ? {t:p, c:c.p, w:400} : n === 1 ? {t:p, c:c.key, w:600} : /^\d+$/.test(p) ? {t:p, c:c.num, w:400} : {t:p, c:c.txt, w:400});
+    const tr = [{d:0, k:'$', v:'[792 items]', vt:'meta', caret:'▾'}];
+    for (let i = 0; i < 15; i++) {
+      if (i === 5) { tr.push({d:1, k:'5', v:'{5 keys}', vt:'meta', caret:'▾', sel:true}); Object.entries(people[5]).forEach(([k, v]) => tr.push({d:2, k:k+':', v:typeof v === 'string' ? `"${v}"` : String(v), vt:typeof v === 'string' ? 'str' : 'num', caret:''})); }
+      else tr.push({d:1, k:String(i), v:'{5 keys}', vt:'meta', caret:'▸'});
+    }
+    const tcol = {meta:'var(--color-neutral-600)', str:'var(--color-accent-2-700)', num:'var(--color-accent-600)'};
+    const treeFor = selBg => tr.map(r => ({pad:(10 + r.d*18)+'px', caret:r.caret, key:r.k, val:r.v, valColor:tcol[r.vt], bg:r.sel?selBg:'transparent', keyColor:r.sel?'var(--color-accent-800)':'var(--color-text)'}));
+    const csv = ['id,first_name,last_name,email,age','1,Rachel,Booker,rachel@example.com,34','2,Laura,Grey,laura@example.com,29','3,Craig,Johnson,craig@example.com,42'];
+    const rowsFor = selBg => csv.slice(1).map((l, i) => ({bg:i===1?selBg:'transparent', cells:[String(i+2), ...l.split(',')].map((v, j) => ({v, color:j===0?'var(--color-neutral-600)':'var(--color-text)'}))}));
+    const tabNames = [['people.json','var(--color-accent)'],['users.csv','var(--color-accent-2)'],['github.com/lizzard85…','var(--color-neutral-500)']];
+    const tabsA = a => tabNames.map((t, i) => ({title:t[0], dot:t[1], bg:i===a?'var(--dv-card)':'transparent', shadow:i===a?'var(--shadow-sm)':'none', w:i===a?600:500, color:i===a?'var(--color-text)':'var(--color-neutral-700)'}));
+    const tabsB = a => tabNames.map((t, i) => ({title:t[0], dot:t[1], bg:i===a?'var(--dv-card)':'var(--color-surface)', w:i===a?600:500, color:i===a?'var(--color-text)':'var(--color-neutral-800)', x:i===a?'var(--color-neutral-600)':'var(--color-neutral-600)'}));
+    const jsl = jl.slice(15, 44);
+    const extra = {
+      tableHead: ['#','id','first_name','last_name','email','age'],
+      modes: [
+        {lang:'JSON', isJson:true, isCsv:false, lineCount:'5,546 lines', panelLabel:'Tree', cols:'minmax(0,1fr) 430px', linesA:mk(jsl, 16, {...pal.light, sel:'var(--dv-hi-bg)'}, tok, [37,43]), linesB:mk(jsl, 16, pal.dark, tok, [37,43]), treeA:treeFor('var(--dv-hi-bg)'), treeB:treeFor('var(--color-accent-2-300)'), tabsA:tabsA(0), tabsB:tabsB(0)},
+        {lang:'CSV / TSV', isJson:false, isCsv:true, lineCount:'4 lines', panelLabel:'Table', cols:'minmax(0,1fr) 500px', linesA:mk(csv, 1, {...pal.light, sel:'var(--dv-hi-bg)'}, csvTok, [3,3]), linesB:mk(csv, 1, pal.dark, csvTok, [3,3]), rowsA:rowsFor('var(--dv-hi-bg)'), rowsB:rowsFor('var(--color-bg)'), tabsA:tabsA(1), tabsB:tabsB(1)}
+      ]
+    };
+    extra.modes = ['light','dark'].flatMap(t => extra.modes.map(m => ({...m, theme:t, themeLabel:t==='light'?'Light':'Dark'})));
+    this._v = {
+      ...extra,
+      linesLight: lines(L),
+      linesDark: lines(pal.dark),
+      treeLight: tree(L, 'var(--color-accent-200)', 'var(--color-neutral-600)'),
+      treeSage: tree({str:'var(--color-accent-2-800)',num:'var(--color-accent-700)',lit:'var(--color-accent-800)'}, 'var(--color-bg)', 'var(--color-accent-2-600)'),
+      history: hist.map((h, i) => ({title:h[0], lang:h[1], time:h[2], dot:h[3], bg:i===0?'var(--color-neutral-100)':'transparent', shadow:i===0?'var(--shadow-sm)':'none'})),
+      tabs: hist.slice(0,4).map((h, i) => ({title:h[0], dot:h[3], w:i===0?600:500, bg:i===0?'var(--color-neutral-100)':'var(--color-surface)', color:i===0?'var(--color-text)':'var(--color-neutral-800)', shadow:i===0?'var(--shadow-sm)':'none'})),
+      settingsNav: ['General','Formatting','Shortcuts','History','Updates'].map(s => ({label:s, w:s==='Shortcuts'?700:500, bg:s==='Shortcuts'?'var(--color-accent)':'transparent', color:s==='Shortcuts'?'var(--color-bg)':'var(--color-text)'})),
+      shortcuts: [['Show clipboard (global)',['Win','Alt','V']],['Open file',['Ctrl','O']],['Toggle formatted / original',['F']],['Toggle decoded / original',['D']],['Toggle side panel',['Ctrl','B']],['Copy formatted text',['Ctrl','Shift','C'],true],['Settings',['Ctrl',',']]].map(s => ({label:s[0], keys:s[1], recording:!!s[2], bg:s[2]?'var(--color-accent-100)':'var(--color-bg)'}))
+    };
+    return this._v;
+  }
+}
+</script>
+</body>
+</html>
