@@ -16,25 +16,30 @@ export interface ToolbarLayout {
   moreOpen: boolean;
 }
 
-export const TOOLBAR_BREAKPOINTS = {
-  hideLineCount: 1100,
-  compact: 960,
-  moreActions: 820,
-  moreCopy: 720,
-  viewMenu: 640,
-  moreOpen: 560,
-} as const;
+/** Window widths below which each collapse step applies, in collapse order. */
+export const TOOLBAR_BREAKPOINTS = [1100, 960, 820, 720, 640, 560] as const;
+
+/** Number of collapse steps that apply at a window width (0 = everything visible). */
+export function toolbarLevel(width: number): number {
+  return TOOLBAR_BREAKPOINTS.filter((b) => width < b).length;
+}
+
+/** The toolbar with the first `level` collapse steps applied (0–6). */
+export function layoutForLevel(level: number): ToolbarLayout {
+  return {
+    hideLineCount: level >= 1,
+    compact: level >= 2,
+    moreActions: level >= 3,
+    moreCopy: level >= 4,
+    viewMenu: level >= 5,
+    moreOpen: level >= 6,
+  };
+}
+
+export const MAX_TOOLBAR_LEVEL = TOOLBAR_BREAKPOINTS.length;
 
 export function toolbarLayout(width: number): ToolbarLayout {
-  const b = TOOLBAR_BREAKPOINTS;
-  return {
-    hideLineCount: width < b.hideLineCount,
-    compact: width < b.compact,
-    moreActions: width < b.moreActions,
-    moreCopy: width < b.moreCopy,
-    viewMenu: width < b.viewMenu,
-    moreOpen: width < b.moreOpen,
-  };
+  return layoutForLevel(toolbarLevel(width));
 }
 
 /** Whether the "…" menu has anything to show. */

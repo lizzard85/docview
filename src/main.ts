@@ -12,7 +12,7 @@ import { convert, conversionsFor, jsonToXmlProblem, type Conversion } from "./co
 import { Dropdown, type DropdownItem } from "./dropdown";
 import { clampFontSize, gutterChars, lineHeight, panelFontSize, panelRowHeight, zoomFontSize } from "./fontScale";
 import { icon, renderIcons } from "./icons";
-import { hasMoreMenu, panelIsOverlay, toolbarLayout, type ToolbarLayout } from "./layout";
+import { hasMoreMenu, layoutForLevel, MAX_TOOLBAR_LEVEL, panelIsOverlay, toolbarLayout, toolbarLevel, type ToolbarLayout } from "./layout";
 import { Tooltips } from "./tooltip";
 import { jsonToTree } from "./jsonTree";
 import { LANGUAGES, LANG_BY_ID, langDot, languageFromFilename } from "./languages";
@@ -553,6 +553,7 @@ function showEmpty() {
   showNotices([]);
   search.refresh();
   updatePanel();
+  fitToolbar();
 }
 
 function tabIdOf(target: EventTarget | null): number | undefined {
@@ -711,16 +712,7 @@ function applyFrame() {
 /** Applies the responsive toolbar and panel rules for the current window width. */
 function applyLayout() {
   const w = window.innerWidth;
-  layout = toolbarLayout(w);
-  const b = document.body.classList;
-  b.toggle("tb-hide-count", layout.hideLineCount);
-  b.toggle("tb-compact", layout.compact);
-  b.toggle("tb-more-actions", layout.moreActions);
-  b.toggle("tb-more-copy", layout.moreCopy);
-  b.toggle("tb-view", layout.viewMenu);
-  b.toggle("tb-more-open", layout.moreOpen);
-  ui.btnMore.hidden = !hasMoreMenu(layout);
-  ui.btnView.hidden = !layout.viewMenu;
+  fitToolbar();
   const wasOverlay = overlay;
   overlay = panelIsOverlay(w);
   if (overlay !== wasOverlay) {
@@ -728,6 +720,31 @@ function applyLayout() {
     updatePanel();
   }
   updateTabOverflow();
+}
+
+/** Collapses the toolbar for the window width (see layout.ts). */
+function fitToolbar() {
+  const w = window.innerWidth;
+  // The breakpoints are the minimum; with wider labels (fonts, scaling) the
+  // next steps also apply until the toolbar fits.
+  const bar = $("toolbar");
+  for (let level = toolbarLevel(w); level <= MAX_TOOLBAR_LEVEL; level++) {
+    setToolbarLayout(layoutForLevel(level));
+    if (bar.scrollWidth <= bar.clientWidth + 1) break;
+  }
+}
+
+function setToolbarLayout(l: ToolbarLayout) {
+  layout = l;
+  const b = document.body.classList;
+  b.toggle("tb-hide-count", l.hideLineCount);
+  b.toggle("tb-compact", l.compact);
+  b.toggle("tb-more-actions", l.moreActions);
+  b.toggle("tb-more-copy", l.moreCopy);
+  b.toggle("tb-view", l.viewMenu);
+  b.toggle("tb-more-open", l.moreOpen);
+  ui.btnMore.hidden = !hasMoreMenu(l);
+  ui.btnView.hidden = !l.viewMenu;
 }
 
 function updateLangLabel() {
@@ -859,6 +876,7 @@ async function render() {
   updateFormatToggle();
   search.refresh();
   updatePanel();
+  fitToolbar();
 }
 
 interface Notice {

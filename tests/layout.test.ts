@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clampPanelWidth, hasMoreMenu, PANEL_OVERLAY_BELOW, panelIsOverlay, toolbarLayout } from "../src/layout";
+import { clampPanelWidth, hasMoreMenu, layoutForLevel, PANEL_OVERLAY_BELOW, panelIsOverlay, toolbarLayout, toolbarLevel } from "../src/layout";
 
 describe("responsive toolbar", () => {
   it("shows everything from 1100px", () => {
@@ -19,6 +19,14 @@ describe("responsive toolbar", () => {
     expect(toolbarLayout(480)).toEqual({
       hideLineCount: true, compact: true, moreActions: true, moreCopy: true, viewMenu: true, moreOpen: true,
     });
+  });
+
+  it("counts the collapse steps and builds the layout for a step", () => {
+    expect(toolbarLevel(1280)).toBe(0);
+    expect(toolbarLevel(900)).toBe(2);
+    expect(toolbarLevel(480)).toBe(6);
+    expect(layoutForLevel(3)).toEqual(toolbarLayout(800));
+    expect(layoutForLevel(9)).toEqual(toolbarLayout(300));
   });
 
   it("has a … menu once actions move into it", () => {
