@@ -334,6 +334,10 @@ body.has-content .empty { display: none; }
 .drop-overlay { position: absolute; inset: 0; padding: 14px; display: flex; background: var(--dv-card); z-index: 4; }
 
 /* Code */
+/* Code is shown exactly as typed: no ligatures (=> != <!--). */
+.code, .tree-row, .panel-path, .dropdown-label.mono, .md-sheet code, .md-sheet pre, kbd, .key-chip, .key-record {
+  font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0;
+}
 .code {
   font-family: var(--font-mono); font-size: var(--code-size); line-height: var(--code-lh);
   min-width: max-content; padding: 14px 0;
@@ -580,7 +584,7 @@ body.comparing .workspace, body.comparing #searchbar { display: none !important;
 .cmp-line mark { color: inherit; border-radius: 4px; background: var(--color-accent-300); }
 #compare-right .cmp-line mark { background: var(--color-accent-2-300); }
 .cmp-filler { --row-bg: var(--dv-filler) !important; }
-.cmp-current { box-shadow: inset 3px 0 0 var(--color-accent); }
+.cmp-current, .cmp-current .ln { box-shadow: inset 3px 0 0 var(--color-accent); }
 
 /* ------------------------------------------------------------------ menus */
 
