@@ -6,6 +6,7 @@ import {
   ACTIONS, ACTION_BY_ID, eventToCombo, eventToGlobalShortcut, globalShortcutProblem, heldModifiers,
   isModifierKey, resolveBindings, setBinding, type ActionId, type KeyOverrides,
 } from "./keymap";
+import { icon } from "./icons";
 import { displayShortcut } from "./shortcut";
 
 type Target = ActionId | "global";
@@ -104,6 +105,7 @@ export class KeysEditor {
     note.textContent = "Click a shortcut and press the new keys. Esc cancels.";
     const resetAll = document.createElement("button");
     resetAll.type = "button";
+    resetAll.className = "pill secondary";
     resetAll.textContent = "Reset all to defaults";
     resetAll.addEventListener("click", () => {
       this.stop();
@@ -130,25 +132,28 @@ export class KeysEditor {
 
     const reset = document.createElement("button");
     reset.type = "button";
-    reset.className = "icon";
+    reset.className = "icon-btn";
     reset.title = "Reset to the default";
     reset.setAttribute("aria-label", `Reset ${label} to the default`);
-    reset.textContent = "↺";
+    reset.innerHTML = icon("undo", 14);
     reset.addEventListener("click", () => this.reset(target));
 
     const clear = document.createElement("button");
     clear.type = "button";
-    clear.className = "icon";
+    clear.className = "icon-btn";
     clear.title = "Remove the shortcut";
     clear.setAttribute("aria-label", `Remove the shortcut for ${label}`);
-    clear.textContent = "✕";
+    clear.innerHTML = icon("x", 14);
     clear.hidden = target === "global"; // the global shortcut cannot be empty
     clear.addEventListener("click", () => this.assign(target, ""));
 
     const actions = document.createElement("span");
     actions.className = "keys-actions";
     actions.append(key, reset, clear);
-    table.append(name, actions);
+    const row = document.createElement("div");
+    row.className = "keys-row";
+    row.append(name, actions);
+    table.append(row);
     this.buttons.set(target, key);
     this.resets.set(target, reset);
   }

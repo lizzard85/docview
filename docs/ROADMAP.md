@@ -2,6 +2,8 @@
 
 Planned features, in the order they should be built. See "Working on the roadmap" in [AGENTS.md](../AGENTS.md) for how to work through this list: one item per pull request, top to bottom.
 
+Ideas that are not planned yet are in [IDEAS.md](IDEAS.md); they are not roadmap items.
+
 Status markers: `[ ]` not started · `[x]` done (PR link after it).
 
 When something is unclear, make a sensible decision, keep it simple, and write the decision in the PR description under **Decisions**. Do not stop to ask.

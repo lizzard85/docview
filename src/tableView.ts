@@ -1,6 +1,7 @@
 // Table view of CSV/TSV for the side panel: sticky header, sortable columns,
 // row filter and rows rendered in chunks ("Show more").
 import { filterRows, sortRows, type CsvData, type SortDir } from "./csv";
+import { icon } from "./icons";
 
 /** Rows are rendered in chunks of this size. */
 const CHUNK = 500;
@@ -93,11 +94,12 @@ export class TableView {
       const th = document.createElement("th");
       th.dataset.col = String(i);
       th.title = "Sort";
-      th.textContent = name;
       if (this.sort?.col === i) {
         th.classList.add("sorted");
-        th.append(span(this.sort.dir === "asc" ? " ▲" : " ▼", "csv-sort"));
-      }
+        const pill = span(name, "csv-sort-pill");
+        pill.insertAdjacentHTML("beforeend", icon(this.sort.dir === "asc" ? "arrow-up" : "arrow-down", 11));
+        th.append(pill);
+      } else th.textContent = name;
       hr.append(th);
     });
     const tbody = table.createTBody();
@@ -139,7 +141,7 @@ export class TableView {
       tr.className = "csv-more";
       const td = document.createElement("td");
       td.colSpan = cols + 1;
-      td.textContent = `Show more (${order.length - end} remaining)`;
+      td.append(span(`Show more (${order.length - end} remaining)`, "csv-more-label"));
       td.addEventListener("click", (e) => {
         e.stopPropagation();
         tr.remove();

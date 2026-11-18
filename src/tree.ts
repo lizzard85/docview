@@ -120,7 +120,7 @@ export class TreeView {
     if (end < nodes.length) {
       const more = document.createElement("div");
       more.className = "tree-row tree-more";
-      more.style.paddingLeft = `${depth * 14 + 4}px`;
+      more.style.marginLeft = `${indent(depth) + 18}px`;
       more.textContent = `Show more (${nodes.length - end} remaining)`;
       more.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -137,7 +137,7 @@ export class TreeView {
     item.className = "tree-item";
     const row = document.createElement("div");
     row.className = "tree-row";
-    row.style.paddingLeft = `${depth * 14 + 4}px`;
+    row.style.paddingLeft = `${indent(depth)}px`;
     this.nodeOf.set(row, node);
 
     const caret = document.createElement("span");
@@ -145,7 +145,8 @@ export class TreeView {
     caret.textContent = node.childCount ? "▸" : "";
     row.append(caret, span(node.key, node.keyClass ?? "tree-key"));
     if (node.value !== undefined) row.append(span(": ", "tree-sep"), span(node.value, node.valueClass ?? ""));
-    if (node.summary) row.append(span(node.summary, node.embedded ? "tree-summary tree-embedded" : "tree-summary"));
+    if (node.embedded) row.append(span("JSON string", "tree-marker"));
+    if (node.summary) row.append(span(node.embedded ? node.summary.replace(/^JSON string /, "") : node.summary, "tree-summary"));
     item.append(row);
 
     if (node.childCount && node.children) {
@@ -242,6 +243,11 @@ export class TreeView {
       this.setOpen(item, !this.isOpen(item));
     }
   }
+}
+
+/** Left padding of a row: 10px + 18px per level. */
+function indent(depth: number): number {
+  return 10 + depth * 18;
 }
 
 type ItemElement = HTMLElement & { lazy?: { node: TreeNode; depth: number; autoDepth: number } };

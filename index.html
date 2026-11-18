@@ -7,55 +7,66 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <header class="toolbar">
-      <select id="lang" title="Language (pick manually if the guess is wrong)"></select>
-      <span id="detect-source" class="muted"></span>
-      <label class="toggle" title="Format the code" data-action="format"><input type="checkbox" id="opt-format" /> Format</label>
-      <label class="toggle" title="Wrap long lines" data-action="wrap"><input type="checkbox" id="opt-wrap" /> Wrap</label>
-      <label class="toggle" title="Show line numbers" data-action="lineNumbers"><input type="checkbox" id="opt-lines" /> Line no.</label>
-      <button id="btn-panel" title="Show tree view (T)" hidden>Tree</button>
-      <button id="btn-convert" title="Convert to another format" aria-haspopup="true" hidden>Convert ▾</button>
-      <span class="spacer"></span>
-      <span id="info" class="muted"></span>
-      <button id="btn-history" title="Recent contents" data-action="history" aria-haspopup="true">History</button>
-      <button id="btn-paste" title="Paste from clipboard" data-action="paste">Paste</button>
-      <button id="btn-open" title="Open file" data-action="open">Open…</button>
-      <button id="btn-save" title="Save as a file" data-action="save">Save…</button>
-      <button id="btn-compare" title="Compare with another snippet" data-action="compare">Compare</button>
-      <button id="btn-copy" title="Copy formatted text" data-action="copy">Copy</button>
-      <button id="btn-copy-rich" title="Copy with colours, for pasting into Outlook, Teams or Word" data-action="copyRich">Copy colours</button>
-      <button id="btn-editor" title="Open in external editor" data-action="editor">Editor</button>
-      <button id="btn-settings" class="icon" title="Settings" data-action="settings" aria-label="Settings">⚙</button>
+    <header id="titlebar" class="titlebar" data-tauri-drag-region>
+      <div class="logo" data-tauri-drag-region aria-hidden="true">D</div>
+      <nav id="tabbar" class="tabstrip" role="tablist" aria-label="Tabs" data-tauri-drag-region></nav>
+      <button type="button" id="tab-new" class="icon-btn tab-new" title="New tab" data-action="newTab" aria-label="New tab"><i data-icon="plus"></i></button>
+      <button type="button" id="tabs-all" class="tabs-all" title="All tabs" aria-haspopup="true" hidden><span id="tabs-count"></span><i data-icon="chevron-down" data-size="12"></i></button>
+      <div class="drag-space" data-tauri-drag-region></div>
+      <div id="winctrls" class="winctrls">
+        <button type="button" id="win-min" class="winctrl" title="Minimise" aria-label="Minimise"><i data-icon="minus" data-size="15"></i></button>
+        <button type="button" id="win-max" class="winctrl" title="Maximise" aria-label="Maximise"><i data-icon="square" data-size="15"></i></button>
+        <button type="button" id="win-close" class="winctrl close" title="Close" aria-label="Close"><i data-icon="x" data-size="15"></i></button>
+      </div>
     </header>
 
-    <nav id="tabbar" class="tabbar" role="tablist" hidden></nav>
+    <header id="toolbar" class="toolbar">
+      <button type="button" id="lang" class="lang-pill" title="Language (pick manually if the guess is wrong)" aria-haspopup="true"><span id="lang-label">Plain text</span><i data-icon="chevron-down" data-size="14"></i></button>
+      <span id="detect-source" class="detect"></span>
+      <span id="toggles" class="toggles">
+        <label class="toggle" title="Format the code" data-action="format"><input type="checkbox" id="opt-format" /><i data-icon="check" data-size="13"></i>Format</label>
+        <label class="toggle" title="Wrap long lines" data-action="wrap"><input type="checkbox" id="opt-wrap" /><i data-icon="check" data-size="13"></i>Wrap</label>
+        <label class="toggle" title="Show line numbers" data-action="lineNumbers"><input type="checkbox" id="opt-lines" /><i data-icon="check" data-size="13"></i>Line no.</label>
+      </span>
+      <button type="button" id="btn-view" class="pill ghost view-btn" title="Format, Wrap and Line no." aria-haspopup="true" hidden>View<i data-icon="chevron-down" data-size="13"></i></button>
+      <button type="button" id="btn-panel" class="pill panel-toggle" title="Show tree view (T)" hidden><i data-icon="panel" data-size="14"></i><span id="btn-panel-label" class="lbl">Tree</span></button>
+      <button type="button" id="btn-convert" class="pill ghost more-act" title="Convert to another format" aria-haspopup="true" hidden>Convert<i data-icon="chevron-down" data-size="13"></i></button>
+      <span class="spacer"></span>
+      <span id="info" class="info"></span>
+      <button type="button" id="btn-history" class="icon-btn more-act" title="Recent contents" data-action="history" aria-haspopup="true" aria-label="History"><i data-icon="history"></i></button>
+      <button type="button" id="btn-compare" class="icon-btn more-act" title="Compare with another snippet" data-action="compare" aria-label="Compare"><i data-icon="compare"></i></button>
+      <button type="button" id="btn-editor" class="icon-btn more-act" title="Open in external editor" data-action="editor" aria-label="Editor"><i data-icon="editor"></i></button>
+      <button type="button" id="btn-save" class="icon-btn more-act" title="Save as a file" data-action="save" aria-label="Save"><i data-icon="save"></i></button>
+      <button type="button" id="btn-more" class="icon-btn" title="More actions" aria-haspopup="true" aria-label="More actions" hidden><i data-icon="more"></i></button>
+      <span id="copy-split" class="split">
+        <button type="button" id="btn-copy" title="Copy formatted text" data-action="copy"><i data-icon="copy" data-size="15"></i><span class="lbl">Copy</span></button>
+        <button type="button" id="btn-copy-menu" title="Copy with colours, for pasting into Outlook, Teams or Word" data-action="copyRich" aria-haspopup="true" aria-label="Copy options"><i data-icon="chevron-down" data-size="13"></i></button>
+      </span>
+      <button type="button" id="btn-open" class="pill secondary" title="Open file" data-action="open"><i data-icon="folder" data-size="15"></i><span class="lbl">Open…</span></button>
+      <button type="button" id="btn-paste" class="pill primary" title="Paste from clipboard" data-action="paste"><i data-icon="clipboard" data-size="15"></i><span class="lbl">Paste</span></button>
+      <button type="button" id="btn-settings" class="icon-btn" title="Settings" data-action="settings" aria-label="Settings"><i data-icon="sliders"></i></button>
+    </header>
 
-    <div id="searchbar" class="searchbar" hidden>
-      <input id="search" type="search" placeholder="Search…" spellcheck="false" />
-      <span id="search-count" class="muted"></span>
-      <button id="search-prev" title="Previous (Shift+Enter)">↑</button>
-      <button id="search-next" title="Next (Enter)">↓</button>
-      <button id="search-close" title="Close (Esc)">✕</button>
+    <div id="update-bar" class="bar bar-update" hidden></div>
+    <div id="compare-prompt" class="bar bar-update" hidden>
+      <i data-icon="compare"></i>
+      <span class="bar-text">Compare: paste (<kbd>Ctrl</kbd>+<kbd>V</kbd>), open a file or pick from the history for the right side.</span>
+      <button type="button" id="compare-paste" class="bar-btn">Paste</button>
+      <button type="button" id="compare-open" class="bar-btn">Open…</button>
+      <button type="button" id="compare-history" class="bar-btn">History</button>
+      <button type="button" id="compare-cancel" class="bar-btn">Cancel</button>
     </div>
 
-    <div id="update-bar" class="notice update-bar" hidden></div>
-    <div id="notice" class="notice" hidden></div>
-    <div id="compare-prompt" class="notice update-bar" hidden>
-      <span>Compare: paste (<kbd>Ctrl</kbd>+<kbd>V</kbd>), open a file or pick from the history for the right side.</span>
-      <button type="button" id="compare-paste">Paste</button>
-      <button type="button" id="compare-open">Open…</button>
-      <button type="button" id="compare-history">History</button>
-      <button type="button" id="compare-cancel">Cancel</button>
-    </div>
     <section id="compare" class="compare" hidden>
       <div class="compare-bar">
-        <span class="compare-labels"><strong id="compare-left-label"></strong> ↔ <strong id="compare-right-label"></strong></span>
-        <span id="compare-count" class="muted"></span>
+        <span class="compare-labels"><strong id="compare-left-label"></strong><span class="arrow">↔</span><strong id="compare-right-label"></strong></span>
+        <span id="compare-count" class="info"></span>
+        <button type="button" id="compare-prev" class="icon-btn" title="Previous change" data-action="comparePrev" aria-label="Previous change"><i data-icon="chevron-up" data-size="15"></i></button>
+        <button type="button" id="compare-next" class="icon-btn" title="Next change" data-action="compareNext" aria-label="Next change"><i data-icon="chevron-down" data-size="15"></i></button>
         <span class="spacer"></span>
-        <label class="toggle" title="Compare the texts as they are, without formatting"><input type="checkbox" id="compare-raw" /> Raw text</label>
-        <button id="compare-prev" title="Previous change" data-action="comparePrev">↑</button>
-        <button id="compare-next" title="Next change" data-action="compareNext">↓</button>
-        <button id="compare-close" title="Leave compare mode (Esc)">✕</button>
+        <label class="toggle" title="Compare the texts as they are, without formatting"><input type="checkbox" id="compare-raw" /><i data-icon="check" data-size="13"></i>Raw text</label>
+        <label class="toggle" title="Lines that only differ in spaces, tabs or line breaks count as the same"><input type="checkbox" id="compare-ws" /><i data-icon="check" data-size="13"></i>Ignore whitespace</label>
+        <button type="button" id="compare-close" class="pill secondary" title="Leave compare mode (Esc)">Exit compare</button>
       </div>
       <div class="compare-panes">
         <div id="compare-left" class="compare-pane code"></div>
@@ -63,60 +74,77 @@
       </div>
     </section>
 
-    <div class="workspace">
-      <main id="viewer" tabindex="0">
-        <div id="empty" class="empty">
-          <h1>DocView</h1>
-          <p>Paste code with <kbd>Ctrl</kbd>+<kbd>V</kbd>, drop a file here<span id="open-hint">, or press <kbd data-key="open">Ctrl+O</kbd></span>.</p>
-          <p class="muted" id="shortcut-hint"></p>
+    <div id="workspace" class="workspace">
+      <div id="code-card" class="code-card">
+        <div id="notice" class="notices" hidden></div>
+        <main id="viewer" tabindex="0">
+          <div id="empty" class="empty">
+            <div class="drop-zone">
+              <h1>DocView</h1>
+              <p>Paste code with <kbd>Ctrl</kbd>+<kbd>V</kbd>, drop a file here<span id="open-hint">, or press <kbd data-key="open">Ctrl+O</kbd></span>.</p>
+              <p class="hint" id="shortcut-hint"></p>
+            </div>
+          </div>
+          <div id="code" class="code"></div>
+        </main>
+        <div id="searchbar" class="searchbar" hidden>
+          <label class="search-field"><i data-icon="search" data-size="14"></i><input id="search" type="search" placeholder="Search…" spellcheck="false" /></label>
+          <span id="search-count" class="search-count"></span>
+          <button type="button" id="search-prev" class="icon-btn sm" title="Previous (Shift+Enter)" aria-label="Previous match"><i data-icon="chevron-up" data-size="15"></i></button>
+          <button type="button" id="search-next" class="icon-btn sm" title="Next (Enter)" aria-label="Next match"><i data-icon="chevron-down" data-size="15"></i></button>
+          <button type="button" id="search-close" class="icon-btn sm" title="Close (Esc)" aria-label="Close search"><i data-icon="x" data-size="15"></i></button>
         </div>
-        <div id="code" class="code"></div>
-      </main>
-      <div id="splitter" class="splitter" hidden></div>
+        <div id="drop-overlay" class="drop-overlay" hidden>
+          <div class="drop-zone over"><i data-icon="download" data-size="28"></i><h2>Drop to open</h2></div>
+        </div>
+      </div>
+      <div id="splitter" class="splitter" hidden><span class="grip"></span></div>
       <aside id="side-panel" class="side-panel" hidden>
         <div class="panel-header">
-          <strong id="panel-title">Tree</strong>
-          <input id="panel-filter" class="tree-only table-too" type="search" placeholder="Filter…" spellcheck="false" />
-          <label class="toggle table-only" title="Use the first row as the column header"><input type="checkbox" id="panel-csv-header" checked /> Header</label>
+          <strong id="panel-title" class="panel-title">Tree</strong>
+          <label class="filter tree-only table-too"><i data-icon="search" data-size="14"></i><input id="panel-filter" type="search" placeholder="Filter…" spellcheck="false" /></label>
+          <label class="toggle table-only" title="Use the first row as the column header"><input type="checkbox" id="panel-csv-header" checked /><i data-icon="check" data-size="13"></i>Header</label>
           <span class="spacer html-only"></span>
-          <button id="panel-sync" class="icon tree-only table-too" title="Jump to the line in the code when a node is selected" aria-pressed="false">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
-          <button id="panel-expand" class="icon tree-only" title="Expand all">+</button>
-          <button id="panel-collapse" class="icon tree-only" title="Collapse all">−</button>
-          <button id="panel-close" class="icon" title="Close" data-action="panel">✕</button>
+          <button type="button" id="panel-sync" class="icon-btn tree-only table-too" title="Jump to the line in the code when a node is selected" aria-pressed="false"><i data-icon="eye"></i></button>
+          <button type="button" id="panel-expand" class="icon-btn tree-only" title="Expand all" aria-label="Expand all"><i data-icon="plus"></i></button>
+          <button type="button" id="panel-collapse" class="icon-btn tree-only" title="Collapse all" aria-label="Collapse all"><i data-icon="minus"></i></button>
+          <button type="button" id="panel-close" class="icon-btn" title="Close" data-action="panel" aria-label="Close panel"><i data-icon="x"></i></button>
         </div>
         <div id="panel-body" class="panel-body"></div>
         <div class="panel-footer tree-only table-too">
-          <span id="panel-path" class="panel-path muted">Select a node</span>
-          <button id="panel-copy-path" class="tree-only" title="Copy the path of the selected node" disabled>Copy path</button>
-          <button id="panel-copy-value" class="table-too" title="Copy the value of the selected node or cell (Ctrl+C)" disabled>Copy value</button>
+          <span id="panel-path" class="panel-path">Select a node</span>
+          <span class="spacer"></span>
+          <button type="button" id="panel-copy-path" class="pill secondary tree-only" title="Copy the path of the selected node" disabled>Copy path</button>
+          <button type="button" id="panel-copy-value" class="pill secondary table-too" title="Copy the value of the selected node or cell (Ctrl+C)" disabled>Copy value</button>
         </div>
       </aside>
     </div>
 
     <dialog id="settings" class="settings">
       <form method="dialog" id="settings-form">
-        <h2>Settings</h2>
-        <div class="settings-body">
-          <nav class="settings-nav" role="tablist" aria-label="Settings pages">
-            <button type="button" role="tab" data-page="general" aria-selected="true">General</button>
-            <button type="button" role="tab" data-page="formatting" aria-selected="false">Formatting</button>
-            <button type="button" role="tab" data-page="shortcuts" aria-selected="false">Shortcuts</button>
-            <button type="button" role="tab" data-page="history" aria-selected="false">History</button>
-            <button type="button" role="tab" data-page="updates" aria-selected="false">Updates</button>
-          </nav>
+        <nav class="settings-nav" role="tablist" aria-label="Settings pages">
+          <h2>Settings</h2>
+          <button type="button" role="tab" data-page="general" aria-selected="true">General</button>
+          <button type="button" role="tab" data-page="formatting" aria-selected="false">Formatting</button>
+          <button type="button" role="tab" data-page="shortcuts" aria-selected="false">Shortcuts</button>
+          <button type="button" role="tab" data-page="history" aria-selected="false">History</button>
+          <button type="button" role="tab" data-page="updates" aria-selected="false">Updates</button>
+        </nav>
+        <div class="settings-main">
           <div class="settings-pages">
             <section class="settings-page" data-page="general" role="tabpanel">
+              <h2 class="page-title">General</h2>
               <h3>Appearance</h3>
-              <label>Theme
-                <select name="theme">
-                  <option value="auto">Follow system</option>
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
-                </select>
-              </label>
-              <label>Font size <input name="fontSize" type="number" min="8" max="40" /></label>
+              <div class="field">
+                <span class="field-label">Theme</span>
+                <div class="seg" role="radiogroup" aria-label="Theme">
+                  <label class="seg-opt"><input type="radio" name="theme" value="auto" />Follow system</label>
+                  <label class="seg-opt"><input type="radio" name="theme" value="light" />Light</label>
+                  <label class="seg-opt"><input type="radio" name="theme" value="dark" />Dark</label>
+                </div>
+              </div>
+              <label>Font size <input name="fontSize" type="number" min="10" max="24" step="0.5" /></label>
+              <label class="row"><input type="checkbox" name="systemTitleBar" /> Use system title bar</label>
               <h3>Opening content</h3>
               <label>Open files and the clipboard shortcut in
                 <select name="newTab">
@@ -132,6 +160,7 @@
             </section>
 
             <section class="settings-page" data-page="formatting" role="tabpanel" hidden>
+              <h2 class="page-title">Formatting</h2>
               <h3>General</h3>
               <label>Indentation (spaces) <input name="indent" type="number" min="1" max="8" /></label>
               <h3>SQL</h3>
@@ -159,37 +188,44 @@
             </section>
 
             <section class="settings-page" data-page="shortcuts" role="tabpanel" hidden>
-              <p id="keys-status" class="notice keys-status" hidden></p>
+              <h2 class="page-title">Shortcuts</h2>
+              <p id="keys-status" class="keys-status" hidden></p>
               <div id="keys-editor"></div>
             </section>
 
             <section class="settings-page" data-page="history" role="tabpanel" hidden>
-              <h3>History</h3>
+              <h2 class="page-title">History</h2>
               <label class="row"><input type="checkbox" name="history" /> Keep a history of recent contents</label>
               <p class="muted">The last 30 contents are kept. Turning the history off also deletes it.</p>
-              <p><button type="button" id="btn-clear-history">Clear history</button></p>
+              <p><button type="button" id="btn-clear-history" class="pill secondary">Clear history</button></p>
             </section>
 
             <section class="settings-page" data-page="updates" role="tabpanel" hidden>
-              <h3>Updates</h3>
+              <h2 class="page-title">Updates</h2>
               <label class="row"><input type="checkbox" name="autoUpdate" /> Check for updates automatically</label>
-              <p class="update-row"><span id="app-version" class="muted"></span> <button type="button" id="btn-check-update">Check for updates now</button></p>
+              <p class="update-row"><span id="app-version" class="muted"></span> <button type="button" id="btn-check-update" class="pill secondary">Check for updates now</button></p>
             </section>
           </div>
-        </div>
-        <div id="settings-update" class="notice update-bar settings-update" hidden></div>
-        <p id="settings-toast" class="muted settings-toast" hidden></p>
-        <p id="settings-error" class="error"></p>
-        <div class="buttons">
-          <button value="cancel" formnovalidate>Cancel</button>
-          <button value="save" id="settings-save" class="primary">Save</button>
+          <div id="settings-update" class="bar bar-update settings-update" hidden></div>
+          <p id="settings-toast" class="settings-toast" hidden></p>
+          <p id="settings-error" class="error"></p>
+          <div class="buttons">
+            <button value="cancel" class="pill secondary" formnovalidate>Cancel</button>
+            <button value="save" id="settings-save" class="pill primary">Save</button>
+          </div>
         </div>
       </form>
     </dialog>
 
     <div id="history-menu" class="dropdown wide" tabindex="-1" hidden></div>
     <div id="convert-menu" class="dropdown" tabindex="-1" hidden></div>
-    <div id="toast" class="toast" hidden></div>
+    <div id="lang-menu" class="dropdown" tabindex="-1" hidden></div>
+    <div id="tabs-menu" class="dropdown wide" tabindex="-1" hidden></div>
+    <div id="more-menu" class="dropdown" tabindex="-1" hidden></div>
+    <div id="view-menu" class="dropdown" tabindex="-1" hidden></div>
+    <div id="copy-menu" class="dropdown" tabindex="-1" hidden></div>
+    <div id="toast" class="toast" role="status" hidden></div>
+    <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

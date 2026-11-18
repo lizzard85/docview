@@ -89,3 +89,31 @@ describe("lenient JSON comparison", () => {
     expect(a).toBe(JSON.stringify({ a: 1, b: "x\ny" }, null, DEFAULT_FORMAT_OPTIONS.indent));
   });
 });
+
+describe("ignore whitespace", () => {
+  it("treats lines that only differ in whitespace as the same", () => {
+    const a = "a = 1\n  b(x, y)\nc";
+    const b = "a=1\n\tb(x,y)  \nc";
+    expect(diffTexts(a, b).changes.length).toBe(1);
+    const d = diffTexts(a, b, { ignoreWhitespace: true });
+    expect(d.changes).toEqual([]);
+    // Each side keeps its own text.
+    expect(d.rows[1].left!.segments[0].text).toBe("  b(x, y)");
+    expect(d.rows[1].right!.segments[0].text).toBe("\tb(x,y)  ");
+  });
+
+  it("still finds real changes and does not mark whitespace in them", () => {
+    const d = diffTexts("x = 1\nkeep", "x  =  2\nkeep", { ignoreWhitespace: true });
+    expect(d.changes).toEqual([0]);
+    expect(d.rows[0].kind).toBe("changed");
+    const marked = d.rows[0].right!.segments.filter((s) => s.changed).map((s) => s.text);
+    expect(marked.join("")).toBe("2");
+  });
+
+  it("keeps line numbers per side with added and removed lines", () => {
+    const d = diffTexts("a\nb\nc", "a\n  c\nd", { ignoreWhitespace: true });
+    expect(d.rows.map((r) => r.kind)).toEqual(["same", "removed", "same", "added"]);
+    expect(d.rows[2].left!.line).toBe(3);
+    expect(d.rows[2].right!.line).toBe(2);
+  });
+});

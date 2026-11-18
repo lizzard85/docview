@@ -1,11 +1,13 @@
 // Side-by-side compare view: two panes with aligned rows, synchronized
 // scrolling and navigation between changes.
 import { stepChange, type DiffResult, type DiffRow, type Side } from "./compare";
+import { gutterChars } from "./fontScale";
 import { escapeHtml } from "./render";
 
 export class CompareView {
   onClose: () => void = () => {};
-  onRawChange: (raw: boolean) => void = () => {};
+  /** Called when "Raw text" or "Ignore whitespace" changes. */
+  onOptionsChange: () => void = () => {};
 
   private readonly el = byId("compare");
   private readonly left = byId("compare-left");
@@ -14,6 +16,7 @@ export class CompareView {
   private readonly rightLabel = byId("compare-right-label");
   private readonly count = byId("compare-count");
   private readonly raw = byId<HTMLInputElement>("compare-raw");
+  private readonly ws = byId<HTMLInputElement>("compare-ws");
   private result: DiffResult | null = null;
   /** Row index of the current change (-1 = none yet). */
   private current = -1;
@@ -23,7 +26,8 @@ export class CompareView {
     byId("compare-close").addEventListener("click", () => this.onClose());
     byId("compare-next").addEventListener("click", () => this.step(1));
     byId("compare-prev").addEventListener("click", () => this.step(-1));
-    this.raw.addEventListener("change", () => this.onRawChange(this.raw.checked));
+    this.raw.addEventListener("change", () => this.onOptionsChange());
+    this.ws.addEventListener("change", () => this.onOptionsChange());
     // Synchronized scrolling (rows are aligned, so the same scrollTop shows the same rows).
     const sync = (from: HTMLElement, to: HTMLElement) => () => {
       if (this.syncing) { this.syncing = false; return; }
@@ -39,6 +43,10 @@ export class CompareView {
 
   get rawMode(): boolean {
     return this.raw.checked;
+  }
+
+  get ignoreWhitespace(): boolean {
+    return this.ws.checked;
   }
 
   open(leftLabel: string, rightLabel: string) {
@@ -65,6 +73,9 @@ export class CompareView {
     this.current = -1;
     this.left.innerHTML = renderPane(result.rows, "left");
     this.right.innerHTML = renderPane(result.rows, "right");
+    let last = 1;
+    for (const row of result.rows) last = Math.max(last, row.left?.line ?? 0, row.right?.line ?? 0);
+    for (const pane of [this.left, this.right]) pane.style.setProperty("--gutter", String(gutterChars(last) - 1));
     this.left.scrollTop = this.right.scrollTop = 0;
     this.updateCount();
   }
@@ -97,10 +108,11 @@ export class CompareView {
 }
 
 function renderSide(side: Side | undefined, kind: DiffRow["kind"]): string {
-  if (!side) return `<div class="cmp-line cmp-filler cmp-${kind}"><span class="ln"></span><span class="lc"> </span></div>`;
+  if (!side) return `<div class="cmp-line cmp-filler cmp-${kind}"><span class="ln"></span><span class="cmp-mark"></span><span class="lc"> </span></div>`;
   let html = "";
   for (const s of side.segments) html += s.changed && kind === "changed" ? `<mark>${escapeHtml(s.text)}</mark>` : escapeHtml(s.text);
-  return `<div class="cmp-line cmp-${kind}"><span class="ln">${side.line}</span><span class="lc">${html || " "}</span></div>`;
+  const mark = kind === "removed" ? "−" : kind === "added" ? "+" : "";
+  return `<div class="cmp-line cmp-${kind}"><span class="ln">${side.line}</span><span class="cmp-mark">${mark}</span><span class="lc">${html || " "}</span></div>`;
 }
 
 function renderPane(rows: DiffRow[], which: "left" | "right"): string {

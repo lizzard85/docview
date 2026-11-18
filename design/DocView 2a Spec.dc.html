@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/organic-c97e08f3-bf15-4730-a323-890226f124c0/styles.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<script src="_ds/organic-c97e08f3-bf15-4730-a323-890226f124c0/_ds_bundle.js"></script>
+<style>
+html,body{margin:0;background:var(--color-neutral-300);}
+a{color:var(--color-accent-700);}a:hover{color:var(--color-accent-800);}
+:root{--font-heading:"Figtree",system-ui,sans-serif;--font-heading-weight:700;--dv-ink:#2e2b25;--dv-ink-text:#f5ead8;--dv-ink-muted:#c0b6a5;}
+[data-dv-theme="dark"]{--color-neutral-100:#2e2b25;--color-neutral-200:#474238;--color-neutral-300:#645c50;--color-neutral-400:#82796a;--color-neutral-500:#a19786;--color-neutral-600:#c0b6a5;--color-neutral-700:#dcd3c4;--color-neutral-800:#eee7db;--color-neutral-900:#f9f4ed;--color-accent-100:#402310;--color-accent-200:#643312;--color-accent-300:#8c491a;--color-accent-400:#b2622d;--color-accent-500:#d67f48;--color-accent-600:#f6a06b;--color-accent-700:#ffc6a5;--color-accent-800:#ffe1d0;--color-accent-900:#fff2eb;--color-accent-2-100:#272e1b;--color-accent-2-200:#3d472b;--color-accent-2-300:#56633f;--color-accent-2-400:#728157;--color-accent-2-500:#8fa073;--color-accent-2-600:#aebf92;--color-accent-2-700:#ccdbb2;--color-accent-2-800:#e1eecc;--color-accent-2-900:#f0fae1;--color-bg:color-mix(in oklch, #2e2b25 70%, black);--color-surface:color-mix(in oklch, #2e2b25 88%, black);--color-text:#f5ead8;--color-divider:color-mix(in srgb, #f5ead8 16%, transparent);--shadow-sm:0 1px 2px rgba(0,0,0,.35);--shadow-md:0 3px 10px rgba(0,0,0,.4);--shadow-lg:0 12px 32px rgba(0,0,0,.5);--dv-ink:color-mix(in oklch, #2e2b25 55%, black);color:var(--color-text);color-scheme:dark;}
+[data-dv-theme="light"]{--color-bg:var(--color-neutral-100);--color-surface:var(--color-neutral-200);--dv-card:color-mix(in srgb, var(--color-neutral-100) 45%, white);--dv-on-bg:var(--color-accent-2-100);--dv-on-text:var(--color-accent-2-800);--dv-hi-bg:var(--color-accent-100);--dv-hi-text:var(--color-accent-700);color:var(--color-text);}
+[data-dv-theme="dark"]{--dv-card:var(--color-neutral-100);--dv-on-bg:var(--color-accent-2-200);--dv-on-text:var(--color-accent-2-900);--dv-hi-bg:var(--color-accent-200);--dv-hi-text:var(--color-accent-800);}
+</style>
+</helmet>
+<div style="padding:48px;display:flex;flex-direction:column;gap:64px;font-family:var(--font-body);color:var(--color-text);">
+
+  <div style="display:flex;flex-direction:column;gap:8px;max-width:900px;">
+    <div style="font-size:34px;font-weight:700;letter-spacing:-0.01em;">DocView 2a — component spec</div>
+    <div style="font-size:15px;color:var(--color-neutral-800);">Answers the implementation questions. Every board is shown in light and dark. Exact rules are in README.md. Sections: <a href="#s1">1 Title bar</a> · <a href="#s2">2 Responsive toolbar</a> · <a href="#s3">3 Empty state</a> · <a href="#s4">4 Search</a> · <a href="#s5">5 Bars</a> · <a href="#s6">6 Toast &amp; tooltip</a> · <a href="#s7">7 Menus</a> · <a href="#s8">8 Settings</a> · <a href="#s9">9 Compare</a> · <a href="#s10">10 Panels</a> · <a href="#s11">11 Splitter &amp; scrollbars</a> · <a href="#s12">12 Syntax</a> · <a href="#s13">13 Language dots</a> · <a href="#s14">14 Small states</a></div>
+  </div>
+
+  <section id="s1" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">1 · Title bar &amp; tabs</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">Tabs always show, even when there is only one. Empty title-bar space is the drag area; double-click maximises or restores. Tabs shrink to 112px, then the strip scrolls with a fade and an "all tabs" menu appears. Close turns terracotta on hover.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:1000px;display:flex;flex-direction:column;gap:16px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+          <sc-for list="{{ titlebars }}" as="tb" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="font-size:12.5px;color:var(--color-neutral-700);">{{ tb.label }}</div>
+              <div style="display:flex;align-items:center;gap:6px;height:40px;padding:0 4px;border-radius:12px;background:var(--color-bg);box-shadow:inset 0 0 0 1px var(--color-divider);">
+                <div style="width:28px;height:28px;border-radius:50%;background:var(--color-accent);color:var(--color-bg);display:grid;place-items:center;font-weight:700;font-size:15px;margin:0 6px 0 4px;flex-shrink:0;">D</div>
+                <div style="flex:{{ tb.stripFlex }};min-width:0;display:flex;gap:4px;overflow:hidden;-webkit-mask-image:{{ tb.mask }};mask-image:{{ tb.mask }};">
+                  <sc-for list="{{ tb.tabs }}" as="it" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;justify-content:center;gap:6px;flex:{{ it.flex }};min-width:{{ it.minw }};max-width:{{ it.maxw }};width:{{ it.wd }};height:{{ it.h }};padding:{{ it.pad }};box-sizing:border-box;border-radius:999px;background:{{ it.bg }};color:{{ it.color }};border:{{ it.border }};box-shadow:{{ it.shadow }};font-size:{{ it.fs }};font-weight:{{ it.w }};white-space:nowrap;overflow:hidden;">
+                      <span style="width:7px;height:7px;border-radius:50%;background:{{ it.dot }};flex-shrink:0;"></span>
+                      <span style="overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;">{{ it.label }}</span>
+                      <span style="width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-600);flex-shrink:0;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18 M6 6l12 12"></path></svg></span>
+                    </div>
+                  </sc-for>
+                </div>
+                <sc-for list="{{ tb.tools }}" as="it" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;justify-content:center;gap:6px;flex:{{ it.flex }};width:{{ it.wd }};height:{{ it.h }};padding:{{ it.pad }};box-sizing:border-box;border-radius:999px;background:{{ it.bg }};color:{{ it.color }};border:{{ it.border }};font-size:{{ it.fs }};font-weight:{{ it.w }};white-space:nowrap;overflow:hidden;">
+                    <sc-if value="{{ it.hasIcon }}" hint-placeholder-val="{{ true }}"><svg width="{{ it.is }}" height="{{ it.is }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="{{ it.d }}"></path></svg></sc-if>
+                    <sc-if value="{{ it.hasLabel }}" hint-placeholder-val="{{ false }}"><span>{{ it.label }}</span></sc-if>
+                    <sc-if value="{{ it.caret }}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></sc-if>
+                  </div>
+                </sc-for>
+                <div style="display:flex;gap:2px;flex-shrink:0;">
+                  <sc-for list="{{ tb.ctrls }}" as="c" hint-placeholder-count="3">
+                    <div style="width:40px;height:32px;border-radius:999px;display:grid;place-items:center;background:{{ c.bg }};color:{{ c.color }};"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="{{ c.d }}"></path></svg></div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s2" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">2 · Responsive toolbar</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">Collapse order as the window narrows: line count → Copy/Open labels and "recognized" → History, Compare, Editor, Save, Convert into "…" → Copy into "…" → Format/Wrap/Line no. into "View ▾" → Open and the Paste label. The language pill, the panel toggle, Paste and Settings never leave the bar. Hidden actions keep their shortcuts.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:1300px;display:flex;flex-direction:column;gap:16px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+          <sc-for list="{{ toolbars }}" as="bp" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="font-size:12.5px;color:var(--color-neutral-700);">{{ bp.label }}</div>
+              <div style="width:{{ bp.width }};display:flex;align-items:center;gap:6px;padding:6px;box-sizing:border-box;border-radius:999px;background:var(--color-surface);overflow:hidden;">
+                <sc-for list="{{ bp.items }}" as="it" hint-placeholder-count="10">
+                  <div style="display:flex;align-items:center;justify-content:center;gap:6px;flex:{{ it.flex }};width:{{ it.wd }};height:{{ it.h }};padding:{{ it.pad }};box-sizing:border-box;border-radius:999px;background:{{ it.bg }};color:{{ it.color }};border:{{ it.border }};box-shadow:{{ it.shadow }};font-size:{{ it.fs }};font-weight:{{ it.w }};white-space:nowrap;overflow:hidden;">
+                    <sc-if value="{{ it.hasIcon }}" hint-placeholder-val="{{ true }}"><svg width="{{ it.is }}" height="{{ it.is }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="{{ it.d }}"></path></svg></sc-if>
+                    <sc-if value="{{ it.hasLabel }}" hint-placeholder-val="{{ false }}"><span>{{ it.label }}</span></sc-if>
+                    <sc-if value="{{ it.caret }}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s3" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">3 · Empty state</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">Shown in the code card when a tab has no content. The panel is hidden. Dropping a file anywhere on the window turns the zone sage.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:760px;display:flex;flex-direction:column;gap:14px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+          <div style="height:380px;padding:14px;box-sizing:border-box;background:var(--dv-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div style="display:flex;flex-direction:column;justify-content:center;gap:14px;padding:28px;border-radius:22px;border:2px dashed var(--color-neutral-400);">
+              <div style="font-size:24px;font-weight:700;letter-spacing:-0.01em;">Paste or open something</div>
+              <div style="font-size:14px;color:var(--color-neutral-700);">DocView detects the language, formats it and highlights it.</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn btn-primary">Paste<span style="font-size:11.5px;opacity:.8;">Ctrl+V</span></button>
+                <button class="btn btn-secondary">Open file…</button>
+              </div>
+              <div style="font-size:12.5px;color:var(--color-neutral-600);">Win+Alt+V shows the clipboard from anywhere</div>
+            </div>
+            <div style="display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:12px;padding:28px;border-radius:22px;border:2px dashed var(--color-accent-2-500);background:var(--color-accent-2-100);color:var(--color-accent-2-800);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4 M7 10l5 5 5-5 M12 15V3"></path></svg>
+              <div style="font-size:20px;font-weight:700;">Drop to open</div>
+              <div style="font-size:13px;">Drag-over state</div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s4" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">4 · Search (Ctrl+F)</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">A floating pill at the top-right of the code card (12px inset, --shadow-md). All matches get a sage fill; the current match gets a stronger terracotta fill. The scrollbar track shows match ticks.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:760px;display:flex;flex-direction:column;gap:14px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+          <div style="position:relative;height:250px;padding:14px 10px;box-sizing:border-box;background:var(--dv-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13.5px;line-height:22px;">
+            <sc-for list="{{ searchCode }}" as="l" hint-placeholder-count="9">
+              <div style="display:flex;"><span style="width:36px;text-align:right;padding-right:16px;color:var(--color-neutral-500);flex-shrink:0;">{{ l.n }}</span><span style="white-space:pre;"><sc-for list="{{ l.tokens }}" as="t" hint-placeholder-count="3"><span style="color:{{ t.c }};font-weight:{{ t.w }};font-style:{{ t.i }};background:{{ t.bg }};border-radius:4px;box-shadow:{{ t.o }};">{{ t.t }}</span></sc-for></span></div>
+            </sc-for>
+            <div style="position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:4px;padding:5px;border-radius:999px;background:var(--dv-card);box-shadow:var(--shadow-md);font-family:var(--font-body);">
+              <div style="display:flex;align-items:center;gap:8px;width:170px;height:32px;padding:0 12px;box-sizing:border-box;border-radius:999px;background:var(--color-neutral-200);font-size:13px;box-shadow:inset 0 0 0 2px var(--color-accent);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-neutral-600);"><path d="M11 3a8 8 0 1 0 0 16a8 8 0 1 0 0-16 M21 21l-4.3-4.3"></path></svg>Adil</div>
+              <span style="font-size:12.5px;color:var(--color-neutral-700);padding:0 6px;white-space:nowrap;">2 of 5</span>
+              <span title="Match case" style="height:30px;padding:0 9px;border-radius:999px;display:grid;place-items:center;font-size:12.5px;font-weight:700;background:var(--dv-on-bg);color:var(--dv-on-text);">Aa</span>
+              <span title="Regex" style="height:30px;padding:0 9px;border-radius:999px;display:grid;place-items:center;font-size:12.5px;font-weight:700;color:var(--color-neutral-700);font-family:'JetBrains Mono',monospace;">.*</span>
+              <span style="width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg></span>
+              <span style="width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></span>
+              <span style="width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18 M6 6l12 12"></path></svg></span>
+            </div>
+            <div style="position:absolute;top:60px;right:4px;bottom:8px;width:8px;">
+              <sc-for list="{{ ticks }}" as="tk" hint-placeholder-count="5"><div style="position:absolute;left:0;right:0;top:{{ tk.top }};height:3px;border-radius:2px;background:{{ tk.c }};"></div></sc-for>
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;font-size:12.5px;color:var(--color-neutral-700);">
+            <span style="display:flex;align-items:center;gap:6px;"><span style="width:28px;height:14px;border-radius:4px;background:var(--color-accent-2-200);"></span>Match: --color-accent-2-200</span>
+            <span style="display:flex;align-items:center;gap:6px;"><span style="width:28px;height:14px;border-radius:4px;background:var(--color-accent-300);box-shadow:0 0 0 1.5px var(--color-accent);"></span>Current: --color-accent-300 + 1.5px --color-accent ring</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s5" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">5 · Notice bars &amp; update bar</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">Notice bars sit inside the top of the code card (margin 10px 10px 0) and push the code down. There are three tones: info (sage), warning/error (terracotta) and update (neutral, full width below the toolbar). There is one bar at a time per tab; the newest replaces the old one.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:760px;display:flex;flex-direction:column;gap:10px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+          <sc-for list="{{ bars }}" as="b" hint-placeholder-count="7">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="font-size:12px;color:var(--color-neutral-600);">{{ b.name }}</div>
+              <div style="display:flex;align-items:center;gap:10px;min-height:40px;padding:5px 5px 5px 14px;box-sizing:border-box;border-radius:999px;background:{{ b.bg }};color:{{ b.color }};font-size:13.5px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="{{ b.d }}"></path></svg>
+                <span style="flex:1;min-width:0;"><b style="font-weight:700;">{{ b.title }}</b> {{ b.text }}</span>
+                <sc-for list="{{ b.actions }}" as="a" hint-placeholder-count="1">
+                  <span style="display:flex;align-items:center;gap:6px;height:30px;padding:0 13px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap;background:{{ a.bg }};color:{{ a.color }};">{{ a.label }}<sc-if value="{{ a.hasKey }}" hint-placeholder-val="{{ false }}"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:1px 6px;border-radius:999px;background:var(--dv-card);color:var(--color-text);">{{ a.key }}</span></sc-if></span>
+                </sc-for>
+                <span style="width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18 M6 6l12 12"></path></svg></span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s6" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">6 · Toast &amp; tooltip</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">Both are inverse-coloured (text colour as background). The toast sits bottom-centre, 20px above the edge, for 2.2s with a 160ms fade/slide. The tooltip appears after 500ms, 8px from its target, with the current shortcut in a key chip.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:560px;display:flex;flex-direction:column;gap:18px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+          <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:10px;height:42px;padding:0 18px 0 14px;border-radius:999px;background:var(--color-text);color:var(--color-bg);box-shadow:var(--shadow-lg);font-size:14px;font-weight:600;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-accent-2-400);"><path d="M20 6 9 17l-5-5"></path></svg>Copied to clipboard
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+              <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 6px 0 12px;border-radius:999px;background:var(--color-text);color:var(--color-bg);font-size:12.5px;font-weight:600;box-shadow:var(--shadow-md);">Toggle formatting<span style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 8px;border-radius:999px;background:color-mix(in srgb, var(--color-bg) 20%, transparent);">F</span></div>
+              <span style="display:flex;align-items:center;gap:6px;height:32px;padding:0 13px;border-radius:999px;font-size:13px;font-weight:600;background:var(--dv-on-bg);color:var(--dv-on-text);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>Format</span>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s7" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">7 · Menus</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">One popover style: --dv-card, 20px radius, --shadow-lg, 6px padding, 34px pill rows. Hover uses --color-neutral-200; the selected or current row uses --dv-hi-bg. Menus open 6px below their trigger with a 120ms fade + 4px slide.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:1180px;display:flex;flex-direction:column;gap:14px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+          <div style="display:flex;gap:20px;align-items:flex-start;">
+            <sc-for list="{{ menus }}" as="mn" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:8px;width:{{ mn.width }};">
+                <div style="font-size:12.5px;color:var(--color-neutral-700);">{{ mn.name }}</div>
+                <div style="display:flex;flex-direction:column;gap:2px;padding:6px;border-radius:20px;background:var(--dv-card);box-shadow:var(--shadow-lg);">
+                  <sc-if value="{{ mn.search }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;align-items:center;gap:8px;height:34px;padding:0 12px;margin-bottom:4px;border-radius:999px;background:var(--color-neutral-200);font-size:13px;color:var(--color-neutral-600);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3a8 8 0 1 0 0 16a8 8 0 1 0 0-16 M21 21l-4.3-4.3"></path></svg>{{ mn.search }}</div>
+                  </sc-if>
+                  <sc-for list="{{ mn.rows }}" as="r" hint-placeholder-count="5">
+                    <div style="display:flex;align-items:center;gap:10px;min-height:34px;padding:{{ r.pad }};box-sizing:border-box;border-radius:{{ r.radius }};background:{{ r.bg }};color:{{ r.color }};opacity:{{ r.op }};font-size:13.5px;">
+                      <sc-if value="{{ r.hasDot }}" hint-placeholder-val="{{ false }}"><span style="width:8px;height:8px;border-radius:50%;background:{{ r.dot }};flex-shrink:0;"></span></sc-if>
+                      <div style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;">
+                        <span style="font-weight:{{ r.w }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.label }}</span>
+                        <sc-if value="{{ r.hasSub }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--color-neutral-600);">{{ r.sub }}</span></sc-if>
+                      </div>
+                      <sc-if value="{{ r.check }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>
+                      <sc-if value="{{ r.hasKey }}" hint-placeholder-val="{{ false }}"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--color-neutral-200);color:var(--color-neutral-800);white-space:nowrap;">{{ r.key }}</span></sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s8" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">8 · Settings (Shortcuts page with key recorder)</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">The modal is 860×600 over a 45% backdrop. Click a key chip to record: the row gets a ring and "Press keys…". Esc cancels and Backspace removes. A conflict shows inline before saving. Changed rows get a reset icon.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:940px;height:680px;position:relative;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;">
+          <div style="position:absolute;inset:0;background:color-mix(in srgb, var(--dv-ink) 45%, transparent);"></div>
+          <div style="position:absolute;left:40px;top:40px;width:860px;height:600px;display:grid;grid-template-columns:210px minmax(0,1fr);background:var(--color-bg);border-radius:32px;box-shadow:var(--shadow-lg);overflow:hidden;">
+            <div style="display:flex;flex-direction:column;gap:4px;padding:24px 12px;background:var(--color-surface);">
+              <div style="font-size:20px;font-weight:700;padding:0 14px 14px;">Settings</div>
+              <sc-for list="{{ settingsNav }}" as="s" hint-placeholder-count="5">
+                <div style="height:36px;display:flex;align-items:center;padding:0 16px;border-radius:999px;font-size:14px;font-weight:{{ s.w }};background:{{ s.bg }};color:{{ s.color }};">{{ s.label }}</div>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px;padding:26px 26px 22px;min-height:0;">
+              <div style="display:flex;align-items:flex-start;gap:12px;">
+                <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+                  <div style="font-size:20px;font-weight:700;">Shortcuts</div>
+                  <div style="font-size:13.5px;color:var(--color-neutral-700);">Click a shortcut to record new keys.</div>
+                </div>
+                <span style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18 M6 6l12 12"></path></svg></span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <sc-for list="{{ shortcuts }}" as="k" hint-placeholder-count="8">
+                  <div style="display:flex;flex-direction:column;gap:4px;padding:7px 8px 7px 16px;border-radius:22px;background:{{ k.bg }};box-shadow:{{ k.ring }};">
+                    <div style="display:flex;align-items:center;gap:10px;min-height:28px;">
+                      <span style="font-size:14px;flex:1;">{{ k.label }}</span>
+                      <sc-if value="{{ k.recording }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;font-weight:600;color:var(--color-accent-700);">Press keys… <span style="font-weight:400;color:var(--color-neutral-700);">Esc cancels · Backspace removes</span></span></sc-if>
+                      <div style="display:flex;gap:4px;">
+                        <sc-for list="{{ k.keys }}" as="key" hint-placeholder-count="2"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;padding:4px 10px;border-radius:999px;background:{{ k.kbg }};box-shadow:var(--shadow-sm);">{{ key }}</span></sc-for>
+                      </div>
+                      <span style="width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-700);opacity:{{ k.resetOp }};" title="Reset to default"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5 M4 9h10.5a5.5 5.5 0 0 1 0 11H11"></path></svg></span>
+                    </div>
+                    <sc-if value="{{ k.conflict }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:var(--color-accent-800);padding-bottom:2px;">Ctrl+B is already used by "Toggle side panel". Press again to replace it.</div></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:auto;">
+                <button class="btn btn-secondary">Reset all to defaults</button>
+                <div style="flex:1;"></div>
+                <button class="btn btn-primary">Done</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s9" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">9 · Compare</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">Compare opens a menu (left) and then replaces the code card and panel with two aligned panes. Removed lines are terracotta, added lines sage, and changed lines neutral with inline word highlights. The current change gets a 3px accent bar. F7 / Shift+F7 or the arrows move between changes.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:1280px;display:flex;gap:20px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);align-items:flex-start;">
+          <div style="display:flex;flex-direction:column;gap:8px;width:240px;flex-shrink:0;">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+            <div style="font-size:12.5px;color:var(--color-neutral-700);">Compare prompt</div>
+            <div style="display:flex;flex-direction:column;gap:2px;padding:6px;border-radius:20px;background:var(--dv-card);box-shadow:var(--shadow-lg);font-size:13.5px;">
+              <div style="padding:8px 12px 6px;font-size:12px;font-weight:700;color:var(--color-neutral-600);">Compare people.json with…</div>
+              <div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;border-radius:999px;background:var(--dv-hi-bg);color:var(--dv-hi-text);font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path></svg>Clipboard</div>
+              <div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;border-radius:999px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-accent-2-500);margin:0 3px;"></span>users.csv</div>
+              <div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;border-radius:999px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-neutral-500);margin:0 3px;"></span>github.com/lizzard85…</div>
+              <div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;border-radius:999px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z M14 2v4a2 2 0 0 0 2 2h4"></path></svg>File…</div>
+            </div>
+          </div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:6px;padding:6px;border-radius:999px;background:var(--color-surface);">
+              <span style="display:flex;align-items:center;gap:8px;height:34px;padding:0 16px;border-radius:999px;background:var(--dv-card);box-shadow:var(--shadow-sm);font-weight:700;font-size:14px;">people.json <span style="color:var(--color-neutral-600);font-weight:500;">↔</span> Clipboard</span>
+              <span style="font-size:13px;color:var(--color-neutral-700);padding:0 8px;">Change 1 of 3</span>
+              <span style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg></span>
+              <span style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--color-neutral-800);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></span>
+              <div style="flex:1;"></div>
+              <span style="display:flex;align-items:center;height:32px;padding:0 13px;border-radius:999px;font-size:13px;border:1px solid var(--color-divider);color:var(--color-neutral-800);">Swap sides</span>
+              <span style="display:flex;align-items:center;gap:6px;height:32px;padding:0 13px;border-radius:999px;font-size:13px;font-weight:600;background:var(--dv-on-bg);color:var(--dv-on-text);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>Ignore whitespace</span>
+              <button class="btn btn-secondary">Exit compare</button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <sc-for list="{{ compare }}" as="pane" hint-placeholder-count="2">
+                <div style="display:flex;flex-direction:column;background:var(--dv-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;padding:10px 0 14px;">
+                  <div style="padding:4px 18px 8px;font-size:12.5px;font-weight:700;color:var(--color-neutral-700);">{{ pane.title }}</div>
+                  <div style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;line-height:22px;">
+                    <sc-for list="{{ pane.lines }}" as="l" hint-placeholder-count="8">
+                      <div style="display:flex;margin:0 8px;border-radius:6px;background:{{ l.bg }};box-shadow:{{ l.bar }};">
+                        <span style="width:30px;text-align:right;padding-right:6px;color:var(--color-neutral-500);flex-shrink:0;">{{ l.n }}</span>
+                        <span style="width:16px;text-align:center;color:{{ l.mc }};font-weight:700;flex-shrink:0;">{{ l.mark }}</span>
+                        <span style="white-space:pre;overflow:hidden;"><sc-for list="{{ l.segs }}" as="sg" hint-placeholder-count="2"><span style="background:{{ sg.bg }};border-radius:4px;">{{ sg.t }}</span></sc-for></span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--color-neutral-700);">
+              <span style="display:flex;align-items:center;gap:6px;"><span style="width:24px;height:12px;border-radius:4px;background:var(--color-accent-100);"></span>Removed line: accent-100 (word: accent-300)</span>
+              <span style="display:flex;align-items:center;gap:6px;"><span style="width:24px;height:12px;border-radius:4px;background:var(--color-accent-2-100);"></span>Added line: accent-2-100 (word: accent-2-300)</span>
+              <span style="display:flex;align-items:center;gap:6px;"><span style="width:24px;height:12px;border-radius:4px;background:var(--color-neutral-200);"></span>Changed line: neutral-200</span>
+              <span style="display:flex;align-items:center;gap:6px;"><span style="width:24px;height:12px;border-radius:4px;box-shadow:inset 3px 0 0 var(--color-accent);background:var(--color-neutral-200);"></span>Current change</span>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s10" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">10 · Side panels</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">Panels: Markdown preview, XML tree, JSON-tree extras ("JSON string" marker, "Show more"), and CSV with a sorted column. Panel header, filter and footer are the same as in the main mock.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:1300px;display:flex;flex-direction:column;gap:14px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+          <div style="display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:14px;">
+
+            <div style="display:flex;flex-direction:column;gap:12px;height:440px;padding:18px 20px;box-sizing:border-box;background:var(--color-surface);border-radius:var(--radius-lg);overflow:hidden;">
+              <div style="font-size:12px;font-weight:700;color:var(--color-neutral-600);">MARKDOWN PREVIEW</div>
+              <div style="display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:20px;background:var(--dv-card);font-size:13.5px;line-height:1.55;">
+                <div style="font-size:22px;font-weight:700;letter-spacing:-0.01em;line-height:1.2;">DocView</div>
+                <div>Paste or open some <b>SQL</b>, <b>JSON</b> or <a href="#s10">Markdown</a> and DocView formats it.</div>
+                <div style="font-size:16px;font-weight:700;margin-top:4px;">Install</div>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <span style="display:flex;gap:8px;align-items:center;"><span style="width:15px;height:15px;border-radius:5px;background:var(--color-accent-2-600);color:var(--color-bg);display:grid;place-items:center;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span>Windows installer</span>
+                  <span style="display:flex;gap:8px;align-items:center;"><span style="width:15px;height:15px;border-radius:5px;box-shadow:inset 0 0 0 1.5px var(--color-neutral-500);"></span>Linux AppImage</span>
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;padding:10px 12px;border-radius:12px;background:var(--color-neutral-200);"><span style="color:var(--color-accent-700);font-weight:600;">docview</span> <span style="color:var(--color-accent-2-700);">--clipboard</span></div>
+                <div style="padding-left:12px;box-shadow:inset 3px 0 0 var(--color-accent-2-400);color:var(--color-neutral-700);">Only one instance runs.</div>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:12px;height:440px;padding:18px 10px;box-sizing:border-box;background:var(--color-surface);border-radius:var(--radius-lg);overflow:hidden;">
+              <div style="font-size:12px;font-weight:700;color:var(--color-neutral-600);padding:0 10px;">XML TREE</div>
+              <div style="display:flex;flex-direction:column;gap:1px;font-size:13px;">
+                <sc-for list="{{ xmlTree }}" as="r" hint-placeholder-count="10">
+                  <div style="display:flex;align-items:center;gap:6px;height:28px;padding-left:{{ r.pad }};padding-right:10px;border-radius:999px;background:{{ r.bg }};min-width:0;white-space:nowrap;overflow:hidden;">
+                    <span style="width:12px;flex-shrink:0;color:var(--color-neutral-600);font-size:10px;text-align:center;">{{ r.caret }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;"><sc-for list="{{ r.tokens }}" as="t" hint-placeholder-count="3"><span style="color:{{ t.c }};font-weight:{{ t.w }};font-style:{{ t.i }};">{{ t.t }}</span></sc-for></span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:12px;height:440px;padding:18px 10px;box-sizing:border-box;background:var(--color-surface);border-radius:var(--radius-lg);overflow:hidden;">
+              <div style="font-size:12px;font-weight:700;color:var(--color-neutral-600);padding:0 10px;">JSON TREE — STRING MARKER, SHOW MORE</div>
+              <div style="display:flex;flex-direction:column;gap:1px;font-size:13px;">
+                <sc-for list="{{ jsonExtras }}" as="r" hint-placeholder-count="10">
+                  <div style="display:flex;align-items:center;gap:6px;height:28px;padding-left:{{ r.pad }};padding-right:10px;border-radius:999px;background:{{ r.bg }};min-width:0;white-space:nowrap;overflow:hidden;">
+                    <span style="width:12px;flex-shrink:0;color:var(--color-neutral-600);font-size:10px;text-align:center;">{{ r.caret }}</span>
+                    <sc-if value="{{ r.isMore }}" hint-placeholder-val="{{ false }}">
+                      <span style="display:flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;background:var(--color-neutral-100);color:var(--color-accent-700);font-weight:600;font-size:12.5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>Show 100 more <span style="font-weight:400;color:var(--color-neutral-600);">· 692 left</span></span>
+                    </sc-if>
+                    <sc-if value="{{ r.isNode }}" hint-placeholder-val="{{ true }}">
+                      <span style="font-weight:600;flex-shrink:0;">{{ r.key }}</span>
+                      <sc-if value="{{ r.marker }}" hint-placeholder-val="{{ false }}"><span style="font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:2px 7px;border-radius:999px;background:var(--dv-on-bg);color:var(--dv-on-text);flex-shrink:0;">JSON STRING</span></sc-if>
+                      <span style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:{{ r.vc }};overflow:hidden;text-overflow:ellipsis;">{{ r.val }}</span>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:12px;height:440px;padding:18px 10px;box-sizing:border-box;background:var(--color-surface);border-radius:var(--radius-lg);overflow:hidden;">
+              <div style="font-size:12px;font-weight:700;color:var(--color-neutral-600);padding:0 10px;">CSV — SORTED BY AGE ▲</div>
+              <div style="display:flex;flex-direction:column;gap:2px;font-size:13px;">
+                <div style="display:grid;grid-template-columns:22px 1fr 1fr 54px;gap:8px;padding:6px 6px 6px 12px;border-radius:999px;background:var(--color-neutral-300);font-weight:700;align-items:center;">
+                  <span>#</span><span>first_name</span><span>last_name</span>
+                  <span style="display:flex;align-items:center;gap:3px;padding:3px 8px;margin:-3px 0;border-radius:999px;background:var(--dv-hi-bg);color:var(--dv-hi-text);">age<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7 M12 19V5"></path></svg></span>
+                </div>
+                <sc-for list="{{ csvSorted }}" as="row" hint-placeholder-count="3">
+                  <div style="display:grid;grid-template-columns:22px 1fr 1fr 54px;gap:8px;padding:8px 6px 8px 12px;border-radius:999px;">
+                    <span style="color:var(--color-neutral-600);">{{ row.n }}</span><span>{{ row.f }}</span><span>{{ row.l }}</span><span style="padding-left:8px;font-weight:600;">{{ row.a }}</span>
+                  </div>
+                </sc-for>
+                <div style="font-size:12px;color:var(--color-neutral-600);padding:10px 12px;">Click a header: ascending → descending → original order. "#" always shows the source line.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s11" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">11 · Splitter &amp; scrollbars</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">The 12px gap between the cards is the splitter. On hover a 4×36 grip pill appears (col-resize cursor). Minimum widths: code 320px, panel 260px. Width is remembered per panel type, and double-click resets it. Scrollbars are overlay pills inset 3px: 6px wide at rest, 10px on hover.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:900px;display:flex;flex-direction:column;gap:14px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 12px 300px;height:260px;">
+            <div style="position:relative;background:var(--dv-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;">
+              <div style="position:absolute;right:3px;top:14px;width:10px;height:70px;border-radius:999px;background:var(--color-neutral-500);"></div>
+              <div style="position:absolute;right:20px;top:18px;font-size:11.5px;color:var(--color-neutral-600);">hover: 10px, --color-neutral-500</div>
+              <div style="position:absolute;left:20px;bottom:3px;width:180px;height:6px;border-radius:999px;background:var(--color-neutral-400);"></div>
+              <div style="position:absolute;left:210px;bottom:0;font-size:11.5px;color:var(--color-neutral-600);">rest: 6px, --color-neutral-400</div>
+            </div>
+            <div style="display:grid;place-items:center;"><div style="width:4px;height:36px;border-radius:999px;background:var(--color-accent);"></div></div>
+            <div style="background:var(--color-surface);border-radius:var(--radius-lg);display:grid;place-items:center;font-size:12.5px;color:var(--color-neutral-600);">panel · min 260px</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s12" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">12 · Syntax colours (highlight.js classes)</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">Every hljs scope maps to a ramp variable. Because dark mode flips the ramps, one stylesheet covers both themes. The full class table is in the README.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:1300px;display:flex;flex-direction:column;gap:14px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <sc-for list="{{ hlLegend }}" as="h" hint-placeholder-count="12">
+              <span style="display:flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:var(--dv-card);font-size:12px;"><span style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:{{ h.c }};font-weight:{{ h.w }};font-style:{{ h.i }};background:{{ h.bg }};padding:0 3px;border-radius:4px;">{{ h.sample }}</span><span style="color:var(--color-neutral-700);">{{ h.cls }}</span></span>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:12px;">
+            <sc-for list="{{ samples }}" as="s" hint-placeholder-count="6">
+              <div style="display:flex;flex-direction:column;gap:6px;padding:12px 6px 14px;background:var(--dv-card);border-radius:22px;box-shadow:var(--shadow-sm);">
+                <div style="display:flex;align-items:center;gap:8px;padding:0 12px 4px;font-size:12.5px;font-weight:700;"><span style="width:8px;height:8px;border-radius:50%;background:{{ s.dot }};"></span>{{ s.name }}</div>
+                <div style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;line-height:21px;overflow:hidden;">
+                  <sc-for list="{{ s.lines }}" as="l" hint-placeholder-count="6">
+                    <div style="display:flex;background:{{ l.bg }};border-radius:6px;margin:0 4px;"><span style="width:28px;text-align:right;padding-right:12px;color:var(--color-neutral-500);flex-shrink:0;">{{ l.n }}</span><span style="white-space:pre;"><sc-for list="{{ l.tokens }}" as="t" hint-placeholder-count="3"><span style="color:{{ t.c }};font-weight:{{ t.w }};font-style:{{ t.i }};">{{ t.t }}</span></sc-for></span></div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s13" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">13 · Language dots</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">Used on tabs, History and the language menu. Steps are fixed per language and flip in dark mode with the ramps. Unlisted languages use neutral-500.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:760px;display:flex;flex-direction:column;gap:14px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+          <div style="display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:6px;">
+            <sc-for list="{{ langs }}" as="lg" hint-placeholder-count="20">
+              <div style="display:flex;flex-direction:column;gap:2px;padding:8px 12px;border-radius:16px;background:var(--dv-card);">
+                <span style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;"><span style="width:9px;height:9px;border-radius:50%;background:{{ lg.c }};flex-shrink:0;"></span>{{ lg.name }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--color-neutral-600);padding-left:17px;">{{ lg.v }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="s14" style="display:flex;flex-direction:column;gap:16px;">
+    <div style="font-size:22px;font-weight:700;">14 · Small states</div>
+    <div style="font-size:14px;color:var(--color-neutral-800);max-width:900px;">Covers how the language was detected, the panel toggle open/closed, the disabled Format toggle, which languages get Convert, and how the font-size setting scales the code.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <sc-for list="{{ themes }}" as="th" hint-placeholder-count="2">
+        <div data-dv-theme="{{ th.id }}" style="width:900px;display:flex;flex-direction:column;gap:18px;padding:22px;box-sizing:border-box;background:var(--color-bg);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--color-neutral-600);">{{ th.label }}</div>
+          <sc-for list="{{ smallRows }}" as="sr" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="font-size:12.5px;color:var(--color-neutral-700);">{{ sr.label }}</div>
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px;border-radius:999px;background:var(--color-surface);width:fit-content;">
+                <sc-for list="{{ sr.items }}" as="it" hint-placeholder-count="4">
+                  <div title="{{ it.tip }}" style="display:flex;align-items:center;justify-content:center;gap:6px;flex:{{ it.flex }};width:{{ it.wd }};height:{{ it.h }};padding:{{ it.pad }};box-sizing:border-box;border-radius:999px;background:{{ it.bg }};color:{{ it.color }};border:{{ it.border }};box-shadow:{{ it.shadow }};font-size:{{ it.fs }};font-weight:{{ it.w }};white-space:nowrap;opacity:{{ it.op }};">
+                    <sc-if value="{{ it.hasIcon }}" hint-placeholder-val="{{ true }}"><svg width="{{ it.is }}" height="{{ it.is }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="{{ it.d }}"></path></svg></sc-if>
+                    <sc-if value="{{ it.hasLabel }}" hint-placeholder-val="{{ false }}"><span>{{ it.label }}</span></sc-if>
+                    <sc-if value="{{ it.caret }}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="font-size:12.5px;color:var(--color-neutral-700);">Font size setting (Ctrl + / Ctrl − / Ctrl 0). Line height = round(size × 1.63). The gutter is (digits + 1)ch. UI text does not scale; tree and table rows follow the code size minus 0.5px.</div>
+            <div style="display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:10px;">
+              <sc-for list="{{ fontScale }}" as="fsz" hint-placeholder-count="4">
+                <div style="display:flex;flex-direction:column;gap:6px;padding:12px 8px;background:var(--dv-card);border-radius:20px;box-shadow:var(--shadow-sm);overflow:hidden;">
+                  <div style="font-size:12px;font-weight:700;padding:0 8px;">{{ fsz.label }}</div>
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:{{ fsz.size }};line-height:{{ fsz.lh }};">
+                    <sc-for list="{{ fsz.lines }}" as="l" hint-placeholder-count="3"><div style="display:flex;white-space:pre;"><span style="width:3ch;text-align:right;padding-right:1ch;color:var(--color-neutral-500);">{{ l.n }}</span><sc-for list="{{ l.tokens }}" as="t" hint-placeholder-count="3"><span style="color:{{ t.c }};font-weight:{{ t.w }};">{{ t.t }}</span></sc-for></div></sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    if (this._v) return this._v;
+    const I = {
+      search:'M11 3a8 8 0 1 0 0 16a8 8 0 1 0 0-16 M21 21l-4.3-4.3', check:'M20 6 9 17l-5-5', x:'M18 6 6 18 M6 6l12 12', plus:'M5 12h14 M12 5v14', minus:'M5 12h14',
+      history:'M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8 M3 3v5h5 M12 7v5l4 2',
+      compare:'M18 15a3 3 0 1 0 0 6a3 3 0 1 0 0-6 M6 3a3 3 0 1 0 0 6a3 3 0 1 0 0-6 M13 6h3a2 2 0 0 1 2 2v7 M11 18H8a2 2 0 0 1-2-2V9',
+      editor:'M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7 M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z',
+      save:'M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7 M7 3v4a1 1 0 0 0 1 1h7',
+      folder:'m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2',
+      clip:'M9 2h6a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2',
+      copy:'M10 8h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2',
+      panel:'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z M15 3v18',
+      sliders:'M20 7h-9 M14 17H5 M17 14a3 3 0 1 0 0 6a3 3 0 1 0 0-6 M7 4a3 3 0 1 0 0 6a3 3 0 1 0 0-6',
+      more:'M12 11a1 1 0 1 0 0 2a1 1 0 1 0 0-2 M19 11a1 1 0 1 0 0 2a1 1 0 1 0 0-2 M5 11a1 1 0 1 0 0 2a1 1 0 1 0 0-2',
+      square:'M8 5h8a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3z',
+      file:'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z M14 2v4a2 2 0 0 0 2 2h4',
+      help:'M12 2a10 10 0 1 0 0 20a10 10 0 1 0 0-20 M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3 M12 17h.01',
+      info:'M12 2a10 10 0 1 0 0 20a10 10 0 1 0 0-20 M12 16v-4 M12 8h.01',
+      alert:'M12 2a10 10 0 1 0 0 20a10 10 0 1 0 0-20 M12 8v4 M12 16h.01',
+      undo:'M9 14 4 9l5-5 M4 9h10.5a5.5 5.5 0 0 1 0 11H11',
+      download:'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4 M7 10l5 5 5-5 M12 15V3',
+      eye:'M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0 M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6',
+      chev:'m6 9 6 6 6-6'
+    };
+    const V = {
+      solid:{bg:'var(--color-accent)',color:'var(--color-bg)',border:'none',w:600},
+      on:{bg:'var(--dv-on-bg)',color:'var(--dv-on-text)',border:'none',w:600},
+      off:{bg:'transparent',color:'var(--color-neutral-800)',border:'1px solid var(--color-divider)',w:500},
+      hi:{bg:'var(--dv-hi-bg)',color:'var(--dv-hi-text)',border:'none',w:600},
+      card:{bg:'var(--dv-card)',color:'var(--color-text)',border:'none',w:700,shadow:'var(--shadow-sm)'},
+      ghost:{bg:'transparent',color:'var(--color-neutral-800)',border:'none',w:500},
+      sec:{bg:'transparent',color:'var(--color-text)',border:'1px solid var(--color-divider)',w:500},
+      text:{bg:'transparent',color:'var(--color-neutral-700)',border:'none',w:500},
+      recog:{bg:'transparent',color:'var(--color-accent-2-700)',border:'none',w:500},
+      file:{bg:'transparent',color:'var(--color-neutral-700)',border:'none',w:500},
+      guess:{bg:'transparent',color:'var(--color-accent-700)',border:'none',w:500},
+      drag:{bg:'var(--color-accent-2-100)',color:'var(--color-accent-2-800)',border:'1.5px dashed var(--color-accent-2-500)',w:600},
+      dragq:{bg:'transparent',color:'var(--color-neutral-600)',border:'1.5px dashed var(--color-neutral-400)',w:500},
+      tabOn:{bg:'var(--dv-card)',color:'var(--color-text)',border:'none',w:600,shadow:'var(--shadow-sm)'},
+      tabOff:{bg:'transparent',color:'var(--color-neutral-700)',border:'none',w:500}
+    };
+    const chip = o => { const v = V[o.v || 'ghost']; const round = o.round ?? (!!o.icon && !o.label && !o.caret); const h = o.h || (round ? 34 : 32);
+      return { label:o.label || '', hasLabel:!!o.label, d:I[o.icon] || '', hasIcon:!!o.icon, is:(o.is || 15) + 'px', caret:!!o.caret, dot:o.dot || '',
+        bg:v.bg, color:v.color, border:v.border, shadow:v.shadow || 'none', w:v.w, fs:(o.fs || 13) + 'px', h:h + 'px', wd:round ? h + 'px' : (o.wd || 'auto'),
+        pad:round ? '0' : (o.pad || '0 13px'), flex:o.flex || '0 0 auto', minw:o.minw || '0', maxw:o.maxw || 'none', op:o.op ?? 1, tip:o.tip || '' }; };
+    const sp = () => chip({flex:'1 1 0', pad:'0', h:2});
+
+    const lang = l => chip({v:'card', label:l, caret:true, h:34, fs:14, pad:'0 12px 0 16px'});
+    const recog = (full = true) => chip({v:'recog', icon:'check', is:13, label:full ? 'recognized' : '', round:false, fs:12.5, pad:'0 6px 0 2px', h:28, tip:'Recognized from content'});
+    const tog = (l, on) => on ? chip({v:'on', icon:'check', is:13, label:l}) : chip({v:'off', label:l});
+    const ic = (i, tip) => chip({icon:i, tip});
+    const full = [lang('JSON'), recog(), tog('Format', 1), tog('Wrap', 0), tog('Line no.', 1), chip({v:'hi', icon:'panel', is:14, label:'Tree'}), chip({label:'Convert', caret:true, pad:'0 10px'}), sp(), chip({v:'text', label:'5,546 lines', fs:12.5, pad:'0 4px'}), ic('history'), ic('compare'), ic('editor'), ic('save'), chip({v:'sec', icon:'copy', label:'Copy', caret:true, h:34, fs:14}), chip({v:'sec', label:'Open…', h:34, fs:14}), chip({v:'solid', icon:'clip', label:'Paste', h:34, fs:14}), ic('sliders')];
+    const w960 = [lang('JSON'), recog(false), tog('Format', 1), tog('Wrap', 0), tog('Line no.', 1), chip({v:'hi', icon:'panel', is:14, label:'Tree'}), chip({label:'Convert', caret:true, pad:'0 10px'}), sp(), ic('history'), ic('compare'), ic('editor'), ic('save'), chip({v:'sec', icon:'copy', caret:true, h:34, pad:'0 10px'}), chip({v:'sec', icon:'folder', round:true}), chip({v:'solid', icon:'clip', label:'Paste', h:34, fs:14}), ic('sliders')];
+    const w720 = [lang('JSON'), recog(false), tog('Format', 1), tog('Wrap', 0), tog('Line no.', 1), chip({v:'hi', icon:'panel', is:14, label:'Tree'}), sp(), ic('more'), chip({v:'sec', icon:'folder', round:true}), chip({v:'solid', icon:'clip', label:'Paste', h:34, fs:14}), ic('sliders')];
+    const w480 = [lang('JSON'), chip({label:'View', caret:true, pad:'0 10px'}), chip({v:'hi', icon:'panel', is:14, round:true}), sp(), ic('more'), chip({v:'solid', icon:'clip', round:true}), ic('sliders')];
+    const toolbars = [
+      {label:'≥ 1100px: everything visible', width:'1256px', items:full},
+      {label:'960px: line count hidden; Copy and Open become icons; "recognized" becomes the ✓ icon (tooltips keep the labels)', width:'960px', items:w960},
+      {label:'720px: History, Compare, Editor, Save, Convert (below 820px) and Copy (below 720px) move into "…"', width:'720px', items:w720},
+      {label:'480px (minimum): toggles go into "View ▾"; Copy and Open go into "…"; Paste is icon-only', width:'480px', items:w480}
+    ];
+
+    const tabNames = [['people.json','var(--color-accent-500)'],['users.csv','var(--color-accent-2-500)'],['query.sql','var(--color-accent-2-600)'],['token.jwt','var(--color-accent-900)'],['README.md','var(--color-accent-2-400)'],['invoice.xml','var(--color-accent-700)'],['config.yaml','var(--color-accent-2-700)'],['Program.cs','var(--color-accent-800)'],['main.py','var(--color-accent-2-800)'],['styles.css','var(--color-accent-2-300)'],['notes.txt','var(--color-neutral-300)'],['diff.patch','var(--color-accent-2-900)']];
+    const tab = (t, on, f) => chip({v:on ? 'tabOn' : 'tabOff', label:t[0], dot:t[1], pad:'0 4px 0 14px', maxw:'210px', minw:'112px', flex:f || '0 1 auto'});
+    const ctrl = (d, s) => ({d:I[d], bg:s === 'hover' ? 'var(--color-neutral-300)' : s === 'close' ? 'var(--color-accent-600)' : 'transparent', color:s === 'close' ? '#fff' : 'var(--color-neutral-800)'});
+    const rest = [ctrl('minus'), ctrl('square'), ctrl('x')];
+    const titlebars = [
+      {label:'One tab. The dashed area is the drag region (shown here only); double-click maximises or restores.', stripFlex:'0 1 auto', mask:'none', tabs:[tab(tabNames[0], 1)], tools:[chip({icon:'plus', h:32}), chip({v:'drag', label:'drag area · double-click = maximise', flex:'1 1 0', fs:11.5, h:28})], ctrls:rest},
+      {label:'Hover: minimise / maximise → neutral-300 pill. Close → --color-accent-600 with a white icon (shown together here).', stripFlex:'0 1 auto', mask:'none', tabs:[tab(tabNames[0], 1), tab(tabNames[1], 0)], tools:[chip({icon:'plus', h:32}), chip({v:'dragq', flex:'1 1 0', h:28})], ctrls:[ctrl('minus', 'hover'), ctrl('square'), ctrl('x', 'close')]},
+      {label:'12 tabs: tabs shrink to 112px, then the strip scrolls horizontally (wheel or drag). A 32px right-edge fade and an "all tabs" menu (count) appear. At least 48px stays draggable.', stripFlex:'1 1 0', mask:'linear-gradient(90deg,#000 calc(100% - 32px),transparent)', tabs:tabNames.map((t, i) => tab(t, i === 2, '0 0 112px')), tools:[chip({icon:'plus', h:32}), chip({label:'12', caret:true, pad:'0 10px', h:30, fs:12.5}), chip({v:'dragq', flex:'0 0 48px', h:28, pad:'0'})], ctrls:rest}
+    ];
+
+    const pal = {key:'var(--color-accent-700)', str:'var(--color-accent-2-700)', num:'var(--color-accent-600)', lit:'var(--color-accent-800)', p:'var(--color-neutral-600)', txt:'var(--color-text)'};
+    const tok = line => { const out = []; const re = /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?)|\b(true|false|null)\b|([{}\[\],])|(\s+)|([^\s"{}\[\],]+)/g; let m;
+      while ((m = re.exec(line))) {
+        if (m[1]) { out.push({t:m[1], c:m[2] ? pal.key : pal.str, w:m[2] ? 600 : 400}); if (m[2]) out.push({t:m[2], c:pal.p, w:400}); }
+        else if (m[3]) out.push({t:m[3], c:pal.num, w:400}); else if (m[4]) out.push({t:m[4], c:pal.lit, w:600});
+        else if (m[5]) out.push({t:m[5], c:pal.p, w:400}); else out.push({t:m[6] || m[7], c:pal.txt, w:400});
+      } return out.map(t => ({i:'normal', bg:'transparent', o:'none', ...t})); };
+    const searchSrc = ['  {','    "name": "Aamir Solangi",','    "language": "Sindhi"','  },','  {','    "name": "Adil Eli",','    "language": "Uyghur"','  },','    "name": "Adile Qadir",'];
+    let hitNo = 0;
+    const searchCode = searchSrc.map((l, i) => { const toks = tok(l); const res = [];
+      toks.forEach(t => { const idx = t.t.indexOf('Adil'); if (idx < 0) { res.push(t); return; } hitNo++; const cur = hitNo === 1 && i === 5;
+        res.push({...t, t:t.t.slice(0, idx)}); res.push({...t, t:'Adil', bg:cur ? 'var(--color-accent-300)' : 'var(--color-accent-2-200)', o:cur ? '0 0 0 1.5px var(--color-accent)' : 'none'}); res.push({...t, t:t.t.slice(idx + 4)}); });
+      return {n:i + 30, tokens:res}; });
+    const ticks = [12, 30, 31, 55, 78].map((p, i) => ({top:p + '%', c:i === 1 ? 'var(--color-accent)' : 'var(--color-accent-2-500)'}));
+
+    const act = (label, kind, key) => ({label, hasKey:!!key, key:key || '', bg:kind === 'solid' ? 'var(--color-accent)' : 'var(--dv-card)', color:kind === 'solid' ? 'var(--color-bg)' : 'var(--color-text)'});
+    const info = {bg:'var(--color-accent-2-100)', color:'var(--color-accent-2-900)'}, warn = {bg:'var(--color-accent-100)', color:'var(--color-accent-900)'}, neu = {bg:'var(--color-surface)', color:'var(--color-text)'};
+    const bars = [
+      {name:'Escaped JSON (info)', ...info, d:I.info, title:'Escaped JSON', text:'— the string was unescaped and formatted.', actions:[act('Show original')]},
+      {name:'SQL parameters (info)', ...info, d:I.info, title:'3 parameters inlined', text:'from sp_executesql.', actions:[act('Show original')]},
+      {name:'Decoded (info)', ...info, d:I.info, title:'Decoded JWT', text:'— expires in 2 h (18 Nov, 16:40).', actions:[act('Original', '', 'D')]},
+      {name:'Decoded, expired (warning)', ...warn, d:I.alert, title:'JWT expired', text:'3 days ago (15 Nov, 09:12).', actions:[act('Original', '', 'D')]},
+      {name:'Converted (info + undo)', ...info, d:I.check, title:'Converted', text:'JSON → YAML.', actions:[act('Undo', '', 'Ctrl+Z')]},
+      {name:'Format error (error)', ...warn, d:I.alert, title:'Could not format', text:'— unexpected "}" at line 4, col 12. Showing original.', actions:[act('Go to line')]},
+      {name:'Update (full width under the toolbar)', ...neu, d:I.download, title:'DocView 0.8.0', text:'is ready to install.', actions:[act('Later'), act('Restart now', 'solid')]}
+    ];
+
+    const row = o => ({label:o.label, sub:o.sub || '', hasSub:!!o.sub, dot:o.dot || '', hasDot:!!o.dot, key:o.key || '', hasKey:!!o.key, check:!!o.check, w:o.sel ? 600 : 500,
+      bg:o.sel ? 'var(--dv-hi-bg)' : o.hover ? 'var(--color-neutral-200)' : 'transparent', color:o.sel ? 'var(--dv-hi-text)' : o.muted ? 'var(--color-neutral-600)' : 'var(--color-text)',
+      op:o.dis ? 0.45 : 1, pad:o.sub ? '6px 12px' : '0 12px', radius:o.sub ? '16px' : '999px'});
+    const menus = [
+      {name:'Language select', width:'250px', search:'Search languages', rows:[row({label:'Auto-detect', check:true, muted:true}), row({label:'JSON', dot:'var(--color-accent-500)', sel:true, check:true}), row({label:'CSV / TSV', dot:'var(--color-accent-2-500)', hover:true}), row({label:'XML', dot:'var(--color-accent-700)'}), row({label:'YAML', dot:'var(--color-accent-2-700)'}), row({label:'SQL', dot:'var(--color-accent-2-600)'}), row({label:'Markdown', dot:'var(--color-accent-2-400)'})]},
+      {name:'History', width:'300px', search:'Search history', rows:[row({label:'people.json', sub:'JSON · now', dot:'var(--color-accent-500)', sel:true}), row({label:'SELECT c.name, COUNT(*)…', sub:'SQL · 2 min ago', dot:'var(--color-accent-2-600)', hover:true}), row({label:'eyJhbGciOiJIUzI1NiIs…', sub:'JWT · 14 min ago', dot:'var(--color-accent-900)'}), row({label:'README.md', sub:'Markdown · yesterday', dot:'var(--color-accent-2-400)'}), row({label:'Clear history…', muted:true})]},
+      {name:'Convert (JSON, YAML, XML)', width:'230px', search:'', rows:[row({label:'To JSON', dis:true, sub:'current'}), row({label:'To YAML', hover:true}), row({label:'To XML'})]},
+      {name:'Copy split ▾', width:'290px', search:'', rows:[row({label:'Copy text', key:'Ctrl+C'}), row({label:'Copy colours', sub:'Rich text for Word, Outlook, Teams', key:'Ctrl+Shift+C', hover:true})]}
+    ];
+
+    const settingsNav = ['General','Formatting','Shortcuts','History','Updates'].map(s => ({label:s, w:s === 'Shortcuts' ? 700 : 500, bg:s === 'Shortcuts' ? 'var(--dv-hi-bg)' : 'transparent', color:s === 'Shortcuts' ? 'var(--dv-hi-text)' : 'var(--color-text)'}));
+    const shortcuts = [['Show clipboard (global)',['Win','Alt','V']],['Open file',['Ctrl','O']],['Toggle formatting',['F']],['Toggle decoded / original',['D']],['Toggle side panel',['Ctrl','Shift','B'],'changed'],['Copy colours',['Ctrl','B'],'conflict'],['Find',['Ctrl','F']],['Settings',['Ctrl',',']]]
+      .map(s => ({label:s[0], keys:s[1], recording:s[2] === 'conflict', conflict:s[2] === 'conflict', bg:s[2] === 'conflict' ? 'var(--dv-hi-bg)' : 'var(--color-surface)', ring:s[2] === 'conflict' ? '0 0 0 2px var(--color-accent)' : 'none', kbg:'var(--dv-card)', resetOp:s[2] ? 1 : 0}));
+
+    const seg = (t, bg) => ({t, bg:bg || 'transparent'});
+    const L = (n, kind, segs, cur) => ({n, mark:kind === 'add' ? '+' : kind === 'del' ? '−' : '', mc:kind === 'add' ? 'var(--color-accent-2-700)' : 'var(--color-accent-700)', segs,
+      bg:kind === 'add' ? 'var(--color-accent-2-100)' : kind === 'del' ? 'var(--color-accent-100)' : kind === 'chg' ? 'var(--color-neutral-200)' : kind === 'gap' ? 'color-mix(in srgb, var(--color-neutral-300) 45%, transparent)' : 'transparent',
+      bar:cur ? 'inset 3px 0 0 var(--color-accent)' : 'none'});
+    const compare = [
+      {title:'people.json', lines:[L(1, '', [seg('{')]), L(2, '', [seg('  "name": "Adil Eli",')]), L(3, '', [seg('  "language": "Uyghur",')]), L(4, 'chg', [seg('  "id": "6VTI8X6LL0MMPJ'), seg('CC', 'var(--color-accent-300)'), seg('",')], 1), L(5, 'chg', [seg('  "version": '), seg('6.48', 'var(--color-accent-300)'), seg(',')], 1), L(6, 'del', [seg('  "bio": "Vivamus id faucibus velit."')]), L('', 'gap', [seg(' ')]), L(7, '', [seg('}')])]},
+      {title:'Clipboard', lines:[L(1, '', [seg('{')]), L(2, '', [seg('  "name": "Adil Eli",')]), L(3, '', [seg('  "language": "Uyghur",')]), L(4, 'chg', [seg('  "id": "6VTI8X6LL0MMPJ'), seg('CD', 'var(--color-accent-2-300)'), seg('",')], 1), L(5, 'chg', [seg('  "version": '), seg('6.49', 'var(--color-accent-2-300)'), seg(',')], 1), L('', 'gap', [seg(' ')]), L(6, 'add', [seg('  "tags": ["admin"]')]), L(7, '', [seg('}')])]}
+    ];
+
+    const H = {
+      kw:{c:'var(--color-accent-700)', w:600}, str:{c:'var(--color-accent-2-700)'}, num:{c:'var(--color-accent-600)'}, lit:{c:'var(--color-accent-800)', w:600},
+      bi:{c:'var(--color-accent-800)'}, fn:{c:'var(--color-text)', w:600}, attr:{c:'var(--color-accent-700)'}, tag:{c:'var(--color-accent-800)', w:600},
+      v:{c:'var(--color-accent-2-800)'}, com:{c:'var(--color-neutral-600)', i:'italic'}, meta:{c:'var(--color-neutral-700)'}, p:{c:'var(--color-neutral-600)'},
+      add:{c:'var(--color-accent-2-800)', bg:'var(--color-accent-2-100)'}, del:{c:'var(--color-accent-800)', bg:'var(--color-accent-100)'}, sec:{c:'var(--color-text)', w:700}, '':{c:'var(--color-text)'}
+    };
+    const T = (cls, t) => { const h = H[cls] || H['']; return {t, c:h.c, w:h.w || 400, i:h.i || 'normal', bg:'transparent', o:'none'}; };
+    const parse = s => { const out = []; const re = /⟦(\w+)\|([^⟧]*)⟧|([^⟦]+)/g; let m; while ((m = re.exec(s))) out.push(m[1] ? T(m[1], m[2]) : T('', m[3])); return out; };
+    const sample = (name, dot, src, lineBg) => ({name, dot, lines:src.map((s, i) => ({n:i + 1, tokens:parse(s), bg:(lineBg && lineBg[i]) ? H[lineBg[i]].bg : 'transparent'}))});
+    const samples = [
+      sample('SQL', 'var(--color-accent-2-600)', ['⟦com|-- Orders per customer⟧','⟦kw|SELECT⟧ c.name, ⟦bi|COUNT⟧(*) ⟦kw|AS⟧ orders','⟦kw|FROM⟧ dbo.Customers c','⟦kw|JOIN⟧ dbo.Orders o ⟦kw|ON⟧ o.CustomerId = c.Id','⟦kw|WHERE⟧ o.Total > ⟦num|100⟧ ⟦kw|AND⟧ o.Note ⟦kw|IS NOT⟧ ⟦lit|NULL⟧','  ⟦kw|AND⟧ o.CreatedAt >= ⟦str|\'2026-01-01\'⟧']),
+      sample('XML / HTML', 'var(--color-accent-700)', ['⟦meta|<?xml version="1.0"?>⟧','⟦com|<!-- invoice export -->⟧','⟦p|<⟧⟦tag|invoice⟧ ⟦attr|id⟧⟦p|=⟧⟦str|"4821"⟧ ⟦attr|paid⟧⟦p|=⟧⟦str|"true"⟧⟦p|>⟧','  ⟦p|<⟧⟦tag|customer⟧⟦p|>⟧Ida Holm⟦p|</⟧⟦tag|customer⟧⟦p|>⟧','  ⟦p|<⟧⟦tag|total⟧ ⟦attr|currency⟧⟦p|=⟧⟦str|"DKK"⟧⟦p|>⟧388⟦p|</⟧⟦tag|total⟧⟦p|>⟧','⟦p|</⟧⟦tag|invoice⟧⟦p|>⟧']),
+      sample('C#', 'var(--color-accent-800)', ['⟦com|// Load the order⟧','⟦kw|public async⟧ ⟦bi|Task⟧<⟦bi|Order⟧> ⟦fn|GetAsync⟧(⟦bi|int⟧ ⟦v|id⟧)','{','    ⟦kw|var⟧ order = ⟦kw|await⟧ _db.Orders.⟦fn|FindAsync⟧(id);','    ⟦kw|return⟧ order ?? ⟦kw|throw new⟧ ⟦bi|NotFound⟧(⟦str|$"Order {id}"⟧);','}']),
+      sample('Python', 'var(--color-accent-2-800)', ['⟦meta|@dataclass⟧','⟦kw|class⟧ ⟦bi|Order⟧:','    id: ⟦bi|int⟧','    total: ⟦bi|float⟧ = ⟦num|0.0⟧','    ⟦kw|def⟧ ⟦fn|is_large⟧(⟦v|self⟧) -> ⟦bi|bool⟧:','        ⟦kw|return⟧ ⟦v|self⟧.total > ⟦num|100⟧  ⟦com|# euros⟧']),
+      sample('YAML', 'var(--color-accent-2-700)', ['⟦com|# app config⟧','⟦attr|server⟧⟦p|:⟧','  ⟦attr|port⟧⟦p|:⟧ ⟦num|8080⟧','  ⟦attr|host⟧⟦p|:⟧ ⟦str|"localhost"⟧','  ⟦attr|debug⟧⟦p|:⟧ ⟦lit|true⟧','  ⟦attr|tags⟧⟦p|:⟧ ⟦p|[⟧⟦str|web⟧⟦p|,⟧ ⟦str|api⟧⟦p|]⟧']),
+      sample('Diff', 'var(--color-accent-2-900)', ['⟦meta|@@ -12,4 +12,4 @@⟧','   "name": "Adil Eli",','⟦del|-  "version": 6.48,⟧','⟦add|+  "version": 6.49,⟧','⟦del|-  "bio": "Vivamus…"⟧','⟦add|+  "tags": ["admin"]⟧'], [0, 0, 'del', 'add', 'del', 'add'])
+    ];
+    const lg = (cls, sample, label) => { const h = H[cls]; return {cls:label, sample, c:h.c, w:h.w || 400, i:h.i || 'normal', bg:h.bg || 'transparent'}; };
+    const hlLegend = [lg('kw','SELECT','keyword, selector-tag'), lg('str','"text"','string, regexp, attr value'), lg('num','42','number'), lg('lit','null','literal'), lg('bi','Task','built_in, type, title.class'), lg('fn','GetAsync','title.function, section'), lg('attr','port','attr, attribute, property'), lg('tag','invoice','name (tag)'), lg('v','self','variable, params, symbol'), lg('com','// note','comment, quote'), lg('meta','@dataclass','meta, doctag'), lg('p','{ } ,','punctuation, operator'), lg('add','+ line','addition'), lg('del','− line','deletion')];
+
+    const LANG = [['JSON','accent-500'],['CSV / TSV','accent-2-500'],['XML','accent-700'],['HTML','accent-400'],['YAML','accent-2-700'],['Markdown','accent-2-400'],['SQL','accent-2-600'],['C#','accent-800'],['Python','accent-2-800'],['JavaScript','accent-300'],['TypeScript','accent-600'],['CSS','accent-2-300'],['Shell / Bash','neutral-700'],['PowerShell','neutral-600'],['INI / TOML','neutral-500'],['Diff / Patch','accent-2-900'],['Log','neutral-400'],['JWT','accent-900'],['Base64 / URL','neutral-800'],['Plain text','neutral-300']];
+    const langs = LANG.map(l => ({name:l[0], v:'--color-' + l[1], c:'var(--color-' + l[1] + ')'}));
+
+    const xmlRow = (d, caret, src, sel) => ({pad:(8 + d * 16) + 'px', caret, tokens:parse(src), bg:sel ? 'var(--dv-hi-bg)' : 'transparent'});
+    const xmlTree = [xmlRow(0, '▾', '⟦p|<⟧⟦tag|invoice⟧ ⟦attr|id⟧⟦p|=⟧⟦str|"4821"⟧ ⟦attr|paid⟧⟦p|=⟧⟦str|"true"⟧⟦p|>⟧'), xmlRow(1, '', '⟦com|<!-- exported 18 Nov -->⟧'), xmlRow(1, '▾', '⟦p|<⟧⟦tag|customer⟧⟦p|>⟧', 1), xmlRow(2, '', '⟦str|"Ida Holm"⟧'), xmlRow(1, '▸', '⟦p|<⟧⟦tag|items⟧⟦p|>⟧ ⟦meta|2 children⟧'), xmlRow(1, '▾', '⟦p|<⟧⟦tag|total⟧ ⟦attr|currency⟧⟦p|=⟧⟦str|"DKK"⟧⟦p|>⟧'), xmlRow(2, '', '⟦num|388.00⟧'), xmlRow(1, '', '⟦p|<⟧⟦tag|paid⟧⟦p|/>⟧'), xmlRow(1, '', '⟦meta|<![CDATA[ … ]]>⟧')];
+    const jr = (d, caret, key, val, vt, extra) => ({pad:(8 + d * 16) + 'px', caret, key, val, vc:vt === 'str' ? 'var(--color-accent-2-700)' : vt === 'num' ? 'var(--color-accent-600)' : 'var(--color-neutral-600)', isNode:true, isMore:false, marker:false, bg:'transparent', ...extra});
+    const jsonExtras = [jr(0, '▾', '$', '{3 keys}'), jr(1, '▾', 'payload', '{2 keys}', 'meta', {marker:true, bg:'var(--dv-hi-bg)'}), jr(2, '', 'id:', '1', 'num'), jr(2, '', 'status:', '"ok"', 'str'), jr(1, '▸', 'meta', '"{\\"v\\":2}"', 'str', {marker:true}), jr(1, '▾', 'items', '[792 items]'), jr(2, '▸', '0', '{5 keys}'), jr(2, '▸', '1', '{5 keys}'), jr(2, '▸', '…', ''), jr(2, '▸', '99', '{5 keys}'), {pad:'40px', caret:'', isNode:false, isMore:true, bg:'transparent', key:'', val:'', vc:'', marker:false}];
+    const csvSorted = [{n:3, f:'Laura', l:'Grey', a:29}, {n:2, f:'Rachel', l:'Booker', a:34}, {n:4, f:'Craig', l:'Johnson', a:42}];
+
+    const smallRows = [
+      {label:'How the language was detected: from content · from file extension · guessed (low confidence, click to choose)', items:[lang('JSON'), recog(), chip({v:'file', icon:'file', is:13, label:'file type', round:false, fs:12.5, pad:'0 8px 0 4px', h:28}), chip({v:'guess', icon:'help', is:13, label:'guess', round:false, fs:12.5, pad:'0 8px 0 4px', h:28})]},
+      {label:'Panel toggle: open (filled) vs closed (outline). The label follows the language: Tree, Table, Preview.', items:[chip({v:'hi', icon:'panel', is:14, label:'Tree'}), chip({v:'off', icon:'panel', is:14, label:'Tree'}), chip({v:'off', icon:'panel', is:14, label:'Preview'})]},
+      {label:'Format disabled (no formatter for the language): 45% opacity, not clickable; tooltip "No formatter for Plain text"', items:[lang('Plain text'), chip({v:'on', icon:'check', is:13, label:'Format', op:0.45}), tog('Wrap', 1), tog('Line no.', 1)]},
+      {label:'Convert appears for JSON, YAML and XML; hidden for other languages', items:[lang('YAML'), chip({label:'Convert', caret:true, pad:'0 10px'}), lang('XML'), chip({label:'Convert', caret:true, pad:'0 10px'})]}
+    ];
+    const fsrc = ['{', '  "id": 4821,', '  "paid": true'];
+    const fontScale = [[11, 'Small · 11px'], [13.5, 'Default · 13.5px'], [16, 'Large · 16px'], [20, 'Largest · 20px']].map(f => ({label:f[1] + ' / ' + Math.round(f[0] * 1.63) + 'px', size:f[0] + 'px', lh:Math.round(f[0] * 1.63) + 'px', lines:fsrc.map((l, i) => ({n:i + 1, tokens:tok(l)}))}));
+
+    this._v = {themes:[{id:'light', label:'LIGHT'}, {id:'dark', label:'DARK'}], titlebars, toolbars, searchCode, ticks, bars, menus, settingsNav, shortcuts, compare, samples, hlLegend, langs, xmlTree, jsonExtras, csvSorted, smallRows, fontScale};
+    return this._v;
+  }
+}
+</script>
+</body>
+</html>

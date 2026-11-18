@@ -1,6 +1,6 @@
 // Side-by-side comparison of two texts: line diff with inline highlighting of
 // changed characters. Pure functions (no DOM).
-import { diffChars, diffLines } from "diff";
+import { diffArrays, diffChars, diffLines } from "diff";
 import { formatCode, type FormatOptions } from "./format";
 import { parseJsonLenient } from "./json";
 
@@ -58,41 +58,95 @@ export function inlineDiff(a: string, b: string): { left: Segment[]; right: Segm
   return { left, right };
 }
 
+export interface DiffOptions {
+  /** Lines that only differ in whitespace count as the same, and whitespace is not marked in changed lines. */
+  ignoreWhitespace?: boolean;
+}
+
+/** A line without any whitespace (for comparing with "Ignore whitespace"). */
+export function stripWhitespace(line: string): string {
+  return line.replace(/\s+/g, "");
+}
+
+/** One part of a line diff: lines on the left and/or right side. */
+interface Part {
+  kind: "same" | "removed" | "added";
+  left: string[];
+  right: string[];
+}
+
+function lineParts(leftText: string, rightText: string, opts: DiffOptions): Part[] {
+  const l = leftText.replace(/\r\n?/g, "\n");
+  const r = rightText.replace(/\r\n?/g, "\n");
+  if (!opts.ignoreWhitespace) {
+    return diffLines(l, r).map((p) => {
+      const lines = splitLines(p.value);
+      if (p.added) return { kind: "added", left: [], right: lines };
+      if (p.removed) return { kind: "removed", left: lines, right: [] };
+      return { kind: "same", left: lines, right: lines };
+    });
+  }
+  // Line arrays compared without whitespace; each side keeps its own text.
+  const a = splitLines(l);
+  const b = splitLines(r);
+  let i = 0;
+  let j = 0;
+  return diffArrays(a, b, { comparator: (x, y) => stripWhitespace(x) === stripWhitespace(y) }).map((p) => {
+    const n = p.count ?? p.value.length;
+    if (p.added) return { kind: "added", left: [], right: b.slice(j, (j += n)) };
+    if (p.removed) return { kind: "removed", left: a.slice(i, (i += n)), right: [] };
+    return { kind: "same", left: a.slice(i, (i += n)), right: b.slice(j, (j += n)) };
+  });
+}
+
+/** Whitespace-only changes are not marked (for "Ignore whitespace"). */
+function unmarkWhitespace(segments: Segment[]): Segment[] {
+  const out: Segment[] = [];
+  for (const s of segments) {
+    if (!s.changed) { out.push(s); continue; }
+    for (const piece of s.text.split(/(\s+)/)) {
+      if (piece) out.push({ text: piece, changed: !!piece.trim() });
+    }
+  }
+  return out;
+}
+
 /** Line diff of two texts as side-by-side rows. Removed lines followed by added lines are paired as changed lines. */
-export function diffTexts(leftText: string, rightText: string): DiffResult {
+export function diffTexts(leftText: string, rightText: string, opts: DiffOptions = {}): DiffResult {
   const rows: DiffRow[] = [];
   let l = 1;
   let r = 1;
-  const parts = diffLines(leftText.replace(/\r\n?/g, "\n"), rightText.replace(/\r\n?/g, "\n"));
+  const seg = (text: string, changed: boolean): Segment[] => [{ text, changed }];
+  const parts = lineParts(leftText, rightText, opts);
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
-    const lines = splitLines(part.value);
-    if (!part.added && !part.removed) {
-      for (const text of lines) {
-        rows.push({ kind: "same", left: { line: l++, segments: [{ text, changed: false }] }, right: { line: r++, segments: [{ text, changed: false }] } });
-      }
+    if (part.kind === "same") {
+      part.left.forEach((text, k) => {
+        rows.push({ kind: "same", left: { line: l++, segments: seg(text, false) }, right: { line: r++, segments: seg(part.right[k] ?? text, false) } });
+      });
       continue;
     }
-    if (part.removed && parts[i + 1]?.added) {
-      const added = splitLines(parts[++i].value);
-      const n = Math.max(lines.length, added.length);
+    if (part.kind === "removed" && parts[i + 1]?.kind === "added") {
+      const removed = part.left;
+      const added = parts[++i].right;
+      const n = Math.max(removed.length, added.length);
       for (let k = 0; k < n; k++) {
-        const a = lines[k], b = added[k];
+        const a = removed[k], b = added[k];
         if (a !== undefined && b !== undefined) {
           const d = inlineDiff(a, b);
-          rows.push({ kind: "changed", left: { line: l++, segments: d.left }, right: { line: r++, segments: d.right } });
+          const left = opts.ignoreWhitespace ? unmarkWhitespace(d.left) : d.left;
+          const right = opts.ignoreWhitespace ? unmarkWhitespace(d.right) : d.right;
+          rows.push({ kind: "changed", left: { line: l++, segments: left }, right: { line: r++, segments: right } });
         } else if (a !== undefined) {
-          rows.push({ kind: "removed", left: { line: l++, segments: [{ text: a, changed: true }] } });
+          rows.push({ kind: "removed", left: { line: l++, segments: seg(a, true) } });
         } else {
-          rows.push({ kind: "added", right: { line: r++, segments: [{ text: b!, changed: true }] } });
+          rows.push({ kind: "added", right: { line: r++, segments: seg(b!, true) } });
         }
       }
       continue;
     }
-    for (const text of lines) {
-      if (part.removed) rows.push({ kind: "removed", left: { line: l++, segments: [{ text, changed: true }] } });
-      else rows.push({ kind: "added", right: { line: r++, segments: [{ text, changed: true }] } });
-    }
+    for (const text of part.left) rows.push({ kind: "removed", left: { line: l++, segments: seg(text, true) } });
+    for (const text of part.right) rows.push({ kind: "added", right: { line: r++, segments: seg(text, true) } });
   }
   const changes: number[] = [];
   rows.forEach((row, i) => {
