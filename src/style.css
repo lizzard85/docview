@@ -328,7 +328,7 @@ body.has-content .empty { display: none; }
 .drop-zone h2 { margin: 0; font-size: 20px; font-weight: 700; }
 .drop-zone p { margin: 0; font-size: 14px; color: var(--color-neutral-700); max-width: 480px; }
 .drop-zone .hint { font-size: 12.5px; color: var(--color-neutral-600); }
-.drop-zone.over, body.drag-over .empty .drop-zone {
+.drop-zone.over {
   background: var(--color-accent-2-100); border-color: var(--color-accent-2-500); color: var(--color-accent-2-800);
 }
 .drop-overlay { position: absolute; inset: 0; padding: 14px; display: flex; background: var(--dv-card); z-index: 4; }

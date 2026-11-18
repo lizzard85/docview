@@ -24,7 +24,7 @@ On Linux, make the AppImage executable (`chmod +x DocView_*.AppImage`) and run i
 ### Language detection
 - Detects the language by itself (including CSV/TSV tables), even for small fragments without `<!DOCTYPE>` or `<?xml>`: a single `<td>`, an `<Order>` element or `select * from x` is enough.
 - Candidates are scored from patterns in the text and, where possible, confirmed with a real parser. Files are recognised by their extension.
-- The toolbar shows how the language was found (file type, recognised, guess) and you can always pick another one from the drop-down.
+- The toolbar shows how the language was found (file type, recognised, guess) and you can always pick another one from the language menu (type to filter the list).
 
 ### Formatting and highlighting
 - **Formats** JSON, SQL, XML, HTML, CSS/SCSS/LESS, JavaScript/TypeScript, YAML, Markdown and GraphQL.
@@ -36,12 +36,13 @@ On Linux, make the AppImage executable (`chmod +x DocView_*.AppImage`) and run i
 - **Escaped JSON**: when the pasted text is JSON stored inside a string (`"{\"id\":1}"` or a bare `{\"id\":1}`, as often found in logs), the inner JSON is shown and formatted, with a notice. Nested escaping is unwrapped up to 5 levels.
 - Formatting can be turned off (`F`) to see the text exactly as it was. If something cannot be formatted, the original is shown with a note explaining why.
 - **Convert** (toolbar menu, shown for JSON, YAML and XML): JSON → YAML, YAML → JSON, XML → JSON, JSON → XML (only offered when the JSON maps cleanly to XML), minify JSON and minify XML. The result is shown as new content – it can be copied, searched and browsed in the tree – with a notice "Converted from JSON – **Undo**". In JSON, XML attributes are `@name` keys and element text next to attributes is `#text`; values are kept as text.
-- **Copy with colours** (`Ctrl+Shift+Alt+C` or the **Copy colours** button) puts the highlighted code on the clipboard as HTML with inline styles (plus plain text), so pasting into Outlook, Teams or Word keeps the colours. It always uses the light theme colours and a monospace font, so the result is readable on a white page or e-mail.
+- **Copy with colours** (`Ctrl+Shift+Alt+C` or **Copy colours** in the menu next to **Copy**) puts the highlighted code on the clipboard as HTML with inline styles (plus plain text), so pasting into Outlook, Teams or Word keeps the colours. It always uses the light theme colours and a monospace font, so the result is readable on a white page or e-mail.
 - Line numbers, word wrap, zoom and light/dark theme (or follow the system).
+- **Font size** of the code from 10 to 24 px (default 13.5 px), changed in steps of 1 px with `Ctrl +` / `Ctrl -` and reset with `Ctrl 0`. The line height follows the size, and the tree and table text is 0.5 px smaller than the code. Buttons, tabs and menus keep their size.
 - Search with highlighting of all matches (`Ctrl+F`, `F3` / `Shift+F3`).
 
 ### Side panel: JSON and XML tree, CSV table, Markdown preview
-For JSON, XML, CSV/TSV and Markdown a panel opens to the right of the code (toggle it with the **Tree**/**Table**/**Preview** button or `T`; drag the divider to resize it).
+For JSON, XML, CSV/TSV and Markdown a panel opens to the right of the code (toggle it with the **Tree**/**Table**/**Preview** button or `T`; drag the gap between code and panel to resize it). In a narrow window (below about 620 px) the panel is hidden and the button opens it as a sheet over the code instead.
 
 - **JSON tree** – expand and collapse objects and arrays, see their size (`{3 keys}`, `[12 items]`) and values coloured by type.
 - String values that contain a JSON object or array are marked `JSON string` and can be expanded like the object/array itself; paths continue inside them (`$.payload.id`). **Copy value** on the string still copies the raw string.
@@ -63,13 +64,15 @@ For JSON, XML, CSV/TSV and Markdown a panel opens to the right of the code (togg
 ### Tabs
 - Several documents can be open at once. Files (open, drag & drop, *Open with*) and the clipboard shortcut open in a new tab; this can be changed in the settings to replace the current tab instead. Pasting with `Ctrl+V` and picking from the history replace the current tab.
 - `Ctrl+T` new empty tab, `Ctrl+W` close (the last tab is emptied), `Ctrl+Tab` / `Ctrl+Shift+Tab` switch, middle-click closes a tab.
-- Each tab keeps its own content, language choice, scroll position and side panel state (open/closed and filter). The tab bar appears when more than one tab is open; a tab is titled by its file name or the start of the snippet.
+- Each tab keeps its own content, language choice, scroll position and side panel state (open/closed and filter). The tabs sit in the title bar and are always shown, also with one tab; a tab is titled by its file name or the start of the snippet and has a coloured dot for its language.
+- When the tabs no longer fit, the tab strip scrolls (mouse wheel or drag), and a button with the number of tabs opens a list of all tabs.
 - Open tabs are not restored after a restart – the history covers that.
 
 ### Compare
 - **Compare** button or `Ctrl+D`: the current content becomes the left side; paste (`Ctrl+V`), open/drop a file or pick from the history for the right side.
 - Side-by-side view with a line diff and changed characters highlighted, synchronized scrolling and the number of changes. `F7` / `Shift+F7` (or the arrow buttons) go to the next / previous change, `Esc` leaves compare mode.
 - Both sides are formatted with the current settings first (JSON also with sorted keys), so formatting and key order do not show up as changes. Tick **Raw text** to compare the texts exactly as they are. Pasting again while comparing replaces the right side.
+- **Ignore whitespace**: lines that only differ in spaces or tabs count as the same, and whitespace is not marked inside changed lines.
 
 ### History
 - The last 30 contents (pasted text, clipboard via the shortcut, opened files) are kept with time, detected language and a short preview. Showing the same content again moves it to the top instead of adding a duplicate.
@@ -83,7 +86,7 @@ For JSON, XML, CSV/TSV and Markdown a panel opens to the right of the code (togg
 - **Open in external editor** (`Ctrl+E`) – Notepad++ if installed, otherwise Notepad on Windows or the default app on Linux. A different editor can be set in the settings.
 
 ### Automatic updates
-DocView checks for a new version shortly after start and then every 6 hours. When one is found, a bar offers **Update and restart**; the update is downloaded, its signature verified and installed. The automatic check can be turned off in the settings, and you can check manually from the settings or the tray menu.
+DocView checks for a new version shortly after start and then every 6 hours. When one is found, a bar under the toolbar offers **Update and restart**; the update is downloaded, its signature verified and installed. The automatic check can be turned off in the settings, and you can check manually from the settings or the tray menu.
 
 On Linux only the AppImage updates itself; a `.deb` installation is updated by installing the new `.deb`.
 
@@ -104,28 +107,30 @@ On Linux only the AppImage updates itself; a `.deb` installation is updated by i
 | `Ctrl+Shift+C` | Copy the shown (formatted) text |
 | `Ctrl+Alt+Shift+C` | Copy with colours (for Outlook, Teams, Word) |
 | `Ctrl+E` | Open in external editor |
-| `Ctrl +` / `Ctrl -` / `Ctrl 0` | Zoom in / out / reset |
+| `Ctrl +` / `Ctrl -` / `Ctrl 0` | Code font size up / down 1 px, reset to 13.5 px |
 | `F` / `W` / `L` | Toggle formatting / word wrap / line numbers |
 | `T` | Toggle the side panel (tree / table / preview) |
 | `D` | Switch between decoded text (JWT, Base64, URL encoding) and the original |
 | `Ctrl+,` | Settings |
 | `Esc` | Close a menu, search or compare mode, otherwise hide the window |
 
-All shortcuts except `Esc` can be changed under **Settings → Shortcuts**: click the shortcut and press the new keys (`Esc` cancels). A key that is already used by another action is moved, and the other action is left without a shortcut. Each shortcut can be reset (↺) or removed (✕), and **Reset all to defaults** restores them all. Tooltips and hints in the app show the current keys. Shortcuts without `Ctrl`, `Alt` or `Win` (e.g. `F`, `T`) do not work while typing in a text field such as the search box. `Ctrl+V` always pastes; a different paste shortcut works in addition to it.
+All shortcuts except `Esc` can be changed under **Settings → Shortcuts**: click the shortcut and press the new keys (`Esc` cancels). A key that is already used by another action is moved, and the other action is left without a shortcut. Each shortcut can be reset (↶) or removed (✕), and **Reset all to defaults** restores them all. Tooltips and hints in the app show the current keys. Shortcuts without `Ctrl`, `Alt` or `Win` (e.g. `F`, `T`) do not work while typing in a text field such as the search box. `Ctrl+V` always pastes; a different paste shortcut works in addition to it.
 
 The default global shortcut is deliberately not `Ctrl+Shift+V` (already "paste as plain text" in browsers, Office, Teams and others), and `Ctrl+Alt` combinations are avoided because `Ctrl+Alt` acts as `AltGr` on many European keyboard layouts.
 
 ## Settings
 
-Open them with the ⚙ button, `Ctrl+,` or the tray menu. They are grouped in pages:
+Open them with the settings button (sliders icon, right end of the toolbar), `Ctrl+,` or the tray menu. They are grouped in pages:
 
-- **General** – theme, font size, new tab or current tab for files and the clipboard shortcut, external editor, start at login.
+- **General** – theme, font size (10–24 px; a larger or smaller size saved by an older version is moved into this range), **Use system title bar**, new tab or current tab for files and the clipboard shortcut, external editor, start at login.
 - **Formatting** – indentation, SQL dialect and keyword case.
 - **Shortcuts** – the global shortcut and all keyboard shortcuts in the app, recorded by pressing them (see [Keyboard shortcuts](#keyboard-shortcuts)). The global shortcut needs `Ctrl`, `Alt` or `Win`/`Super`, or a function key.
 - **History** – keep a history of recent contents, **Clear history**.
 - **Updates** – automatic update check, the version and **Check for updates now**.
 
 Formatting, word wrap, line numbers, the side panel, the CSV header toggle and inlining of SQL parameters remember their state.
+
+**Use system title bar**: DocView draws its own title bar with the tabs, the window buttons and an area to drag the window (double-click it to maximise or restore). Turn this setting on to use the normal window frame of Windows or your Linux desktop instead; the tabs then become the first row inside the window. It is on by default on tiling window managers on Linux (i3, Sway, Hyprland and others) and off everywhere else.
 
 Settings are stored in `%APPDATA%\io.github.docview\settings.json` on Windows and `~/.config/io.github.docview/settings.json` on Linux; the history is in `history.json` in the same folder.
 
@@ -158,6 +163,8 @@ npm test                # unit tests (Vitest)
 npm run tauri build     # build installers for the current OS
 ```
 
+The fonts (Figtree, JetBrains Mono) and the Lucide icons are npm packages bundled into the app, so nothing is loaded from the internet at runtime.
+
 `npm run dev` starts only the frontend in a normal browser at http://localhost:1420, which is handy when working on the viewer (native features like the tray and global shortcut are then unavailable).
 
 ### Project structure
@@ -184,7 +191,11 @@ src/                 Frontend (TypeScript + Vite)
   tabs.ts            Tab list logic
   compare.ts         Line and character diff for Compare
   compareView.ts     Side-by-side compare view
-  dropdown.ts        Drop-down menus (History, Convert)
+  dropdown.ts        Drop-down menus (History, Convert, language, tabs, "…", View, Copy)
+  layout.ts          Responsive toolbar steps and side panel overlay
+  fontScale.ts       Code font size range, line height and gutter
+  icons.ts           Lucide icons (bundled)
+  tooltip.ts         Tooltips with the current shortcut
   decode.ts          JWT, Base64 and URL decoding
   sqlParams.ts       sp_executesql / EF Core parameters -> inlined SQL
   markdown.ts        Markdown preview (marked + DOMPurify)

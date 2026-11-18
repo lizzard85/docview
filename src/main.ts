@@ -1,3 +1,11 @@
+// Fonts are bundled (no requests to the internet at runtime).
+import "@fontsource/figtree/400.css";
+import "@fontsource/figtree/500.css";
+import "@fontsource/figtree/600.css";
+import "@fontsource/figtree/700.css";
+import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource/jetbrains-mono/600.css";
+import "@fontsource/jetbrains-mono/700.css";
 import * as backend from "./backend";
 import type { Content, Settings } from "./backend";
 import { decodeText, ENCODING_LABEL, jwtExpired, jwtSummary, type Decoded } from "./decode";
@@ -12,7 +20,7 @@ import { convert, conversionsFor, jsonToXmlProblem, type Conversion } from "./co
 import { Dropdown, type DropdownItem } from "./dropdown";
 import { clampFontSize, gutterChars, lineHeight, panelFontSize, panelRowHeight, zoomFontSize } from "./fontScale";
 import { icon, renderIcons } from "./icons";
-import { hasMoreMenu, layoutForLevel, MAX_TOOLBAR_LEVEL, panelIsOverlay, toolbarLayout, toolbarLevel, type ToolbarLayout } from "./layout";
+import { clampPanelWidth, hasMoreMenu, layoutForLevel, MAX_TOOLBAR_LEVEL, panelIsOverlay, toolbarLayout, toolbarLevel, type ToolbarLayout } from "./layout";
 import { Tooltips } from "./tooltip";
 import { jsonToTree } from "./jsonTree";
 import { LANGUAGES, LANG_BY_ID, langDot, languageFromFilename } from "./languages";
@@ -237,7 +245,7 @@ async function init() {
   });
   await backend.onFileDrop((path) => void openPath(path), (over) => {
     document.body.classList.toggle("drag-over", over);
-    $("drop-overlay").hidden = !(over && state.content && !compare);
+    $("drop-overlay").hidden = !over || !!compare;
   });
   await loadPending();
   const scError = await backend.shortcutStatus();
@@ -713,6 +721,7 @@ function applyFrame() {
 function applyLayout() {
   const w = window.innerWidth;
   fitToolbar();
+  fitPanelWidth();
   const wasOverlay = overlay;
   overlay = panelIsOverlay(w);
   if (overlay !== wasOverlay) {
@@ -720,6 +729,11 @@ function applyLayout() {
     updatePanel();
   }
   updateTabOverflow();
+}
+
+/** The stored panel width, limited so the code keeps its minimum width. */
+function fitPanelWidth() {
+  panel.setWidth(clampPanelWidth(settings.panelWidth, $("workspace").clientWidth || window.innerWidth - 32));
 }
 
 /** Collapses the toolbar for the window width (see layout.ts). */
@@ -1140,7 +1154,7 @@ function applySettings() {
   root.style.setProperty("--panel-size", `${panelFontSize(size)}px`);
   root.style.setProperty("--panel-row-h", `${panelRowHeight(size)}px`);
   applyFrame();
-  panel.setWidth(settings.panelWidth);
+  fitPanelWidth();
   panel.setSync(settings.panelSync);
   panel.setCsvHeader(settings.csvHeader);
   document.body.classList.toggle("wrap", settings.wrap);
