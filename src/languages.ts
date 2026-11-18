@@ -68,3 +68,30 @@ export function languageFromFilename(name: string): string | undefined {
   if (dot < 0) return undefined;
   return EXTENSIONS[lower.slice(dot + 1)];
 }
+
+/** Colour of the language dot (tabs, History, language menu) as a theme variable. */
+const DOTS: Record<string, string> = {
+  json: "--color-accent-500",
+  csv: "--color-accent-2-500",
+  xml: "--color-accent-700",
+  html: "--color-accent-400",
+  yaml: "--color-accent-2-700",
+  markdown: "--color-accent-2-400",
+  sql: "--color-accent-2-600",
+  csharp: "--color-accent-800",
+  python: "--color-accent-2-800",
+  javascript: "--color-accent-300",
+  typescript: "--color-accent-600",
+  css: "--color-accent-2-300",
+  scss: "--color-accent-2-300",
+  less: "--color-accent-2-300",
+  bash: "--color-neutral-700",
+  powershell: "--color-neutral-600",
+  ini: "--color-neutral-500",
+  diff: "--color-accent-2-900",
+  plaintext: "--color-neutral-300",
+};
+
+export function langDot(id: string): string {
+  return `var(${DOTS[id] ?? "--color-neutral-500"})`;
+}
